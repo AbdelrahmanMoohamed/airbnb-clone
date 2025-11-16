@@ -1,1 +1,45 @@
-/* You can add global styles to this file, and also import other style files */
+@import "bootstrap/dist/css/bootstrap.min.css";
+@import url("https://fonts.googleapis.com/css2?family=Elms+Sans:ital,wght@0,100..900;1,100..900&family=Lora:ital,wght@0,400..700;1,400..700&display=swap");
+
+html,
+body {
+    margin: 0;
+    height: 100%;
+}
+
+* {
+    font-family: 'Elms Sans', sans-serif !important;
+}
+
+app-root {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+router-outlet {
+    flex: 1;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: -100px;
+    left: -100px;
+    right: -100px;
+    bottom: -100px;
+    background:
+        linear-gradient(135deg, rgba(65, 35, 11, 0.774), rgba(94, 87, 87, 0.8)),
+        url("../public/beige.jpg") center/cover no-repeat;
+    background-blend-mode: soft-light;
+    filter: blur(30px) brightness(0.5);
+    z-index: -1;
+}

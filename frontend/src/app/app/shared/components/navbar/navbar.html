@@ -1,1 +1,47 @@
-<p>navbar works!</p>
+<nav class="navbar navbar-expand-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+            <img src="logo.png" alt="logo" class="me-3">
+            LUXUY
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+            aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul class="navbar-nav me-auto"> <!-- Left items -->
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/listings">Listings</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Contact Us</a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav ms-auto"> <!-- Right items -->
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Start hosting</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <i class="bi bi-list"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end"> <!-- Important! -->
+                        <li><a class="dropdown-item" href="#">Translate</a></li>
+                        <li><a class="dropdown-item" href="#">Log In</a></li>
+                        <li><a class="dropdown-item" href="#">Sign Up</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</nav>

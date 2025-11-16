@@ -1,0 +1,27 @@
+.navbar {
+    margin: 5px 25px;
+}
+
+.navbar-brand {
+    margin-right: 50px;
+    font-size: 32px;
+    color: rgb(250, 240, 187);
+}
+
+img{
+     height: 34px;
+     margin-bottom: 4px ;
+}
+
+.nav-item {
+    font-size: 20px;
+    margin: 0px 10px;
+}
+
+.nav-link {
+    color: rgb(250, 240, 187);
+}
+
+.navbar .dropdown-toggle::after {
+    display: none;
+}

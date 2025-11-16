@@ -1,3 +1,10 @@
+using BLL.Common;
+using DAL.Common;
+using DAL.Database;
+using DAL.Entities;
+using DAL.Enum;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 using BLL.AutoMapper;
 using BLL.Common;
@@ -34,6 +41,7 @@ namespace PL
             builder.Services.AddBuissinesInBLL();
             builder.Services.AddBuissinesInDAL();
             builder.Services.AddAutoMapper(cfg => cfg.AddProfile<ListingProfile>());//AutoMapperForListing BLL
+
 
 
 
