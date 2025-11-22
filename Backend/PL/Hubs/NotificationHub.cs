@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using System.Collections.Concurrent;
-
+﻿
 namespace PL.Hubs
 {
     public class NotificationHub : Hub 

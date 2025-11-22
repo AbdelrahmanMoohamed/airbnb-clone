@@ -1,10 +1,3 @@
-using BLL.Services.Abstractions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-
 namespace BLL.Services.Impelementation
 {
  public class TokenService : ITokenService
@@ -24,12 +17,15 @@ namespace BLL.Services.Impelementation
  }
  var issuer = _config["Jwt:Issuer"];
  var audience = _config["Jwt:Audience"];
- var expireMinutes = int.Parse(_config["Jwt:ExpireMinutes"] ?? "60");
+ var expireMinutes = int.TryParse(_config["Jwt:ExpireMinutes"], out var m) ? m :1440; // default1 day
+ var expiresAt = DateTime.UtcNow.AddMinutes(expireMinutes);
 
  var claims = new List<Claim>
  {
  new Claim("sub", userId.ToString()),
- new Claim(ClaimTypes.Role, role)
+ // Include both standard role claim and 'role' so RoleClaimType mapping works regardless of configuration
+ new Claim(ClaimTypes.Role, role),
+ new Claim("role", role)
  };
 
  if (orderId.HasValue) claims.Add(new Claim("orderId", orderId.Value.ToString()));
@@ -37,7 +33,7 @@ namespace BLL.Services.Impelementation
 
  var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
  var cred = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
- var token = new JwtSecurityToken(issuer, audience, claims, expires: DateTime.UtcNow.AddMinutes(expireMinutes), signingCredentials: cred);
+ var token = new JwtSecurityToken(issuer, audience, claims, expires: expiresAt, signingCredentials: cred);
  return new JwtSecurityTokenHandler().WriteToken(token);
  }
  }

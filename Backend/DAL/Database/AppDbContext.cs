@@ -1,4 +1,5 @@
-﻿namespace DAL.Database
+﻿
+namespace DAL.Database
 {
     public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     {

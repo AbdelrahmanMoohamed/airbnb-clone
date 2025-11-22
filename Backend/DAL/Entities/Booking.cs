@@ -45,7 +45,7 @@
         }
 
         // Update existing booking
-        internal void Update(
+        public void Update(
             DateTime checkInDate,
             DateTime checkOutDate,
             decimal totalPrice,

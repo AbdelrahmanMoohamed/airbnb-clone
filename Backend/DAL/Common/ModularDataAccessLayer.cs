@@ -1,6 +1,4 @@
-﻿using DAL.Repo.Abstraction;
-using DAL.Repo.Implementation;
-using Microsoft.Extensions.DependencyInjection;
+﻿
 
 namespace DAL.Common
 {

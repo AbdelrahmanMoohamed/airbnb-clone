@@ -15,8 +15,8 @@
 
         private Payment() { }
 
-        // CreateImage a payment
-        internal static Payment Create(
+        // Create a payment
+        public static Payment Create(
             int bookingId,
             decimal amount,
             string paymentMethod,
@@ -36,7 +36,7 @@
         }
 
         // Update existing payment
-        internal void Update(
+        public void Update(
             decimal amount,
             string paymentMethod,
             string transactionId,

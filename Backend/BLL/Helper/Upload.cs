@@ -1,4 +1,5 @@
-﻿namespace BLL.Helper
+﻿
+namespace BLL.Helper
 {
     public static class Upload
     {

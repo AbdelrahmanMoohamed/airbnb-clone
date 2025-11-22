@@ -1,12 +1,10 @@
-﻿using Microsoft.Extensions.Http;
-
-namespace BLL.Common
+﻿namespace BLL.Common
 {
     public static class ModularBLL
     {
         public static IServiceCollection AddBuissinesInBLL(this IServiceCollection services)
         {
-            //notifiaction
+            // notification
             services.AddScoped<INotificationService, NotificationService>();
             // messages
             services.AddScoped<IMessageService, MessageService>();
@@ -22,6 +20,10 @@ namespace BLL.Common
 
             services.AddScoped<IMapService, MapService>();
             services.AddHttpClient<IGeocodingService, NominatimGeocodingService>();
+            // bookings & payments
+            services.AddScoped<IBookingService, BookingService>();
+            services.AddScoped<IPaymentService, PaymentService>();
+
             services.AddAutoMapper(x => x.AddProfile(new DomainProfile()));
             // Token service
             services.AddSingleton<ITokenService, TokenService>();

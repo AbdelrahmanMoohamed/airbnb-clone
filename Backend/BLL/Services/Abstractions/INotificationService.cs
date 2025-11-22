@@ -1,8 +1,5 @@
 ﻿
 
-
-using BLL.ModelVM.Response;
-
 namespace BLL.Services.Abstractions
 {
     public interface INotificationService 

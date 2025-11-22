@@ -38,5 +38,22 @@
         {
             _context.Dispose();
         }
+
+        // New: transaction helper
+        public async Task ExecuteInTransactionAsync(Func<Task> operation)
+        {
+            using var tx = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                await operation();
+                await _context.SaveChangesAsync();
+                await tx.CommitAsync();
+            }
+            catch
+            {
+                await tx.RollbackAsync();
+                throw;
+            }
+        }
     }
 }
