@@ -1,4 +1,8 @@
-﻿namespace DAL.Repo.Implementation
+﻿using DAL.Entities;
+using DAL.Repo.Abstraction;
+using Microsoft.EntityFrameworkCore;
+
+namespace DAL.Repo.Implementation
 {
     public class ReviewRepository : GenericRepository<Review>, IReviewRepository
     {

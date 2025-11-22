@@ -25,3 +25,24 @@ img{
 .navbar .dropdown-toggle::after {
     display: none;
 }
+
+/* Notification dropdown styles (kept separate and additive) */
+.notification-bell{ position: relative; display: inline-block; }
+.bell-btn{ background: transparent; border: none; font-size: 20px; cursor: pointer; position: relative; }
+.badge{ background: #dc3545; color: #fff; border-radius: 12px; padding: 2px 7px; font-size: 12px; position: absolute; top: -6px; right: -8px; }
+
+.notification-bell .dropdown{ position: absolute; right: 0; top: 36px; width: 320px; max-height: 420px; overflow-y: auto; box-shadow: 0 6px 18px rgba(0,0,0,0.12); border-radius: 8px; background: rgba(255,255,255,0.98); z-index: 1000; padding: 8px; border: 1px solid rgba(0,0,0,0.06); color: #222; }
+.notification-bell .dropdown .item{ padding: 10px; border-bottom: 1px solid rgba(0,0,0,0.06); background: transparent; cursor: pointer; }
+.notification-bell .dropdown .item:last-child{ border-bottom: none; }
+.notification-bell .dropdown .item.unread{ font-weight: 600; }
+.notification-bell .dropdown .item:hover{ background: rgba(0,0,0,0.02); }
+.notification-bell .item-content .title-row{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.notification-bell .title{ font-size: 14px; }
+.notification-bell .body{ margin: 6px 0 0 0; font-size: 13px; color: #444; }
+.notification-bell .time{ color: #888; font-size: 11px; }
+.notification-bell .empty{ padding: 18px; text-align: center; color: #666; }
+.notification-bell .mark-all{ display:block; width: calc(100% - 12px); margin: 8px auto 0; padding: 8px; border: none; background: transparent; color: #007bff; cursor: pointer; }
+.notification-bell .mark-all:hover{ text-decoration: underline; }
+
+/* temporary highlight for newly arrived notifications */
+.notification-bell .dropdown .item.just-arrived{ box-shadow: inset 0 0 0 2px rgba(220,53,69,0.08); background: linear-gradient(90deg, rgba(220,53,69,0.04), rgba(255,255,255,0)); transition: background 0.4s ease; }

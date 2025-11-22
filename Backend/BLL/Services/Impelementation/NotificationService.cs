@@ -6,6 +6,7 @@ namespace BLL.Services.Impelementation
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
+
         public NotificationService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
@@ -17,9 +18,9 @@ namespace BLL.Services.Impelementation
         {
             try
             {
-               
+
                 var entity = _mapper.Map<Notification>(model);
-                
+
 
                 var result = await _unitOfWork.Notifications.CreateAsync(entity);
                 await _unitOfWork.SaveChangesAsync();
@@ -152,6 +153,21 @@ namespace BLL.Services.Impelementation
             catch (Exception ex)
             {
                 return new Response<bool>(false, ex.Message, true);
+            }
+        }
+
+        // Get all notifications (admin)
+        public async Task<Response<List<GetNotificationVM>>> GetAllAsync()
+        {
+            try
+            {
+                var result = await _unitOfWork.Notifications.GetAllAsync();
+                var mapped = _mapper.Map<List<GetNotificationVM>>(result);
+                return new Response<List<GetNotificationVM>>(mapped, null, false);
+            }
+            catch (Exception ex)
+            {
+                return new Response<List<GetNotificationVM>>(null, ex.Message, true);
             }
         }
     }

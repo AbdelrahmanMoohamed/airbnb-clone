@@ -1,6 +1,5 @@
-﻿
-
-using DAL.Repo.Implementation;
+﻿using DAL.Repo.Implementation;
+using DAL.Repo.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DAL.Common
@@ -22,6 +21,7 @@ namespace DAL.Common
             services.AddScoped<IListingImageRepository, ListingImageRepository>();
             services.AddScoped<IAmenityRepository, AmenityRepository>();
             services.AddScoped<IKeywordRepository, KeywordRepository>();
+            services.AddScoped<IAdminRepository, AdminRepository>();
             return services;
         }
     }

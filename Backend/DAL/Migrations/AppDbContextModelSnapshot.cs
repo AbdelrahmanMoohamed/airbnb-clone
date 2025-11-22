@@ -194,20 +194,16 @@ namespace DAL.Migrations
                     b.Property<decimal>("PricePerNight")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("PromotionEndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("ReviewNotes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ReviewedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ReviewedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("SubmittedForReviewAt")
-                        .HasColumnType("datetime2");
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.Property<string>("Tags")
                         .HasColumnType("nvarchar(max)");
@@ -292,6 +288,11 @@ namespace DAL.Migrations
 
                     b.Property<int>("ListingId")
                         .HasColumnType("int");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(150)

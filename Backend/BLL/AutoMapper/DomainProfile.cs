@@ -1,4 +1,9 @@
-﻿namespace BLL.AutoMapper
+﻿using AutoMapper;
+using BLL.ModelVM.Notification;
+using BLL.ModelVM.Message;
+using DAL.Entities;
+
+namespace BLL.AutoMapper
 {
     public class DomainProfile : Profile
     {
@@ -28,6 +33,10 @@
                 .ForMember(d => d.NewImages, o => o.Ignore())
                 .ForMember(d => d.RemoveImageIds, o => o.Ignore());
         }
+            // messages
+            CreateMap<Message, GetMessageVM>().ReverseMap();
+            CreateMap<Message, CreateMessageVM>().ReverseMap();
+        } 
 
     }
 }

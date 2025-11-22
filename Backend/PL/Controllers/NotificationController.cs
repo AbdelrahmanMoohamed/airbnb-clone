@@ -1,27 +1,42 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using PL.Hubs;
+using System.Runtime.InteropServices;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PL.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-   // [Authorize]   // Require JWT
+    [Authorize]
     public class NotificationController : ControllerBase
     {
         private readonly INotificationService _notificationService;
+        private readonly IHubContext<NotificationHub> _hub;
 
-        public NotificationController(INotificationService notificationService)
+
+        public NotificationController(INotificationService notificationService, IHubContext<NotificationHub> hub)
         {
             _notificationService = notificationService;
+            _hub = hub;
         }
 
         // Helper to read user id from token
         private Guid GetUserId()
         {
-            //return Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-            return Guid.Parse("5ec2b472-1e94-4370-d58d-08de23d16cc5");
+            var sub = User.FindFirst("sub")?.Value;
+            if (!string.IsNullOrWhiteSpace(sub) && Guid.TryParse(sub, out var uid)) return uid;
+            // fallback for dev
+            return Guid.Parse("70188af8-4575-49d8-5822-08de25168bf9");
         }
-
+        //--------------------------- GET ALL ------------------------------
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var result = await _notificationService.GetAllAsync();
+            return Ok(result);
+        }
         // --------------------------- CREATE -------------------------------
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateNotificationVM model)
@@ -31,6 +46,22 @@ namespace PL.Controllers
 
             if (result.IsHaveErrorOrNo )
                 return BadRequest(result);
+
+            //send the real time notification by signalR
+            var connectionId = NotificationHub.GetConnectionId(result.result.UserId.ToString());
+            if (!string.IsNullOrEmpty(connectionId))
+            {
+                await _hub.Clients.Client(connectionId)
+                          .SendAsync("ReceiveNotification", new
+                          {
+                              Id = result.result.Id,
+                              UserId = result.result.UserId,
+                              Title = result.result.Title,
+                              Body = result.result.Body,
+                              CreatedAt = result.result.CreatedAt,
+                              IsRead = result.result.IsRead,
+                          });
+            }
 
             return Ok(result);
         }
@@ -104,7 +135,7 @@ namespace PL.Controllers
 
         // --------------------------- SEND PENDING (Cron / Background Job) --
         [HttpPost("send-pending")]
-        [AllowAnonymous] 
+        [AllowAnonymous]
         public async Task<IActionResult> SendPending()
         {
             var result = await _notificationService.SendPendingNotificationsAsync();
