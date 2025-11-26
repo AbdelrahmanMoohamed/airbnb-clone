@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angular/forms';
+import {  FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ListingService } from '../../../core/services/listings/listing.service';
 import { ListingCreateVM, ListingUpdateVM, ListingDetailVM } from '../../../core/models/listing.model';
@@ -17,6 +17,7 @@ export class ListingsCreateEdit {
 
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private listingService = inject(ListingService);
 
   form!: FormGroup;
