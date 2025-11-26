@@ -134,6 +134,33 @@
         }
     }
 
+    public async Task<Response<List<ListingOverviewVM>>> GetAllForAdminAsync(
+    int page,
+    int pageSize,
+    CancellationToken ct = default)
+    {
+        try
+        {
+            // No filter (get all listings), include deleted for admin
+            var (listings, total) = await unitOfWork.Listings.GetAdminViewAsync(
+                filter: null,
+                page: page,
+                pageSize: pageSize,
+                includeDeleted: true,
+                ct: ct
+            );
+
+            var vms = mapper.Map<List<ListingOverviewVM>>(listings);
+
+            return new Response<List<ListingOverviewVM>>(vms, null, false);
+        }
+        catch (Exception ex)
+        {
+            return new Response<List<ListingOverviewVM>>(new List<ListingOverviewVM>(), ex.Message, true);
+        }
+    }
+
+
     // Updates an existing listing with new data, images, and amenities.
     // Can add new images and remove existing ones.
     // If listing was previously approved, it's marked for re-review.
@@ -217,7 +244,7 @@
                 updatedListing,
                 newMainImageUrl: null,
                 newAdditionalImages: newImageUrls,
-                imagesToRemove: vm.RemoveImageIds.ToList() , // Already handled above
+                imagesToRemove: vm.RemoveImageIds , // Already handled above
                 keywordNames: vm.Amenities,
                 ct: ct
             );
