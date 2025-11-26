@@ -1,9 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ListingsService } from '../services/listings';
-import { Listing } from '../models/listing.model';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-listings-create-edit',
@@ -12,87 +10,66 @@ import { Listing } from '../models/listing.model';
   templateUrl: './listings-create-edit.html',
   styleUrls: ['./listings-create-edit.css']
 })
-export class ListingsCreateEdit implements OnInit {
+export class ListingsCreateEdit {
+
   private fb = inject(FormBuilder);
-  private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private service = inject(ListingsService);
+  private route = inject(ActivatedRoute);
+
+  imagePreview: string | null = null;
 
   form = this.fb.group({
     title: ['', Validators.required],
     location: ['', Validators.required],
-    price: [1, [Validators.required, Validators.min(1)]],
+    price: [null, [Validators.required, Validators.min(1)]],
+    guests: [null, [Validators.required, Validators.min(1)]],
     description: [''],
-    rating: [0, [Validators.min(0), Validators.max(5)]],
-    dateAvailable: [''],
-    imageUrl: ['']
+    amenities: this.fb.control<string[]>([]),
+    imageUrl: [null as string | null]
   });
 
-  editMode = false;
-  currentId?: number;
-  imagePreview?: string;
+  isEdit = false;
 
   ngOnInit(): void {
-    // Check if we're in edit mode by looking for an ID param on the route
-    const idParam = this.route.snapshot.paramMap.get('id');
-    if (idParam) {
-      this.editMode = true;
-      this.currentId = +idParam;
-      // Load existing listing data into the form
-      const existing = this.service.getById(this.currentId);
-      if (existing) {
-        // Patch form values with existing listing data
-        this.form.patchValue(existing);
-        this.imagePreview = existing.imageUrl;
-      } else {
-        this.router.navigate(['/listings']);
-      }
-    }
+    const id = this.route.snapshot.paramMap.get('id');
+    this.isEdit = !!id;
   }
-
-  isInvalid(name: string): boolean {
-    const c = this.form.get(name);
-    return !!c && c.invalid && (c.touched );
-  }
-
-  // Handle image file input change to show preview 
-  onFileChange(e: Event) {
-    const input = e.target as HTMLInputElement;
-    const file = input.files?.[0];
+  onImageSelected(event: any) {
+    const file = event.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = () => {
-      const dataUrl = String(reader.result);
-      this.imagePreview = dataUrl;
-      this.form.patchValue({ imageUrl: dataUrl });
+      const url = reader.result as string;
+      this.imagePreview = url;
+      this.form.patchValue({ imageUrl: url });
     };
     reader.readAsDataURL(file);
   }
 
+  onAmenityAdd(input: HTMLInputElement) {
+    const value = input.value.trim();
+    if (!value) return;
+
+    const arr = this.form.value.amenities ?? [];
+    arr.push(value);
+
+    this.form.patchValue({ amenities: arr });
+
+    input.value = '';
+  }
+
+  removeAmenity(index: number) {
+    const arr = [...(this.form.value.amenities ?? [])];
+    arr.splice(index, 1);
+    this.form.patchValue({ amenities: arr });
+  }
+
   onSubmit() {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-    const payload = this.form.value as Omit<Listing, 'id'>;
+    if (this.form.invalid) return;
 
-    if (this.editMode && this.currentId) {
-      this.service.update(this.currentId, payload);
-    } else {
-      this.service.create(payload);
-    }
-    this.router.navigate(['/listings']);
-  }
+    console.log(this.form.value);
 
-  onDelete() {
-    if (!this.currentId) return;
-    if (!confirm('Delete this listing?')) return;
-    this.service.remove(this.currentId);
-    this.router.navigate(['/listings']);
-  }
-
-  goBack() {
     this.router.navigate(['/listings']);
   }
 }

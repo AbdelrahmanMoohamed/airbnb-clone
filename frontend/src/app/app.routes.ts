@@ -11,6 +11,7 @@ import { Dashboard } from './app/features/admin/dashboard';
 import { BookingComponent } from './app/features/booking/booking';
 import { PaymentComponent } from './app/features/payment/payment';
 import { ChatWindow } from './app/features/message/chat-window';
+import { Listings } from './app/features/listings-page/listings/listings';
 
 
 export const routes: Routes = [
@@ -18,9 +19,10 @@ export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
   { path: 'auth/login', component: Login },
   { path: 'auth/register', component: Register },
+  { path: 'listings', component: Listings},
   // { path: '**', redirectTo: 'home' },
   {
-    path: 'listings',
+    path: 'host',
     children: [
       { path: '', component: ListingsList },
       { path: 'create', component: ListingsCreateEdit, canActivate: [AuthGuard] },

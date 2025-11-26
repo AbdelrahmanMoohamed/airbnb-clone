@@ -1,7 +1,7 @@
 <div class="container py-4">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h2 class="mb-0">Property Listings</h2>
-    <a class="btn btn-success" [routerLink]="['/listings/create']">+ Add Listing</a>
+    <a class="btn btn-success" [routerLink]="['/host/create']">+ Add Listing</a>
   </div>
 
   <!-- Filters -->
@@ -94,8 +94,8 @@
           <div class="d-flex align-items-center justify-content-between pt-2">
             <span>★ {{ l.rating || 0 }}/5</span>
             <div class="btn-group">
-              <a class="btn btn-outline-secondary btn-sm" [routerLink]="['/listings/detail', l.id]">View</a>
-              <a class="btn btn-outline-primary btn-sm" [routerLink]="['/listings/edit', l.id]">Edit</a>
+              <a class="btn btn-outline-secondary btn-sm" [routerLink]="['/host/detail', l.id]">View</a>
+              <a class="btn btn-outline-primary btn-sm" [routerLink]="['/host/edit', l.id]">Edit</a>
               <button class="btn btn-outline-danger btn-sm" (click)="onDelete(l.id!)">Delete</button>
             </div>
           </div>
