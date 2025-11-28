@@ -181,7 +181,6 @@ export class ListingsCreateEdit {
   }
 
   private loadListing(id: number): void {
-    // Set loading quickly (no error) — this is before any async callback
     this.loading = true;
     this.listingService.getById(id).subscribe(
       (response) => {
@@ -202,6 +201,7 @@ export class ListingsCreateEdit {
           this.error = response.message || 'Failed to load listing';
           setTimeout(() => this.router.navigate(['/host']), 2000);
         }
+        this.loading = false;
       },
       (err) => {
         this.error = 'Error loading listing';
@@ -318,25 +318,18 @@ export class ListingsCreateEdit {
       this.listingService.update(this.currentId, updateVM).subscribe(
         (response) => {
           if (!response.isError) {
-            afterNextRender(() => {
-              this.successMessage = 'Listing updated successfully!';
-              this.loading = false;
-            });
+            this.successMessage = 'Listing updated successfully!';
             setTimeout(() => {
               this.router.navigate(['/host', this.currentId]);
             }, 1500);
           } else {
-            afterNextRender(() => {
-              this.error = response.message || 'Failed to update listing';
-              this.loading = false;
-            });
+            this.error = response.message || 'Failed to update listing';
           }
+          this.loading = false;
         },
         (err) => {
-          afterNextRender(() => {
-            this.error = err.error?.message || 'Error updating listing';
-            this.loading = false;
-          });
+          this.error = err.error?.message || 'Error updating listing';
+          this.loading = false;
         }
       );
     } else {
@@ -360,26 +353,19 @@ export class ListingsCreateEdit {
       this.listingService.create(createVM).subscribe(
         (response) => {
           if (!response.isError) {
-            afterNextRender(() => {
-              this.successMessage = 'Listing created successfully!';
-              this.loading = false;
-            });
+            this.successMessage = 'Listing created successfully!';
             setTimeout(() => {
                 // after create, redirect to listings overview
                 this.router.navigate(['/host']);
             }, 1500);
           } else {
-            afterNextRender(() => {
-              this.error = response.message || 'Failed to create listing';
-              this.loading = false;
-            });
+            this.error = response.message || 'Failed to create listing';
           }
+          this.loading = false;
         },
         (err) => {
-          afterNextRender(() => {
-            this.error = err.error?.message || 'Error creating listing';
-            this.loading = false;
-          });
+          this.error = err.error?.message || 'Error creating listing';
+          this.loading = false;
         }
       );
     }
@@ -393,25 +379,18 @@ export class ListingsCreateEdit {
     this.listingService.delete(this.currentId).subscribe(
       (response) => {
         if (!response.isError) {
-          afterNextRender(() => {
-            this.successMessage = 'Listing deleted successfully!';
-            this.loading = false;
-          });
+          this.successMessage = 'Listing deleted successfully!';
           setTimeout(() => {
             this.router.navigate(['/host']);
           }, 1500);
         } else {
-          afterNextRender(() => {
-            this.error = response.message || 'Failed to delete listing';
-            this.loading = false;
-          });
+          this.error = response.message || 'Failed to delete listing';
         }
+        this.loading = false;
       },
       (err) => {
-        afterNextRender(() => {
-          this.error = err.error?.message || 'Error deleting listing';
-          this.loading = false;
-        });
+        this.error = err.error?.message || 'Error deleting listing';
+        this.loading = false;
       }
     );
   }

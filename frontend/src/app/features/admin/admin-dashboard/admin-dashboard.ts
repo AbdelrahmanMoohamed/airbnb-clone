@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import {
@@ -21,6 +21,7 @@ import {
 })
 export class AdminDashboard implements OnInit {
   private adminService = inject(AdminService);
+  private cdr = inject(ChangeDetectorRef);
 
   // Main UI state
   activeTab: string = 'dashboard';
@@ -69,7 +70,8 @@ export class AdminDashboard implements OnInit {
     this.adminService.getStats().subscribe({
       next: (stats) => {
         this.stats = stats;
-        setTimeout(() => (this.isLoading = false), 0);
+        this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (error: any) => this.handleError('loading stats', error),
     });
@@ -77,7 +79,6 @@ export class AdminDashboard implements OnInit {
 
   onTabChange(tab: string): void {
     this.activeTab = tab;
-    this.isLoading = true;
 
     switch (tab) {
       case 'guests':
@@ -116,7 +117,8 @@ export class AdminDashboard implements OnInit {
     ).subscribe({
       next: (users) => {
         this.users = users;
-        setTimeout(() => (this.isLoading = false), 0);
+        this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (error: any) => this.handleError('loading users', error),
     });
@@ -145,7 +147,8 @@ export class AdminDashboard implements OnInit {
     ).subscribe({
       next: (listings) => {
         this.listings = listings;
-        setTimeout(() => (this.isLoading = false), 0);
+        this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (error: any) => this.handleError('loading listings', error),
     });
@@ -161,7 +164,8 @@ export class AdminDashboard implements OnInit {
     this.adminService.getListingsPendingApproval().subscribe({
       next: (listings) => {
         this.pendingListings = listings;
-        setTimeout(() => (this.isLoading = false), 0);
+        this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (error: any) => this.handleError('loading pending listings', error),
     });
@@ -240,7 +244,8 @@ export class AdminDashboard implements OnInit {
     this.adminService.getBookings(this.bookingsPage, this.bookingsPageSize).subscribe({
       next: (bookings) => {
         this.bookings = bookings;
-        setTimeout(() => (this.isLoading = false), 0);
+        this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (error: any) => this.handleError('loading bookings', error),
     });
@@ -252,7 +257,8 @@ export class AdminDashboard implements OnInit {
     this.adminService.getRevenueTrend(this.revenueMonths).subscribe({
       next: (revenue) => {
         this.revenueData = revenue;
-        setTimeout(() => (this.isLoading = false), 0);
+        this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (error: any) => this.handleError('loading revenue', error),
     });
@@ -267,28 +273,35 @@ export class AdminDashboard implements OnInit {
     this.isLoading = true;
     let completed = 0;
 
+    const checkComplete = () => {
+      if (++completed === 3) {
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      }
+    };
+
     this.adminService.getActivePromotions().subscribe({
       next: (promos) => {
         this.activePromotions = promos;
-        if (++completed === 3) setTimeout(() => (this.isLoading = false), 0);
+        checkComplete();
       },
-      error: (error: any) => { this.handleError('loading active promotions', error); if (++completed === 3) setTimeout(() => (this.isLoading = false), 0); },
+      error: (error: any) => { this.handleError('loading active promotions', error); checkComplete(); },
     });
 
     this.adminService.getPromotionsHistory().subscribe({
       next: (history) => {
         this.promotionHistory = history;
-        if (++completed === 3) setTimeout(() => (this.isLoading = false), 0);
+        checkComplete();
       },
-      error: (error: any) => { this.handleError('loading promotion history', error); if (++completed === 3) setTimeout(() => (this.isLoading = false), 0); },
+      error: (error: any) => { this.handleError('loading promotion history', error); checkComplete(); },
     });
 
     this.adminService.getExpiringPromotions(7).subscribe({
       next: (expiring) => {
         this.expiringPromotions = expiring;
-        if (++completed === 3) setTimeout(() => (this.isLoading = false), 0);
+        checkComplete();
       },
-      error: (error: any) => { this.handleError('loading expiring promotions', error); if (++completed === 3) setTimeout(() => (this.isLoading = false), 0); },
+      error: (error: any) => { this.handleError('loading expiring promotions', error); checkComplete(); },
     });
   }
 
@@ -302,6 +315,7 @@ export class AdminDashboard implements OnInit {
       this.errorMessage = `${context}: unknown error`;
     }
     this.isLoading = false;
+    this.cdr.markForCheck();
   }
 
   // ===== PAGINATION =====
