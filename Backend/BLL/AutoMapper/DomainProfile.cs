@@ -43,7 +43,7 @@ namespace BLL.AutoMapper
                                               .FirstOrDefault()))
                             .ForMember(d => d.Amenities, opt => opt.MapFrom(s =>
                                 s.Amenities.Select(k => k.Word).ToList()))
-                            .ForMember(d => d.Bedrooms, opt => opt.MapFrom(s => s.NumberOfRooms))
+                            .ForMember(d => d.  Bedrooms, opt => opt.MapFrom(s => s.NumberOfRooms))
                             .ForMember(d => d.Bathrooms, opt => opt.MapFrom(s => s.NumberOfBathrooms));
 
             CreateMap<ListingImage, ListingImageVM>()
