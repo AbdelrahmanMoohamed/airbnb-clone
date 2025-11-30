@@ -8,6 +8,9 @@
         public DateTime DateCreated { get; private set; }
         public string? FirebaseUid { get; private set; }
         public bool IsActive { get; private set; }
+        
+        // Onboarding flag - true when user first registers, false after completing onboarding
+        public bool IsFirstLogin { get; private set; } = true;
 
         // Relationships
         public ICollection<Listing> Listings { get; private set; } = new List<Listing>();
@@ -61,6 +64,13 @@
             if (isActive.HasValue)
                 IsActive = isActive.Value;
         }
+        
+        // Mark onboarding as completed
+        public void CompleteOnboarding()
+        {
+            IsFirstLogin = false;
+        }
+        
         internal void SetActive(bool active)
         {
             IsActive = active;

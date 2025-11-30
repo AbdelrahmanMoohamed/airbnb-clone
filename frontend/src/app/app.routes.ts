@@ -18,7 +18,9 @@ import { MapComponent } from './features/Map/map/map';
 import { Listings } from './features/listings-page/listings/listings';
 import { AdminDashboard } from './features/admin/admin-dashboard/admin-dashboard';
 
-import { FavoritePage } from './features/favorites/favorite-page/favorite-page'; 
+import { FavoritePage } from './features/favorites/favorite-page/favorite-page';
+import { OnboardingWalkthrough } from './features/onboarding/onboarding-walkthrough';
+
 export const routes: Routes = [
   { path: 'home', component: Home },
   { path: 'map', component: MapComponent },
@@ -26,6 +28,7 @@ export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
   { path: 'auth/login', component: Login },
   { path: 'auth/register', component: Register },
+  { path: 'onboarding', component: OnboardingWalkthrough, canActivate: [AuthGuard] },
   //{ path: 'listings/:id/edit', component: ListingsCreateEdit, canActivate: [AuthGuard] },
   { path: 'listings/:id', component: ListingsDetail },
   { path: 'listings', component: Listings},
@@ -53,7 +56,7 @@ export const routes: Routes = [
   { path: 'payment/:id', component: PaymentComponent, canActivate: [AuthGuard] },
   { path: 'messages', component: ChatWindow, canActivate: [AuthGuard] },
   { path: 'notifications', component: NotificationWindow, canActivate: [AuthGuard] },
-  //Favaorites 
+  //Favaorites
   { path: 'favorites', component: FavoritePage, canActivate: [AuthGuard] },
   // Optional:
   // { path: '**', redirectTo: 'home' },

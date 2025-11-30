@@ -33,7 +33,15 @@ export class Register {
 
     const payload = { fullName: this.fullname, email: this.email, password: this.password, userName: this.userName, firebaseUid: 'null' };
     this.auth.register(payload).subscribe({
-      next: () => this.router.navigate(['/']),
+      next: () => {
+        // New users always get onboarding on first registration
+        const isFirstLogin = localStorage.getItem('isFirstLogin') === 'true';
+        if (isFirstLogin) {
+          this.router.navigate(['/onboarding']);
+        } else {
+          this.router.navigate(['/']);
+        }
+      },
       error: err => {
         console.error('Register failed', err);
         this.errorMessage = err?.error?.message || 'Registration failed';

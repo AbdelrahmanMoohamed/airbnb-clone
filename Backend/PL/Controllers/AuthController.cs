@@ -36,6 +36,23 @@ namespace PL.Controllers
             if (!res.Success) return Unauthorized(res);
             return Ok(res);
         }
+        
+        /// <summary>
+        /// Mark the user's onboarding as completed
+        /// Called when user finishes the first-time walkthrough
+        /// </summary>
+        [Authorize]
+        [HttpPut("complete-onboarding")]
+        public async Task<IActionResult> CompleteOnboarding()
+        {
+            var userId = GetUserIdFromClaims();
+            if (userId == null) return Unauthorized();
+            
+            var res = await _identityService.CompleteOnboardingAsync(userId.Value);
+            if (!res.Success) return BadRequest(res);
+            
+            return Ok(res);
+        }
 
 
 
