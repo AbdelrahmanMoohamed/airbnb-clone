@@ -17,10 +17,10 @@ namespace BLL.Services.Impelementation
             _tokenService = tokenService;
         }
 
-        public async Task<Response<string>> RegisterAsync(string email, string password, string fullName, string userName, string? firebaseUid = null, string role = "Guest")
+        public async Task<Response<LoginResponseVM>> RegisterAsync(string email, string password, string fullName, string userName, string? firebaseUid = null, string role = "Guest")
         {
             var existing = await _userManager.FindByEmailAsync(email);
-            if (existing != null) return Response<string>.FailResponse("Email already registered");
+            if (existing != null) return Response<LoginResponseVM>.FailResponse("Email already registered");
 
             // sanitize provided username: keep only letters and digits
             string sanitized = null;
@@ -50,7 +50,7 @@ namespace BLL.Services.Impelementation
             user.UserName = candidate; // set before creation to satisfy Identity validators
 
             var result = await _userManager.CreateAsync(user, password);
-            if (!result.Succeeded) return Response<string>.FailResponse(string.Join(";", result.Errors.Select(e => e.Description)));
+            if (!result.Succeeded) return Response<LoginResponseVM>.FailResponse(string.Join(";", result.Errors.Select(e => e.Description)));
 
             if (!await _roleManager.RoleExistsAsync(role))
                 await _roleManager.CreateAsync(new IdentityRole<Guid>(role));
@@ -59,7 +59,23 @@ namespace BLL.Services.Impelementation
 
             // generate token for the new user
             var token = _tokenService.GenerateToken(user.Id, role);
-            return Response<string>.SuccessResponse(token);
+            
+            // New users always get onboarding (IsFirstLogin defaults to true)
+            var loginResponse = new LoginResponseVM
+            {
+                Token = token,
+                IsFirstLogin = user.IsFirstLogin,
+                User = new UserInfoVM
+                {
+                    Id = user.Id,
+                    Email = user.Email!,
+                    UserName = user.UserName!,
+                    FullName = user.FullName,
+                    Role = role
+                }
+            };
+            
+            return Response<LoginResponseVM>.SuccessResponse(loginResponse);
         }
 
         // toggle between host and guest roles
@@ -105,19 +121,35 @@ namespace BLL.Services.Impelementation
             return Response<string>.SuccessResponse(token);
         }
 
-        public async Task<Response<string>> LoginAsync(string email, string password)
+        public async Task<Response<LoginResponseVM>> LoginAsync(string email, string password)
         {
             var user = await _userManager.FindByEmailAsync(email);
-            if (user == null) return Response<string>.FailResponse("Invalid credentials");
+            if (user == null) return Response<LoginResponseVM>.FailResponse("Invalid credentials");
             var result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
-            if (!result.Succeeded) return Response<string>.FailResponse("Invalid credentials");
+            if (!result.Succeeded) return Response<LoginResponseVM>.FailResponse("Invalid credentials");
 
             // determine role
             var roles = await _userManager.GetRolesAsync(user);
             var role = roles.FirstOrDefault() ?? "Guest";
 
             var token = _tokenService.GenerateToken(user.Id, role);
-            return Response<string>.SuccessResponse(token);
+            
+            // Build login response with onboarding status
+            var loginResponse = new LoginResponseVM
+            {
+                Token = token,
+                IsFirstLogin = user.IsFirstLogin,
+                User = new UserInfoVM
+                {
+                    Id = user.Id,
+                    Email = user.Email!,
+                    UserName = user.UserName!,
+                    FullName = user.FullName,
+                    Role = role
+                }
+            };
+            
+            return Response<LoginResponseVM>.SuccessResponse(loginResponse);
         }
 
         public async Task<Response<bool>> SendPasswordResetAsync(string email)
@@ -181,6 +213,26 @@ namespace BLL.Services.Impelementation
             var user = await _userManager.FindByIdAsync(userId.ToString());
             if (user == null) return Response<bool>.FailResponse("User not found");
             // pretend verification succeeded
+            return Response<bool>.SuccessResponse(true);
+        }
+        
+        /// <summary>
+        /// Mark user's onboarding as completed
+        /// This is called after the user finishes the walkthrough guide
+        /// </summary>
+        public async Task<Response<bool>> CompleteOnboardingAsync(Guid userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null) return Response<bool>.FailResponse("User not found");
+            
+            // Mark onboarding as completed using the entity method
+            user.CompleteOnboarding();
+            
+            // Save changes to database
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded) 
+                return Response<bool>.FailResponse("Failed to update onboarding status");
+            
             return Response<bool>.SuccessResponse(true);
         }
 
