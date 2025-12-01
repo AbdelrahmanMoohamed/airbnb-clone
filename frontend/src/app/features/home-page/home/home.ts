@@ -27,6 +27,24 @@ export class Home implements OnInit {
     private cdr: ChangeDetectorRef
   ) {}
 
+  get topPriorityListings(): ListingOverviewVM[] {
+    return this.listings
+      .sort((a, b) => (b.priority || 0) - (a.priority || 0))
+      .slice(0, 6);
+  }
+
+  get cairoListings(): ListingOverviewVM[] {
+    return this.listings
+      .filter(l => l.destination?.toLowerCase().includes('cairo') || l.location?.toLowerCase().includes('cairo'))
+      .slice(0, 6);
+  }
+
+  get villaListings(): ListingOverviewVM[] {
+    return this.listings
+      .filter(l => l.type?.toLowerCase().includes('villa'))
+      .slice(0, 6);
+  }
+
   ngOnInit(): void {
     this.loadListings();
 
@@ -56,4 +74,3 @@ export class Home implements OnInit {
     });
   }
 }
-

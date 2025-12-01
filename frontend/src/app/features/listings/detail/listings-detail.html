@@ -35,7 +35,9 @@
         <div class="main-image">
           <img [src]="listing.images && listing.images.length > 0 
               ? listing.images[currentImageIndex].imageUrl 
-              : 'https://via.placeholder.com/800x600?text=No+Image'" [alt]="listing.title" />
+              : 'https://via.placeholder.com/800x600?text=No+Image'" 
+              [alt]="listing.title"
+              loading="lazy" />
 
           <button *ngIf="listing.images && listing.images.length > 1" class="nav-btn prev" (click)="prevImage()">
             <i class="bi bi-chevron-left"></i>
@@ -49,7 +51,7 @@
         <div *ngIf="listing.images && listing.images.length > 1" class="thumbnails">
           <button *ngFor="let img of listing.images; let i = index" class="thumbnail"
             [class.active]="i === currentImageIndex" (click)="selectImage(i)">
-            <img [src]="img.imageUrl" [alt]="'Image ' + (i + 1)" />
+            <img [src]="img.imageUrl" [alt]="'Image ' + (i + 1)" loading="lazy" />
           </button>
         </div>
       </div>
