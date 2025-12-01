@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 namespace BLL.Services.Impelementation
 {
     public class PaymentService : IPaymentService
