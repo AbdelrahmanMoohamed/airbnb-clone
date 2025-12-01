@@ -14,6 +14,8 @@ export interface GetBookingVM {
   totalPrice: number;
   bookingStatus: string;
   paymentStatus: string;
+  clientSecret?: string;
+  paymentIntentId?: string;
 }
 
 export interface BookingResponse {

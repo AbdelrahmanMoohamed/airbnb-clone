@@ -90,88 +90,49 @@ export class CreateBooking implements OnInit {
     return nights * (this.listingPrice || 0);
   }
 
-  onSubmit(): void {
-    if (this.bookingForm.valid) {
-      this.isLoading = true;
-      this.errorMessage = '';
+onSubmit(): void {
+  if (this.bookingForm.valid) {
+    this.isLoading = true;
+    this.errorMessage = '';
 
-      const bookingData: CreateBookingVM = {
-        listingId: this.listingId,
-        ...this.bookingForm.value
-      };
+    const bookingData: CreateBookingVM = {
+      listingId: this.listingId,
+      ...this.bookingForm.value
+    };
 
-      // Create booking then create stripe intent (if stripe) atomically on the front-end flow. Use BookingStore to keep the clientSecret.
-      this.bookingService.createBooking(bookingData).pipe(
-        switchMap((res) => {
-          if (!res.success || !res.result) return throwError(() => ({ message: res.errorMessage || 'Failed to create booking' }));
-          const created = res.result;
-          this.bookingStore.setCurrentBooking(created);
-          this.bookingCreated.emit(created);
-
-          // If Stripe payment method -> create intent
-          if ((this.bookingForm.get('paymentMethod')?.value || 'stripe').toLowerCase() === 'stripe') {
-            const intentPayload = { bookingId: created.id, amount: (created as any).totalPrice ?? (created as any).TotalPrice ?? 0, currency: 'usd' };
-            // If createStripeIntent fails (e.g. server 400), catch and return a null intentResp so flow continues
-            return this.paymentService.createStripeIntent(intentPayload).pipe(
-              // return the actual response object or a fallback object on error so outer flow continues
-              map(intentResp => ({ booking: created, intentResp })),
-              catchError((err) => {
-                console.warn('[CreateBooking] createStripeIntent failed, continuing without clientSecret', err);
-                // Return a shape compatible with success flow but with intentResp = null
-                return of({ booking: created, intentResp: null });
-              })
-            );
-          }
-          return of({ booking: created, intentResp: null });
-        }),
-        catchError((err) => {
-          console.error('Booking+Intent flow error:', err);
-          return throwError(() => err);
-        })
-      ).subscribe({
-        next: ({ booking, intentResp }: any) => {
+    // ✅ BACKEND NOW RETURNS EVERYTHING IN ONE CALL
+    this.bookingService.createBooking(bookingData).subscribe({
+      next: (res) => {
+        if (!res.success || !res.result) {
+          this.errorMessage = res.errorMessage || 'Failed to create booking';
           this.isLoading = false;
-          if (intentResp && intentResp.success && intentResp.result) {
-            // keep secret in store rather than URL
-            const result = intentResp.result;
-            this.bookingStore.setPaymentIntent(result.clientSecret, result.paymentIntentId);
-            this.router.navigate(['/booking/payment', booking.id]);
-          } else {
-            // fallback: no clientSecret available
-            // ensure we pass a real numeric amount (support multiple casing shapes from backend)
-            const fallbackAmount = (booking as any).totalPrice ?? (booking as any).TotalPrice ?? 0;
-            this.router.navigate(['/booking/payment', booking.id], { queryParams: { amount: fallbackAmount } });
-          }
-        },
-        error: (error) => {
-          this.isLoading = false;
-          console.error('Create booking error:', error);
-          let extracted = '';
-          if (error && error.error) {
-            const body = error.error;
-            if (typeof body === 'string') {
-              extracted = body;
-            } else if (body.errors && typeof body.errors === 'object') {
-              const parts: string[] = [];
-              for (const k of Object.keys(body.errors)) {
-                const arr = body.errors[k];
-                if (Array.isArray(arr)) parts.push(`${k}: ${arr.join('; ')}`);
-              }
-              extracted = parts.join(' | ');
-            } else if (body.title || body.detail) {
-              extracted = `${body.title || ''} ${body.detail || ''}`.trim();
-            } else if (body.message) {
-              extracted = body.message;
-            } else {
-              try { extracted = JSON.stringify(body); } catch { extracted = String(body); }
-            }
-          }
-
-          this.errorMessage = extracted || error?.message || 'An error occurred while creating booking';
+          return;
         }
-      });
-    }
+
+        const booking = res.result;
+        this.bookingStore.setCurrentBooking(booking);
+        this.bookingCreated.emit(booking);
+
+        // ✅ USE CLIENT SECRET FROM BOOKING RESPONSE
+        if (booking.clientSecret) {
+          this.bookingStore.setPaymentIntent(booking.clientSecret, booking.paymentIntentId);
+          this.router.navigate(['/booking/payment', booking.id]);
+        } else {
+          // Fallback for non-Stripe payments
+          this.router.navigate(['/booking/payment', booking.id], { 
+            queryParams: { amount: booking.totalPrice } 
+          });
+        }
+        
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.errorMessage = this.errorMessage || 'An error occurred while creating the booking.';
+      }
+    });
   }
+}
   onCancel(): void {
     this.bookingCancelled.emit();
   }

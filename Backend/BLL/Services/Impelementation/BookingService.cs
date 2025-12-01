@@ -1,6 +1,7 @@
-
+﻿
 
 using Microsoft.Extensions.Logging;
+using Stripe;
 
 namespace BLL.Services.Impelementation
 {
@@ -26,13 +27,13 @@ namespace BLL.Services.Impelementation
         {
             try
             {
-            // Log key inputs for diagnostics (dev-only, non-sensitive)
-            try
-            {
-                _logger?.LogInformation("CreateBookingAsync called by guest={GuestId} listing={ListingId} checkIn={CheckIn} checkOut={CheckOut} guests={Guests} method={PaymentMethod}",
-                    guestId, model.ListingId, model.CheckInDate.ToString("o"), model.CheckOutDate.ToString("o"), model.Guests, model.PaymentMethod);
-            }
-            catch { }
+                // Log key inputs for diagnostics (dev-only, non-sensitive)
+                try
+                {
+                    _logger?.LogInformation("CreateBookingAsync called by guest={GuestId} listing={ListingId} checkIn={CheckIn} checkOut={CheckOut} guests={Guests} method={PaymentMethod}",
+                        guestId, model.ListingId, model.CheckInDate.ToString("o"), model.CheckOutDate.ToString("o"), model.Guests, model.PaymentMethod);
+                }
+                catch { }
                 // basic validations
                 var listing = await _uow.Listings.GetByIdAsync(model.ListingId);
                 if (listing == null) return Response<GetBookingVM>.FailResponse("Listing not found");
@@ -53,26 +54,51 @@ namespace BLL.Services.Impelementation
                 var total = nights * listing.PricePerNight;
 
                 Booking created = null!;
-                // Use unit of work transaction to ensure atomicity between booking and payment
+                CreatePaymentIntentVm? intentResult = null;
                 await _uow.ExecuteInTransactionAsync(async () =>
                 {
                     var bookingEntity = await _uow.Bookings.CreateAsync(model.ListingId, guestId, model.CheckInDate, model.CheckOutDate, total);
-                    // Save changes to get booking id populated
                     await _uow.SaveChangesAsync();
 
-                    // initiate payment (this may call external gateway). Here we just create payment record via payment service
-                    if (model.PaymentMethod.ToLower() != "stripe")
+                    // ✅ CREATE STRIPE INTENT FOR STRIPE PAYMENTS
+                    if (model.PaymentMethod.ToLower() == "stripe")
                     {
+                        var stripePayload = new CreateStripePaymentVM
+                        {
+                            BookingId = bookingEntity.Id,
+                            Amount = total,
+                            Currency = "usd",
+                            Description = $"Booking #{bookingEntity.Id}"
+                        };
+
+                        var paymentResp = await _paymentService.CreateStripePaymentIntentAsync(guestId, stripePayload);
+                        if (!paymentResp.Success)
+                            throw new Exception(paymentResp.errorMessage ?? "Stripe payment intent creation failed");
+
+                        intentResult = paymentResp.result;
+                    }
+                    else
+                    {
+                        // Non-Stripe payment methods (if you have any)
                         var paymentResp = await _paymentService.InitiatePaymentAsync(guestId, bookingEntity.Id, total, model.PaymentMethod);
                         if (!paymentResp.Success)
                             throw new Exception(paymentResp.errorMessage ?? "Payment initiation failed");
                     }
 
-                    // load created booking for return
                     created = bookingEntity;
                 });
-
-                var vm = new GetBookingVM { Id = created.Id, ListingId = created.ListingId, CheckInDate = created.CheckInDate, CheckOutDate = created.CheckOutDate, TotalPrice = created.TotalPrice, BookingStatus = created.BookingStatus.ToString(), PaymentStatus = created.PaymentStatus.ToString() };
+                var vm = new GetBookingVM
+                {
+                    Id = created.Id,
+                    ListingId = created.ListingId,
+                    CheckInDate = created.CheckInDate,
+                    CheckOutDate = created.CheckOutDate,
+                    TotalPrice = created.TotalPrice,
+                    BookingStatus = created.BookingStatus.ToString(),
+                    PaymentStatus = created.PaymentStatus.ToString(),
+                    ClientSecret = intentResult?.ClientSecret,
+                    PaymentIntentId = intentResult?.PaymentIntentId
+                };
                 return Response<GetBookingVM>.SuccessResponse(vm);
             }
             catch (Exception ex)
@@ -95,7 +121,7 @@ namespace BLL.Services.Impelementation
                 booking.Update(booking.CheckInDate, booking.CheckOutDate, booking.TotalPrice, booking.PaymentStatus, BookingStatus.Cancelled);
                 _uow.Bookings.Update(booking);
                 await _uow.SaveChangesAsync();
-                 
+
                 // notify guest about cancellation
                 await _notificationService.CreateAsync(new BLL.ModelVM.Notification.CreateNotificationVM
                 {
@@ -106,7 +132,7 @@ namespace BLL.Services.Impelementation
                     ActionUrl = "/booking",
                     ActionLabel = "View Bookings"
                 });
-                
+
                 // notify host about cancellation
                 var listing = await _uow.Listings.GetByIdAsync(booking.ListingId);
                 if (listing != null)
@@ -121,7 +147,7 @@ namespace BLL.Services.Impelementation
                         ActionLabel = "View Listing"
                     });
                 }
-                
+
                 // if paid -> refund
                 if (booking.Payment != null && booking.Payment.Status == PaymentStatus.Success)
                 {
