@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { ListingService } from '../../../core/services/listings/listing.service';
 import { ListingDetailVM } from '../../../core/models/listing.model';
 import { Subscription } from 'rxjs';
@@ -8,7 +9,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-listings-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslateModule],
   templateUrl: './listings-detail.html',
   styleUrls: ['./listings-detail.css'],
 })
@@ -24,6 +25,7 @@ export class ListingsDetail implements OnInit, OnDestroy {
   loading = true;
   error = '';
   currentImageIndex = 0;
+  canEdit = false; // Add edit permission property
 
   private leaflet: any;
   private detailMap: any | null = null;
@@ -151,7 +153,7 @@ export class ListingsDetail implements OnInit, OnDestroy {
 
   prevImage(): void {
     if (this.listing?.images) {
-      this.currentImageIndex = 
+      this.currentImageIndex =
         (this.currentImageIndex - 1 + this.listing.images.length) % this.listing.images.length;
     }
   }

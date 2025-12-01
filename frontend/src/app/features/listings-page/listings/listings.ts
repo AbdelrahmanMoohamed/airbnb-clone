@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef, signal, computed } from '@angular
 import { Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { ListingOverviewVM } from '../../../core/models/listing.model';
 import { ListingService } from '../../../core/services/listings/listing.service';
 import { ListingCard } from '../listing-card/listing-card';
@@ -10,7 +11,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angul
 @Component({
   selector: 'app-listings',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, ListingCard, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, RouterModule, ListingCard, ReactiveFormsModule, TranslateModule],
   templateUrl: './listings.html',
   styleUrls: ['./listings.css']
 })
@@ -50,7 +51,7 @@ export class Listings implements OnInit {
     'Wi-Fi', 'Pool', 'Air Conditioning', 'Kitchen',
     'Washer', 'Dryer', 'TV', 'Heating', 'Parking',
     // 'Pet Friendly', 'Gym', 'Hot Tub', 'Fireplace', 'Breakfast',
-    // 'Elevator', 'Wheelchair Accessible', 'Garden', 'Balcony', 'Sauna' 
+    // 'Elevator', 'Wheelchair Accessible', 'Garden', 'Balcony', 'Sauna'
   ];
 
   toggleAmenity(amenity: string): void {
