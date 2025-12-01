@@ -41,6 +41,7 @@ export class ListingService {
   getById(id: number): Observable<ListingsResponse<ListingDetailVM>> {
     return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
       map(response => {
+        // backend may return the payload under `data` or `result` depending on endpoint/version
         const payload = response?.data ?? response?.result ?? {};
         const res = {
           ...response,
@@ -48,6 +49,7 @@ export class ListingService {
           isError: (response?.isHaveErrorOrNo ?? response?.isError) || false
         } as any;
 
+        // Normalize image urls to absolute backend URLs
         if (res.data) {
           if (res.data.mainImageUrl) {
             res.data.mainImageUrl = this.normalizeImageUrl(res.data.mainImageUrl);
@@ -83,6 +85,7 @@ export class ListingService {
 
     return this.http.get<any>(`${this.apiUrl}`, { params }).pipe(
       map(response => {
+      // Accept either `result` or `data` or the raw array
         const raw = response?.result ?? response?.data ?? response ?? [];
         const arr = Array.isArray(raw) ? raw : [];
 
@@ -129,7 +132,9 @@ export class ListingService {
 
     return this.http.get<any>(`${this.apiUrl}/my-listings`, { params }).pipe(
       map(response => {
+        console.log('Raw backend response:', response);
         const raw = response?.result ?? response?.data ?? response ?? [];
+        console.log('Raw array:', raw);
         const arr = Array.isArray(raw) ? raw : [];
 
         const normalized = arr.map((item: any) => ({
@@ -284,6 +289,7 @@ export class ListingService {
     if (vm.images && vm.images.length > 0) {
       vm.images.forEach((file: File) => formData.append('images', file));
     }
+
     if (vm.newImages && vm.newImages.length > 0) {
       vm.newImages.forEach((file: File) => formData.append('newImages', file));
     }
@@ -306,3 +312,4 @@ export class ListingService {
     return `${this.backendOrigin}/${u}`;
   }
 }
+

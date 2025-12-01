@@ -1,0 +1,55 @@
+<div class="favorites-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-title">
+      <div class="favorite-count-badge">
+        <span class="count">{{ favoriteCount }}</span>
+        <span class="label">Saved Listings</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline" (click)="goToListings()">
+        <i class="bi bi-search"></i> Browse Listings
+      </button>
+      <button 
+        *ngIf="favoriteCount > 0" 
+        class="btn btn-danger-outline" 
+        (click)="clearAll()"
+      >
+        <i class="bi bi-trash"></i> Clear All
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading your favorites...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="alert alert-error">
+    <i class="bi bi-exclamation-circle"></i>
+    {{ error }}
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && !error && listings.length === 0" class="empty-state">
+    <i class="bi bi-heart"></i>
+    <h3>No Favorites Yet</h3>
+    <p>Start exploring and save your favorite listings here!</p>
+    <button class="btn btn-primary" (click)="goToListings()">
+      Browse Listings
+    </button>
+  </div>
+
+  <!-- Favorites Grid using Listing Cards -->
+  <div *ngIf="!loading && !error && listings.length > 0" class="favorites-grid">
+    <div *ngFor="let listing of listings; trackBy: trackByListingId" class="listing-card-wrapper">
+      <app-listing-card
+        [listing]="listing"
+        (favoriteChanged)="onFavoriteChanged(listing.id, $event)">
+      </app-listing-card>
+    </div>
+  </div>
+</div>

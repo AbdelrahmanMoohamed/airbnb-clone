@@ -30,6 +30,15 @@
             <small class="time">{{ n.createdAt | date:'short' }}</small>
           </div>
           <p class="body">{{ n.body }}</p>
+
+          <!-- Action Button -->
+          <button
+            *ngIf="n.actionUrl && n.actionLabel"
+            class="action-btn"
+            (click)="handleAction(n.actionUrl, $event)"
+            aria-label="{{ n.actionLabel }}">
+            {{ n.actionLabel }} <i class="bi bi-arrow-right"></i>
+          </button>
         </div>
 
         <button

@@ -1,6 +1,3 @@
-using BLL.ModelVM.Auth;
-using Microsoft.AspNetCore.Mvc;
-using System.Globalization;
 
 namespace PL.Controllers
 {
@@ -9,10 +6,28 @@ namespace PL.Controllers
     public class AuthController : BaseController
     {
         private readonly IIdentityService _identityService;
+        private readonly IMessageService _messageService;
 
-        public AuthController(IIdentityService identityService)
+        public AuthController(IIdentityService identityService, IMessageService messageService)
         {
             _identityService = identityService;
+            _messageService = messageService;
+        }
+
+        // Dev helper: return the decoded token payload / user id from claims
+        [Authorize]
+        [HttpGet("me/token-payload")]
+        public IActionResult GetTokenPayload()
+        {
+            var payload = new Dictionary<string, string?>();
+            var possible = new[] { ClaimTypes.NameIdentifier, "sub", JwtRegisteredClaimNames.Sub, "id", "uid" };
+            foreach (var name in possible)
+            {
+                payload[name] = User.FindFirst(name)?.Value;
+            }
+            var nameClaim = User.Identity?.Name;
+            payload["name"] = nameClaim;
+            return Ok(payload);
         }
         //any user regester as a guest
         [HttpPost("register")]
@@ -20,6 +35,13 @@ namespace PL.Controllers
         {
             var res = await _identityService.RegisterAsync(vm.Email, vm.Password, vm.FullName, vm.UserName, vm.FirebaseUid, "Guest");
             if (!res.Success) return BadRequest(res);
+            //send welcome message 
+            
+            var temp = await _messageService.CreateAsync(
+                new CreateMessageVM { ReceiverUserName = vm.UserName, 
+                    Content="Welcome to our platform! We're excited to have you here. If you have any questions or need assistance, feel free to reach out. Enjoy your experience!" },
+                Guid.Parse("c07c7cc9-55b3-4076-f767-08de2f6a002c")
+                );
             return Ok(res);
         }
 
@@ -28,6 +50,23 @@ namespace PL.Controllers
         {
             var res = await _identityService.LoginAsync(vm.Email, vm.Password);
             if (!res.Success) return Unauthorized(res);
+            return Ok(res);
+        }
+        
+        /// <summary>
+        /// Mark the user's onboarding as completed
+        /// Called when user finishes the first-time walkthrough
+        /// </summary>
+        [Authorize]
+        [HttpPut("complete-onboarding")]
+        public async Task<IActionResult> CompleteOnboarding()
+        {
+            var userId = GetUserIdFromClaims();
+            if (userId == null) return Unauthorized();
+            
+            var res = await _identityService.CompleteOnboardingAsync(userId.Value);
+            if (!res.Success) return BadRequest(res);
+            
             return Ok(res);
         }
 
@@ -114,8 +153,9 @@ namespace PL.Controllers
             }
 
             var role = string.IsNullOrWhiteSpace(vm.Role) ? "Guest" : vm.Role;
+            var fullName = string.IsNullOrWhiteSpace(vm.FullName) ? "User" : vm.FullName;
 
-            var token = _identityService.GenerateToken(userId, role, orderId, listingId);
+            var token = _identityService.GenerateToken(userId, role, fullName, orderId, listingId);
             return Ok(new { token });
         }
     }

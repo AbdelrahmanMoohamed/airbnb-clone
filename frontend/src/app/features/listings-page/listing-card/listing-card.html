@@ -1,9 +1,9 @@
-<a [routerLink]="['/listings', listing?.id]" class="text-decoration-none card-link">
+<a [routerLink]="['/listings', listing.id]" class="text-decoration-none card-link">
   <div class="card listing-card mx-auto">
 
     <!-- FIXED IMAGE WRAPPER ALWAYS ON TOP -->
     <div class="image-wrapper position-relative">
-      <img [src]="imageSrc" class="card-img-top" [alt]="listing?.title" />
+      <img [src]="imageSrc" class="card-img-top" [alt]="listing.title" />
 
       <div class="overlay"></div>
 
@@ -11,21 +11,30 @@
         <span class="badge">Listing</span>
       </div> -->
 
+      <!--  FAVORITE BUTTON  -->
+      <div class="position-absolute" style="top: 0.75rem; right: 0.75rem; z-index: 10;">
+        <app-favorite-button [listingId]="listing!.id" [isFavorited]="isFavorited"
+          (favoriteChanged)="onFavoriteChanged($event)">
+        </app-favorite-button>
+      </div>
+
       <div class="rate position-absolute top-0 end-0 m-2 d-flex align-items-center" *ngIf="rating">
         <i class="bi bi-star-fill"></i> {{ rating }}
       </div>
+      
     </div>
 
     <!-- ALWAYS BELOW THE IMAGE -->
     <div class="card-body">
-      <h6 class="title fw-semibold">{{ listing?.title || 'Untitled' }}</h6>
+      <h6 class="title fw-semibold">{{ listing.title || 'Untitled' }}</h6>
 
       <p class="location text-muted medium">
-        {{ listing?.destination || 'Destination not provided' }}
+        {{ listing.destination || 'Destination not provided' }}
       </p>
 
       <p class="type text-muted small">
-        {{ listing?.type || 'Type not provided' }} • {{ listing?.bedrooms || 0 }} Bed • {{ listing?.bathrooms || 0 }} Bath
+        {{ listing.type || 'Type not provided' }} � {{ listing.bedrooms || 0 }} Bed � {{ listing.bathrooms || 0 }}
+        Bath
       </p>
 
       <p class="desc text-muted small">

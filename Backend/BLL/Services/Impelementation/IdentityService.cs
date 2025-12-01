@@ -8,19 +8,32 @@ namespace BLL.Services.Impelementation
         private readonly SignInManager<User> _signInManager;
         private readonly RoleManager<IdentityRole<Guid>> _roleManager;
         private readonly ITokenService _tokenService;
+        private readonly INotificationService _notificationService;
+        private readonly IMessageService _messageService;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public IdentityService(UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<IdentityRole<Guid>> roleManager, ITokenService tokenService)
+        public IdentityService(
+            UserManager<User> userManager, 
+            SignInManager<User> signInManager, 
+            RoleManager<IdentityRole<Guid>> roleManager, 
+            ITokenService tokenService,
+            INotificationService notificationService,
+            IMessageService messageService,
+            IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _tokenService = tokenService;
+            _notificationService = notificationService;
+            _messageService = messageService;
+            _unitOfWork = unitOfWork;
         }
 
-        public async Task<Response<string>> RegisterAsync(string email, string password, string fullName, string userName, string? firebaseUid = null, string role = "Guest")
+        public async Task<Response<LoginResponseVM>> RegisterAsync(string email, string password, string fullName, string userName, string? firebaseUid = null, string role = "Guest")
         {
             var existing = await _userManager.FindByEmailAsync(email);
-            if (existing != null) return Response<string>.FailResponse("Email already registered");
+            if (existing != null) return Response<LoginResponseVM>.FailResponse("Email already registered");
 
             // sanitize provided username: keep only letters and digits
             string sanitized = null;
@@ -50,16 +63,69 @@ namespace BLL.Services.Impelementation
             user.UserName = candidate; // set before creation to satisfy Identity validators
 
             var result = await _userManager.CreateAsync(user, password);
-            if (!result.Succeeded) return Response<string>.FailResponse(string.Join(";", result.Errors.Select(e => e.Description)));
+            if (!result.Succeeded) return Response<LoginResponseVM>.FailResponse(string.Join(";", result.Errors.Select(e => e.Description)));
 
             if (!await _roleManager.RoleExistsAsync(role))
                 await _roleManager.CreateAsync(new IdentityRole<Guid>(role));
 
             await _userManager.AddToRoleAsync(user, role);
 
+            // Send welcome notification with onboarding button
+            await _notificationService.CreateAsync(new BLL.ModelVM.Notification.CreateNotificationVM
+            {
+                UserId = user.Id,
+                Title = "Welcome to Airbnb Clone!",
+                Body = $"Hi {fullName}! We're excited to have you here. Take a quick tour to discover all the amazing features.",
+                CreatedAt = DateTime.UtcNow,
+                ActionUrl = "/onboarding",
+                ActionLabel = "Start Tour",
+                Type = DAL.Enum.NotificationType.System
+            });
+            
+            // Send welcome message from system user
+            var systemUser = await _userManager.FindByEmailAsync("system@airbnb.com");
+            if (systemUser != null)
+            {
+                await _unitOfWork.Messages.CreateAsync(
+                    systemUser.Id, 
+                    user.Id, 
+                    $@"Welcome {fullName}! 🎉
+
+We're thrilled to have you join our community. Here's what you can do:
+
+✨ Browse unique stays worldwide
+📅 Book your perfect vacation
+💬 Chat with hosts
+🏠 List your own property
+
+Need help? Just reply to this message!
+
+Happy exploring!
+- The Airbnb Clone Team",
+                    DateTime.UtcNow,
+                    false);
+                await _unitOfWork.SaveChangesAsync();
+            }
+
             // generate token for the new user
-            var token = _tokenService.GenerateToken(user.Id, role);
-            return Response<string>.SuccessResponse(token);
+            var token = _tokenService.GenerateToken(user.Id, role, user.FullName);
+            
+            // New users always get onboarding (IsFirstLogin defaults to true)
+            var loginResponse = new LoginResponseVM
+            {
+                Token = token,
+                IsFirstLogin = user.IsFirstLogin,
+                User = new UserInfoVM
+                {
+                    Id = user.Id,
+                    Email = user.Email!,
+                    UserName = user.UserName!,
+                    FullName = user.FullName,
+                    Role = role
+                }
+            };
+            
+            return Response<LoginResponseVM>.SuccessResponse(loginResponse);
         }
 
         // toggle between host and guest roles
@@ -84,7 +150,7 @@ namespace BLL.Services.Impelementation
             if (!await _roleManager.RoleExistsAsync(newRole))
                 await _roleManager.CreateAsync(new IdentityRole<Guid>(newRole));
             await _userManager.AddToRoleAsync(user, newRole);
-            var token = _tokenService.GenerateToken(user.Id, newRole);
+            var token = _tokenService.GenerateToken(user.Id, newRole, user.FullName);
             return Response<string>.SuccessResponse(token);
         }
         //make an admin
@@ -101,23 +167,39 @@ namespace BLL.Services.Impelementation
                 await _userManager.RemoveFromRoleAsync(user, r);
             }
             await _userManager.AddToRoleAsync(user, role);
-            var token = _tokenService.GenerateToken(user.Id, role);
+            var token = _tokenService.GenerateToken(user.Id, role, user.FullName);
             return Response<string>.SuccessResponse(token);
         }
 
-        public async Task<Response<string>> LoginAsync(string email, string password)
+        public async Task<Response<LoginResponseVM>> LoginAsync(string email, string password)
         {
             var user = await _userManager.FindByEmailAsync(email);
-            if (user == null) return Response<string>.FailResponse("Invalid credentials");
+            if (user == null) return Response<LoginResponseVM>.FailResponse("Invalid credentials");
             var result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
-            if (!result.Succeeded) return Response<string>.FailResponse("Invalid credentials");
+            if (!result.Succeeded) return Response<LoginResponseVM>.FailResponse("Invalid credentials");
 
             // determine role
             var roles = await _userManager.GetRolesAsync(user);
             var role = roles.FirstOrDefault() ?? "Guest";
 
-            var token = _tokenService.GenerateToken(user.Id, role);
-            return Response<string>.SuccessResponse(token);
+            var token = _tokenService.GenerateToken(user.Id, role, user.FullName);
+            
+            // Build login response with onboarding status
+            var loginResponse = new LoginResponseVM
+            {
+                Token = token,
+                IsFirstLogin = user.IsFirstLogin,
+                User = new UserInfoVM
+                {
+                    Id = user.Id,
+                    Email = user.Email!,
+                    UserName = user.UserName!,
+                    FullName = user.FullName,
+                    Role = role
+                }
+            };
+            
+            return Response<LoginResponseVM>.SuccessResponse(loginResponse);
         }
 
         public async Task<Response<bool>> SendPasswordResetAsync(string email)
@@ -171,7 +253,7 @@ namespace BLL.Services.Impelementation
 
             var roles = await _userManager.GetRolesAsync(user);
             var role = roles.FirstOrDefault() ?? "Guest";
-            var token = _tokenService.GenerateToken(user.Id, role);
+            var token = _tokenService.GenerateToken(user.Id, role, user.FullName);
             return Response<string>.SuccessResponse(token);
         }
 
@@ -183,10 +265,30 @@ namespace BLL.Services.Impelementation
             // pretend verification succeeded
             return Response<bool>.SuccessResponse(true);
         }
-
-        public string GenerateToken(Guid userId, string role, Guid? orderId = null, Guid? listingId = null)
+        
+        /// <summary>
+        /// Mark user's onboarding as completed
+        /// This is called after the user finishes the walkthrough guide
+        /// </summary>
+        public async Task<Response<bool>> CompleteOnboardingAsync(Guid userId)
         {
-            return _tokenService.GenerateToken(userId, role, orderId, listingId);
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null) return Response<bool>.FailResponse("User not found");
+            
+            // Mark onboarding as completed using the entity method
+            user.CompleteOnboarding();
+            
+            // Save changes to database
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded) 
+                return Response<bool>.FailResponse("Failed to update onboarding status");
+            
+            return Response<bool>.SuccessResponse(true);
+        }
+
+        public string GenerateToken(Guid userId, string role, string fullName, Guid? orderId = null, Guid? listingId = null)
+        {
+            return _tokenService.GenerateToken(userId, role, fullName, orderId, listingId);
         }
     }
 }

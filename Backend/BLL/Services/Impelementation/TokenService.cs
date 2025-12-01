@@ -8,7 +8,7 @@ namespace BLL.Services.Impelementation
  _config = config;
  }
 
- public string GenerateToken(Guid userId, string role, Guid? orderId = null, Guid? listingId = null)
+ public string GenerateToken(Guid userId, string role, string fullName, Guid? orderId = null, Guid? listingId = null)
  {
  var key = _config["Jwt:Key"];
  if (string.IsNullOrWhiteSpace(key))
@@ -25,7 +25,9 @@ namespace BLL.Services.Impelementation
  new Claim("sub", userId.ToString()),
  // Include both standard role claim and 'role' so RoleClaimType mapping works regardless of configuration
  new Claim(ClaimTypes.Role, role),
- new Claim("role", role)
+ new Claim("role", role),
+ new Claim(ClaimTypes.Name, fullName),
+ new Claim("name", fullName)
  };
 
  if (orderId.HasValue) claims.Add(new Claim("orderId", orderId.Value.ToString()));

@@ -53,8 +53,19 @@ img {
 }
 
 .right.notification-bell,
-.right.message-bell,
-.right.dropdown {
+.right.message-bell {
+    width: 45px;
+    min-width: 45px;
+    padding: 0;
+}
+
+.right.dropdown.user-dropdown {
+    width: auto;
+    min-width: auto;
+    padding: 0 1em;
+}
+
+.right.dropdown:not(.user-dropdown) {
     width: 45px;
     min-width: 45px;
     padding: 0;
@@ -98,7 +109,6 @@ img {
     top: 3.5em;
     width: 220px;
     max-height: 420px;
-    overflow-y: auto;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
     border-radius: 1.5em;
     background: rgba(255, 255, 255, 0.22);
@@ -106,8 +116,17 @@ img {
     -webkit-backdrop-filter: blur(14px) saturate(160%);
     border: 1px solid rgba(255, 255, 255, 0.35);
     z-index: 1000;
-    padding: 8px;
     color: #222;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.notification-bell .dropdown-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+    max-height: 320px;
 }
 
 .notification-bell .dropdown .item {
@@ -160,9 +179,10 @@ img {
 .notification-bell .dropdown-actions {
     display: flex;
     gap: 8px;
-    margin: 8px 6px 0;
-    padding-top: 8px;
+    padding: 8px;
     border-top: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+    flex-shrink: 0;
 }
 
 .notification-bell .mark-all,
@@ -223,7 +243,6 @@ img {
     top: 3.5em;
     width: 280px;
     max-height: 420px;
-    overflow-y: auto;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
     border-radius: 1.5em;
     background: rgba(255, 255, 255, 0.22);
@@ -231,8 +250,17 @@ img {
     -webkit-backdrop-filter: blur(14px) saturate(160%);
     border: 1px solid rgba(255, 255, 255, 0.35);
     z-index: 1000;
-    padding: 8px;
     color: #222;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.message-bell .dropdown-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+    max-height: 320px;
 }
 
 .message-bell .dropdown .item {
@@ -284,9 +312,10 @@ img {
 .message-bell .dropdown .dropdown-actions {
     display: flex;
     gap: 8px;
-    margin: 8px 6px 0;
-    padding-top: 8px;
+    padding: 8px;
     border-top: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+    flex-shrink: 0;
 }
 
 .message-bell .dropdown .mark-all,
@@ -333,3 +362,154 @@ img {
     max-height: 260px;
     overflow-y: auto;
 }
+
+/* ===========================
+   USER MENU STYLE
+=========================== */
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    white-space: nowrap;
+}
+
+.user-menu .user-name {
+    font-size: 0.95em;
+    font-weight: 500;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-menu i {
+    font-size: 1.3em;
+}
+
+/* ===========================
+   USER MENU STYLE
+=========================== */
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem !important;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+}
+
+.user-menu:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.user-menu .user-name {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: rgb(255, 253, 240);
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.user-menu i {
+    font-size: 1.5rem;
+}
+
+.dropdown-header {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95rem;
+    padding: 0.75rem 1rem;
+}
+
+.dropdown-divider {
+    margin: 0.25rem 0;
+}
+
+/* ===========================
+   LANGUAGE SWITCHER CONTAINER
+=========================== */
+.language-switcher-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.language-switcher-container app-language-switcher {
+    display: flex;
+    align-items: center;
+}
+
+/* ===========================
+   RTL Support for Navbar
+=========================== */
+[dir="rtl"] .navbar-brand {
+    margin-right: 0;
+    margin-left: 2em;
+}
+
+[dir="rtl"] .navbar-brand img {
+    margin-right: 0;
+    margin-left: 12px;
+}
+
+[dir="rtl"] .user-menu i {
+    margin-right: 0;
+    margin-left: 0.5rem;
+}
+
+[dir="rtl"] .dropdown-menu-end {
+    right: auto !important;
+    left: 0 !important;
+}
+
+[dir="rtl"] .notification-bell .dropdown,
+[dir="rtl"] .message-bell .dropdown {
+    right: auto;
+    left: 0;
+}
+
+[dir="rtl"] .message-bell .dropdown .item.unread {
+    border-left: none;
+    border-right: 3px solid #ff385c;
+}
+
+[dir="rtl"] .badge {
+    right: auto;
+    left: -8px;
+}
+
+[dir="rtl"] .message-bell {
+    margin-left: 0;
+    margin-right: 12px;
+}
+
+[dir="rtl"] .navbar-nav.ms-auto {
+    margin-left: 0 !important;
+    margin-right: auto !important;
+}
+
+[dir="rtl"] .navbar-nav.me-auto {
+    margin-right: 0 !important;
+    margin-left: auto !important;
+}
+
+/* Fix Arabic text alignment in dropdowns */
+[dir="rtl"] .notification-bell .dropdown .item,
+[dir="rtl"] .message-bell .dropdown .item {
+    text-align: right;
+}
+
+[dir="rtl"] .notification-bell .dropdown .empty,
+[dir="rtl"] .message-bell .dropdown .empty {
+    text-align: center;
+}
+
+[dir="rtl"] .user-menu {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .user-menu .user-name {
+    text-align: right;
+}
+

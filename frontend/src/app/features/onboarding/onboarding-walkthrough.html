@@ -1,0 +1,55 @@
+<div class="onboarding-container">
+  <div class="onboarding-card">
+    <!-- Progress Bar -->
+    <div class="progress-container">
+      <div class="progress-bar" [style.width.%]="progress"></div>
+    </div>
+
+    <!-- Step Counter -->
+    <div class="step-counter">
+      {{ 'onboarding.stepCounter' | translate: {current: currentStep + 1, total: steps.length} }}
+    </div>
+
+    <!-- Current Step Content -->
+    <div class="step-content" *ngIf="steps[currentStep]">
+      <div class="step-icon">{{ steps[currentStep].icon }}</div>
+      <h1 class="step-title">{{ steps[currentStep].titleKey | translate }}</h1>
+      <p class="step-description">{{ steps[currentStep].descriptionKey | translate }}</p>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="navigation-buttons">
+      <button
+        class="btn btn-secondary"
+        (click)="previousStep()"
+        [disabled]="currentStep === 0">
+        {{ 'onboarding.previous' | translate }}
+      </button>
+
+      <button
+        class="btn btn-skip"
+        (click)="skipOnboarding()">
+        {{ 'onboarding.skip' | translate }}
+      </button>
+
+      <button
+        class="btn btn-primary"
+        (click)="nextStep()">
+        {{ (currentStep === steps.length - 1 ? 'onboarding.getStarted' : 'onboarding.next') | translate }}
+      </button>
+    </div>
+
+    <!-- Step Indicators (Dots) -->
+    <div class="step-indicators">
+      <span
+        *ngFor="let step of steps; let i = index"
+        class="indicator-dot"
+        [class.active]="i === currentStep"
+        [class.completed]="i < currentStep">
+      </span>
+    </div>
+  </div>
+
+  <!-- Background Decoration -->
+  <div class="background-decoration"></div>
+</div>

@@ -138,15 +138,43 @@ namespace PL
             // Make sure AdminRepository exists
             builder.Services.AddScoped<DAL.Repo.Abstraction.IAdminRepository, DAL.Repo.Implementation.AdminRepository>();
 
-            // AutoMapper � scan all assemblies for profiles
+            // AutoMapper – scan all assemblies for profiles
             //builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             builder.Services.AddAutoMapper(cfg =>
             {
                 cfg.AddProfile<FavoriteProfile>();
             });
+
+            // --------------------------------------------------------------------
+            // Localization
+            // --------------------------------------------------------------------
+            builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+            builder.Services.Configure<RequestLocalizationOptions>(options =>
+            {
+                var supportedCultures = new[] { "en-US", "ar" };
+                options.SetDefaultCulture("en-US")
+                    .AddSupportedCultures(supportedCultures)
+                    .AddSupportedUICultures(supportedCultures);
+
+                // Culture providers priority:
+                // 1. Query string parameter (lang)
+                // 2. Cookie
+                // 3. Accept-Language header
+                options.RequestCultureProviders = new List<IRequestCultureProvider>
+                {
+                    new QueryStringRequestCultureProvider { QueryStringKey = "lang" },
+                    new CookieRequestCultureProvider { CookieName = "app_language" },
+                    new AcceptLanguageHeaderRequestCultureProvider()
+                };
+            });
+            
             // Controllers & SignalR
             builder.Services.AddControllers();
             builder.Services.AddSignalR();
+
+            // Notification publisher (sends SignalR messages from BLL)
+            builder.Services.AddSingleton<BLL.Services.Abstractions.INotificationPublisher, PL.Services.NotificationPublisher>();
 
             // Swagger
             builder.Services.AddEndpointsApiExplorer();
@@ -158,6 +186,9 @@ namespace PL
             // Middleware pipeline
             // --------------------------------------------------------------------
             app.UseCors("AllowFrontend");
+
+            // Enable Request Localization
+            app.UseRequestLocalization();
 
             app.UseStaticFiles();
 

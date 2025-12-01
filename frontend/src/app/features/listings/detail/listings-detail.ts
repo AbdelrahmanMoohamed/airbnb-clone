@@ -5,11 +5,12 @@ import { ListingService } from '../../../core/services/listings/listing.service'
 import { MapService } from '../../../core/services/map/map';
 import { ListingDetailVM } from '../../../core/models/listing.model';
 import { Subscription } from 'rxjs';
+import { CreateBooking } from "../../booking/create-booking/create-booking";
 
 @Component({
   selector: 'app-listings-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, CreateBooking],
   templateUrl: './listings-detail.html',
   styleUrls: ['./listings-detail.css'],
 })
@@ -26,6 +27,11 @@ export class ListingsDetail implements OnInit, OnDestroy {
   loading = true;
   error = '';
   currentImageIndex = 0;
+
+  //Bookings Props 
+  showBookingForm = false;
+  bookingSuccess = false;
+  currentBooking: any = null;
 
   private leaflet: any;
   private detailMap: any | null = null;
@@ -121,7 +127,7 @@ export class ListingsDetail implements OnInit, OnDestroy {
 
       // Try to get richer popup content from backend Map API
       if (this.listing && this.listing.id) {
-          try {
+        try {
           this.mapService.getProperty(this.listing.id).subscribe((p: any) => {
             const price = p.pricePerNight ? `<div>${p.pricePerNight} EGP/night</div>` : '';
             const desc = p.description ? `<div style="margin-top:6px;"><small>${p.description}</small></div>` : '';
@@ -151,7 +157,7 @@ export class ListingsDetail implements OnInit, OnDestroy {
 
   prevImage(): void {
     if (this.listing?.images) {
-      this.currentImageIndex = 
+      this.currentImageIndex =
         (this.currentImageIndex - 1 + this.listing.images.length) % this.listing.images.length;
     }
   }
@@ -168,6 +174,24 @@ export class ListingsDetail implements OnInit, OnDestroy {
     if (this.listing) {
       this.router.navigate(['/host', this.listing.id, 'edit']);
     }
+  }
+
+  //Bookings Methods
+  toggleBookingForm(): void {
+    this.showBookingForm = !this.showBookingForm;
+    this.bookingSuccess = false;
+  }
+
+  onBookingCreated(booking: any): void {
+    this.bookingSuccess = true;
+    this.currentBooking = booking;
+    this.showBookingForm = false;
+    // The CreateBooking component will navigate to the payment flow (with payment intent),
+    // so we simply show success state here and avoid duplicating navigation.
+  }
+
+  onBookingCancelled(): void {
+    this.showBookingForm = false;
   }
 }
 

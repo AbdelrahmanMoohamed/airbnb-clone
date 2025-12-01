@@ -1,5 +1,7 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 @import url("https://fonts.googleapis.com/css2?family=Elms+Sans:ital,wght@0,100..900;1,100..900&family=Lora:ital,wght@0,400..700;1,400..700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap");
+@import "./styles/rtl.css";
 
 html,
 body {
@@ -9,6 +11,11 @@ body {
 
 * {
     font-family: 'Elms Sans', sans-serif !important;
+}
+
+/* Arabic font override */
+[dir="rtl"] * {
+    font-family: 'Cairo', 'Elms Sans', sans-serif !important;
 }
 
 app-root {

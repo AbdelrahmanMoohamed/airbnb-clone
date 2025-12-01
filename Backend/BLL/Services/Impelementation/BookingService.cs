@@ -7,12 +7,16 @@ namespace BLL.Services.Impelementation
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
         private readonly IPaymentService _paymentService;
+        private readonly INotificationService _notificationService;
+        private readonly ILogger<BookingService> _logger;
 
-        public BookingService(IUnitOfWork uow, IMapper mapper, IPaymentService paymentService)
+        public BookingService(IUnitOfWork uow, IMapper mapper, IPaymentService paymentService, INotificationService notificationService, ILogger<BookingService> logger)
         {
             _uow = uow;
             _mapper = mapper;
             _paymentService = paymentService;
+            _notificationService = notificationService;
+            _logger = logger;
         }
 
         // Create booking: check availability, calculate price, create booking and initiate payment atomically
@@ -20,6 +24,13 @@ namespace BLL.Services.Impelementation
         {
             try
             {
+            // Log key inputs for diagnostics (dev-only, non-sensitive)
+            try
+            {
+                _logger?.LogInformation("CreateBookingAsync called by guest={GuestId} listing={ListingId} checkIn={CheckIn} checkOut={CheckOut} guests={Guests} method={PaymentMethod}",
+                    guestId, model.ListingId, model.CheckInDate.ToString("o"), model.CheckOutDate.ToString("o"), model.Guests, model.PaymentMethod);
+            }
+            catch { }
                 // basic validations
                 var listing = await _uow.Listings.GetByIdAsync(model.ListingId);
                 if (listing == null) return Response<GetBookingVM>.FailResponse("Listing not found");
@@ -31,7 +42,7 @@ namespace BLL.Services.Impelementation
 
                 // check availability: any overlapping active booking?
                 var existing = (await _uow.Bookings.GetBookingsByListingAsync(model.ListingId))
-                .Where(b => b.BookingStatus == BookingStatus.Active && !(model.CheckOutDate <= b.CheckInDate || model.CheckInDate >= b.CheckOutDate));
+                .Where(b => b.BookingStatus == BookingStatus.Pending && !(model.CheckOutDate <= b.CheckInDate || model.CheckInDate >= b.CheckOutDate));
                 if (existing.Any()) return Response<GetBookingVM>.FailResponse("Listing is not available for the selected dates");
 
                 // calculate total price (simple nights * price)
@@ -48,10 +59,11 @@ namespace BLL.Services.Impelementation
                     await _uow.SaveChangesAsync();
 
                     // initiate payment (this may call external gateway). Here we just create payment record via payment service
-                    var paymentResp = await _paymentService.InitiatePaymentAsync(guestId, bookingEntity.Id, total, model.PaymentMethod);
-                    if (!paymentResp.Success)
+                    if (model.PaymentMethod.ToLower() != "stripe")
                     {
-                        throw new Exception(paymentResp.errorMessage ?? "Payment initiation failed");
+                        var paymentResp = await _paymentService.InitiatePaymentAsync(guestId, bookingEntity.Id, total, model.PaymentMethod);
+                        if (!paymentResp.Success)
+                            throw new Exception(paymentResp.errorMessage ?? "Payment initiation failed");
                     }
 
                     // load created booking for return
@@ -82,6 +94,32 @@ namespace BLL.Services.Impelementation
                 _uow.Bookings.Update(booking);
                 await _uow.SaveChangesAsync();
                  
+                // notify guest about cancellation
+                await _notificationService.CreateAsync(new BLL.ModelVM.Notification.CreateNotificationVM
+                {
+                    UserId = guestId,
+                    Title = "Booking Cancelled",
+                    Body = "Your booking has been cancelled successfully.",
+                    CreatedAt = DateTime.UtcNow,
+                    ActionUrl = "/booking",
+                    ActionLabel = "View Bookings"
+                });
+                
+                // notify host about cancellation
+                var listing = await _uow.Listings.GetByIdAsync(booking.ListingId);
+                if (listing != null)
+                {
+                    await _notificationService.CreateAsync(new BLL.ModelVM.Notification.CreateNotificationVM
+                    {
+                        UserId = listing.UserId,
+                        Title = "Booking Cancelled",
+                        Body = $"A guest cancelled their booking for {listing.Title}.",
+                        CreatedAt = DateTime.UtcNow,
+                        ActionUrl = $"/listings/{listing.Id}",
+                        ActionLabel = "View Listing"
+                    });
+                }
+                
                 // if paid -> refund
                 if (booking.Payment != null && booking.Payment.Status == PaymentStatus.Success)
                 {
@@ -123,6 +161,40 @@ namespace BLL.Services.Impelementation
             catch (Exception ex)
             {
                 return Response<List<GetBookingVM>>.FailResponse(ex.Message);
+            }
+        }
+
+        public async Task<Response<GetBookingVM>> GetByIdAsync(Guid requesterId, int bookingId)
+        {
+            try
+            {
+                var booking = await _uow.Bookings.GetByIdAsync(bookingId);
+                if (booking == null) return Response<GetBookingVM>.FailResponse("Booking not found");
+
+                // allow guests and hosts to fetch
+                if (booking.GuestId != requesterId)
+                {
+                    var listing = await _uow.Listings.GetByIdAsync(booking.ListingId);
+                    if (listing == null) return Response<GetBookingVM>.FailResponse("Booking/listing not found");
+                    if (listing.UserId != requesterId) return Response<GetBookingVM>.FailResponse("Not authorized");
+                }
+
+                var vm = new GetBookingVM
+                {
+                    Id = booking.Id,
+                    ListingId = booking.ListingId,
+                    CheckInDate = booking.CheckInDate,
+                    CheckOutDate = booking.CheckOutDate,
+                    TotalPrice = booking.TotalPrice,
+                    BookingStatus = booking.BookingStatus.ToString(),
+                    PaymentStatus = booking.PaymentStatus.ToString()
+                };
+
+                return Response<GetBookingVM>.SuccessResponse(vm);
+            }
+            catch (Exception ex)
+            {
+                return Response<GetBookingVM>.FailResponse(ex.Message);
             }
         }
     }

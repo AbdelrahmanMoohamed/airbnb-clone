@@ -31,5 +31,29 @@ h5 {
     -webkit-backdrop-filter: blur(14px);
     border: 1px solid rgba(255, 255, 255, 0.05);
     box-shadow: -2px -2px 20px rgba(2, 6, 23, 0.45);
-    transition: all 0.3s ease;  
+    transition: all 0.3s ease;
 }
+
+/* RTL Support for Arabic */
+[dir="rtl"] .filters {
+    left: auto;
+    right: 5%;
+}
+
+[dir="rtl"] h5 {
+    text-align: right;
+    direction: rtl;
+}
+
+[dir="rtl"] .bi-arrow-right-short {
+    transform: scaleX(-1);
+}
+
+[dir="rtl"] .listings-row {
+    padding: 0em 1.5em 1.5em 1em;
+}
+
+[dir="rtl"] .cards-list {
+    direction: rtl;
+}
+

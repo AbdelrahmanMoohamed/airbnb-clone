@@ -58,6 +58,33 @@
   color: rgb(255, 253, 240, 0.76);
 }
 
+/* RTL Support for Arabic */
+[dir="rtl"] .listing-card {
+  text-align: right;
+  direction: rtl;
+}
+
+[dir="rtl"] .title,
+[dir="rtl"] .price,
+[dir="rtl"] .badge {
+  font-family: 'Cairo', sans-serif;
+}
+
+[dir="rtl"] .bi-star-fill {
+  margin-right: 0;
+  margin-left: 0.4em;
+}
+
+[dir="rtl"] .rate {
+  left: 0;
+  right: auto;
+}
+
+[dir="rtl"] .badge {
+  right: auto;
+  left: 0;
+}
+
 /* Responsive */
 @media (max-width: 576px) {
   .listing-card {

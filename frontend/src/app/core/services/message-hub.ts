@@ -9,6 +9,7 @@ export class MessageHub {
   private hubConnection!: signalR.HubConnection;
   public messageReceived = new Subject<MessageDto>();
   public messageRead = new Subject<{ messageId: number; readerId: string }>();
+  private isConnecting = false;
 
   constructor(private auth: AuthService) { }
 
@@ -19,6 +20,20 @@ export class MessageHub {
       console.log('MessageHub: user not authenticated — skipping start');
       return;
     }
+
+    // Prevent multiple simultaneous connection attempts
+    if (this.isConnecting) {
+      console.log('MessageHub: Connection already in progress, skipping...');
+      return;
+    }
+
+    // Check if already connected
+    if (this.hubConnection?.state === signalR.HubConnectionState.Connected) {
+      console.log('MessageHub: Already connected');
+      return;
+    }
+
+    this.isConnecting = true;
 
     const payload = this.auth.getPayload() || {};
     const userID = payload['sub'] || payload['id'] || payload['nameid'] || payload['userId'] || '';
@@ -34,7 +49,7 @@ export class MessageHub {
       .withUrl(`http://localhost:5235/messagesHub?userID=${userID}`, {
         accessTokenFactory: () => this.auth.getToken() || ''
       })
-      .withAutomaticReconnect()
+      .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
       .build();
 
     this.hubConnection.on('ReceiveMessage', (message: MessageDto) => {
@@ -46,11 +61,41 @@ export class MessageHub {
       this.messageRead.next({ messageId: payload.messageId, readerId: String(payload.readerId) });
     });
 
+    // Handle reconnection events
+    this.hubConnection.onreconnecting((error) => {
+      console.warn('MessageHub: Connection lost. Reconnecting...', error);
+    });
+
+    this.hubConnection.onreconnected((connectionId) => {
+      console.log('MessageHub: Reconnected successfully. ConnectionId:', connectionId);
+    });
+
+    this.hubConnection.onclose((error) => {
+      console.error('MessageHub: Connection closed.', error);
+      this.isConnecting = false;
+      setTimeout(() => {
+        console.log('MessageHub: Attempting to restart connection...');
+        this.startConnection();
+      }, 5000);
+    });
+
     this.hubConnection.start()
-      .then(() => console.log('MessageHub connected'))
+      .then(() => {
+        console.log('MessageHub connected');
+        this.isConnecting = false;
+      })
       .catch(err => {
         console.error('MessageHub connection error:', err);
+        this.isConnecting = false;
         setTimeout(() => this.startConnection(), 5000);
       });
+  }
+
+  public stopConnection() {
+    if (this.hubConnection) {
+      this.hubConnection.stop()
+        .then(() => console.log('MessageHub: Connection stopped'))
+        .catch(err => console.error('MessageHub: Error stopping connection:', err));
+    }
   }
 }

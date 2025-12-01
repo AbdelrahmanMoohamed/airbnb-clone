@@ -24,6 +24,12 @@ namespace DAL.Configurations
             builder.Property(n => n.CreatedAt)
                 .HasDefaultValueSql("GETUTCDATE()");
 
+            builder.Property(n => n.ActionUrl)
+                .HasMaxLength(500);
+
+            builder.Property(n => n.ActionLabel)
+                .HasMaxLength(100);
+
             // Relationships
             builder.HasOne(n => n.User)
                 .WithMany(u => u.Notifications)

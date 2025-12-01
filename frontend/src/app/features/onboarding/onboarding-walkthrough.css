@@ -1,0 +1,262 @@
+/* Container */
+.onboarding-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+/* Background Decoration */
+.background-decoration {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 2px, transparent 2px);
+  background-size: 50px 50px;
+  animation: moveBackground 60s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes moveBackground {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(50px, 50px); }
+}
+
+/* Card */
+.onboarding-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  padding: 60px 40px 40px;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.5s ease-out;
+  z-index: 10;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Progress Bar */
+.progress-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 24px 24px 0 0;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.4s ease;
+}
+
+/* Step Counter */
+.step-counter {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #667eea;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Step Content */
+.step-content {
+  text-align: center;
+  padding: 20px 0;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.step-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.step-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.step-description {
+  font-size: 18px;
+  color: #718096;
+  line-height: 1.6;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* Navigation Buttons */
+.navigation-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 40px;
+  margin-bottom: 30px;
+}
+
+.btn {
+  padding: 14px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+.btn-secondary {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #cbd5e0;
+}
+
+.btn-skip {
+  background: transparent;
+  color: #a0aec0;
+  border: 2px solid #e2e8f0;
+}
+
+.btn-skip:hover {
+  background: #f7fafc;
+  color: #718096;
+}
+
+/* Step Indicators (Dots) */
+.step-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.indicator-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.indicator-dot.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transform: scale(1.3);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.5);
+}
+
+.indicator-dot.completed {
+  background: #a0aec0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .onboarding-card {
+    padding: 40px 24px 24px;
+  }
+
+  .step-title {
+    font-size: 24px;
+  }
+
+  .step-description {
+    font-size: 16px;
+  }
+
+  .step-icon {
+    font-size: 60px;
+  }
+
+  .navigation-buttons {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+
+/* RTL Support for Arabic */
+[dir="rtl"] .step-content {
+  text-align: center;
+  direction: rtl;
+}
+
+[dir="rtl"] .step-title,
+[dir="rtl"] .step-description,
+[dir="rtl"] .step-counter {
+  font-family: 'Cairo', sans-serif;
+}
+
+[dir="rtl"] .btn {
+  font-family: 'Cairo', sans-serif;
+}
+
+[dir="rtl"] .navigation-buttons {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .step-indicators {
+  direction: rtl;
+}
+
+/* Adjust button order for RTL */
+@media (max-width: 768px) {
+  [dir="rtl"] .navigation-buttons {
+    flex-direction: column;
+  }
+}

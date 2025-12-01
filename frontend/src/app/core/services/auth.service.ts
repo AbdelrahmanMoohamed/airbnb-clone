@@ -153,20 +153,42 @@ export class AuthService {
     return role === 'Admin';
   }
 
-  // Login endpoint call: expects backend returns token (adjust if backend returns different shape)
+  // Get user's full name from JWT token
+  getUserFullName(): string | null {
+    const p = this.getPayload();
+    if (!p) {
+      console.log('getUserFullName: No payload found');
+      return null;
+    }
+    console.log('getUserFullName: JWT Payload:', p);
+    const fullName = p['name'] || p['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || null;
+    console.log('getUserFullName: Extracted full name:', fullName);
+    return fullName;
+  }
+
+  // Login endpoint call: expects backend returns LoginResponseVM { token, isFirstLogin, user }
   login(model: { email: string; password: string }): Observable<any> {
     console.log('AuthService: login called with', model);
     return this.http.post<any>(`${this.apiBase}/login`, model).pipe(
       tap(res => {
-        // backend returns { result: '<token>', ... }
-        const token = res?.result || res?.token;
+        // backend returns { result: { token, isFirstLogin, user }, ... }
+        const loginResponse = res?.result;
+        const token = loginResponse?.token;
+        const isFirstLogin = loginResponse?.isFirstLogin;
+
         if (token) {
           // remove any existing token first (handle multi-login in same client)
           this.removeToken();
           this.setToken(token);
           console.log('Login successful, token set');
-          // if admin, navigate to admin dashboard
-          if (this.isAdmin()) this.router.navigate(['/admin']);
+
+          // Store isFirstLogin flag for onboarding check
+          if (this.isBrowser && isFirstLogin !== undefined) {
+            localStorage.setItem('isFirstLogin', isFirstLogin.toString());
+            console.log('isFirstLogin flag stored:', isFirstLogin);
+          }
+
+          // Navigation will be handled by Login component based on isFirstLogin
         }
       })
     );
@@ -175,12 +197,22 @@ export class AuthService {
   register(model: any) {
     return this.http.post<any>(`${this.apiBase}/register`, model).pipe(
       tap(res => {
-        const token = res?.result || res?.token;
+        // Registration also returns LoginResponseVM with token and isFirstLogin
+        const loginResponse = res?.result;
+        const token = loginResponse?.token;
+        const isFirstLogin = loginResponse?.isFirstLogin;
+
         if (token) {
           // remove any existing token first
           this.removeToken();
           this.setToken(token);
           console.log('Registration successful, token set');
+
+          // Store isFirstLogin flag for onboarding check
+          if (this.isBrowser && isFirstLogin !== undefined) {
+            localStorage.setItem('isFirstLogin', isFirstLogin.toString());
+            console.log('isFirstLogin flag stored:', isFirstLogin);
+          }
         }
       })
     );

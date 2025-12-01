@@ -7,11 +7,12 @@ import { ListingOverviewVM } from '../../../core/models/listing.model';
 import { ListingService } from '../../../core/services/listings/listing.service';
 import { Router } from '@angular/router';
 import { NavigationEnd } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, HeroCard, HomeListingCard, StackedCards],
+  imports: [CommonModule, HeroCard, HomeListingCard, StackedCards, TranslateModule],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })

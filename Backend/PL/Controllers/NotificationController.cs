@@ -27,11 +27,11 @@
             if (result.IsHaveErrorOrNo )
                 return BadRequest(result);
 
-            //send the real time notification by signalR
-            var connectionId = NotificationHub.GetConnectionId(result.result.UserId.ToString());
-            if (!string.IsNullOrEmpty(connectionId))
+            // send the real time notification by signalR to all user's connections
+            var connectionIds = NotificationHub.GetConnectionIds(result.result.UserId.ToString());
+            if (connectionIds != null && connectionIds.Count > 0)
             {
-                await _hub.Clients.Client(connectionId)
+                await _hub.Clients.Clients(connectionIds)
                           .SendAsync("ReceiveNotification", new
                           {
                               Id = result.result.Id,
@@ -115,10 +115,25 @@
         [HttpPut("{id:int}/read")]
         public async Task<IActionResult> MarkAsRead(int id)
         {
+            var userId = GetUserIdFromClaims();
+            if (userId == null) return Unauthorized();
+
             var result = await _notificationService.MarkAsReadAsync(id);
 
             if (result.IsHaveErrorOrNo)
                 return BadRequest(result);
+
+            // Notify user via SignalR that this notification was read (send to all connections)
+            var updated = result.result;
+            if (updated != null)
+            {
+                var connectionIds = NotificationHub.GetConnectionIds(updated.UserId.ToString());
+                if (connectionIds != null && connectionIds.Count > 0)
+                {
+                    await _hub.Clients.Clients(connectionIds)
+                      .SendAsync("NotificationRead", new { notificationId = updated.Id, readerId = userId.Value });
+                }
+            }
 
             return Ok(result);
         }

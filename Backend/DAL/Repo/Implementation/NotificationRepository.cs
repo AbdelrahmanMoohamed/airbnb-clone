@@ -18,6 +18,14 @@
             await _context.SaveChangesAsync();
             return entity;
         }
+        
+        public async Task<Notification> CreateAsync(Guid userId, string title, string body, DAL.Enum.NotificationType type, string? actionUrl, string? actionLabel)
+        {
+            var entity = Notification.Create(userId, title, body, type, actionUrl, actionLabel);
+            await _context.Notifications.AddAsync(entity);
+            await _context.SaveChangesAsync();
+            return entity;
+        }
 
         public async Task<bool> DeleteAsync(Notification notification)
         {
@@ -79,14 +87,14 @@
             return true;
         }
 
-        public async Task<bool> MarkAsReadAsync(int id)
+        public async Task<Notification?> MarkAsReadAsync(int id)
         {
             var notification = await _context.Notifications.FindAsync(id);
-            if (notification is null) return false;
+            if (notification is null) return null;
 
             notification.MarkAsRead();
             await _context.SaveChangesAsync();
-            return true;
+            return notification;
         }
 
         public async Task<bool> MarkAsSentAsync(int notificationId)

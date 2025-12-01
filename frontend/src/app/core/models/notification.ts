@@ -6,4 +6,6 @@ export interface NotificationDto {
   body: string;
   createdAt: string; // ISO
   isRead: boolean;
+  actionUrl?: string;
+  actionLabel?: string;
 }

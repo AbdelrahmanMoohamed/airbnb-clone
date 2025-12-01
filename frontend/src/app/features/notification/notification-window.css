@@ -163,6 +163,37 @@
   font-size: 0.9rem;
   line-height: 1.5;
   word-wrap: break-word;
+  margin-bottom: 0.75rem;
+}
+
+.action-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.action-btn i {
+  font-size: 0.9rem;
+  transition: transform 0.3s ease;
+}
+
+.action-btn:hover i {
+  transform: translateX(3px);
 }
 
 .mark-read-btn {

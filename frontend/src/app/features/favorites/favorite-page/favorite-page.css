@@ -1,0 +1,40 @@
+.favorites-container {
+  max-width: 1400px;
+  margin: 2rem auto;
+  padding: 0 2rem;
+}
+
+/* ... keep existing header styles ... */
+
+/* Update favorites-grid to match listings grid */
+.favorites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.favorite-count-badge {
+  background: linear-gradient(135deg, #384271 0%, #764ba2 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.favorite-count-badge .count {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.favorite-count-badge .label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}

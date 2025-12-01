@@ -19,5 +19,7 @@ export class MessageService extends BaseService {
   getConversation(otherUserId: string) { return this.http.get<any>(`${this.url}/conversation/${otherUserId}`); }
   getPaged(page = 1, pageSize = 20) { return this.http.get<any>(`${this.url}/paged`, { params: this.buildParams({ page, pageSize }) }); }
   getUnread() { return this.http.get<any>(`${this.url}/unread`); }
+  getUnreadCount() { return this.http.get<any>(`${this.url}/unread-count`); }
   markAsRead(id: number) { return this.http.put(`${this.url}/${id}/read`, {}); }
+  markAllAsRead() { return this.http.put(`${this.url}/read-all`, {}); }
 }

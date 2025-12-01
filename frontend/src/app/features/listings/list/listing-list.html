@@ -6,9 +6,9 @@
       <div class="cards-list">
         <div class="glass-card p-2" *ngFor="let l of filtered(); trackBy: trackById">
 
-          <img [src]="l.mainImageUrl 
-              ? (l.mainImageUrl.indexOf('http') === 0 
-                ? l.mainImageUrl 
+          <img [src]="l.mainImageUrl
+              ? (l.mainImageUrl.indexOf('http') === 0
+                ? l.mainImageUrl
                 : 'http://localhost:5235' + l.mainImageUrl)
               : 'assets/default-listing.svg'" class="listing-img" />
 
@@ -99,5 +99,5 @@
       </button>
     </div>
 
-  </div>
+  </div>
 </div>

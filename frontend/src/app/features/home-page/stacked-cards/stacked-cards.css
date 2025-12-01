@@ -61,3 +61,35 @@
   z-index: 10;
   opacity: 1;
 }
+
+/* RTL Support for Arabic */
+[dir="rtl"] .left-card {
+  transform: translate(-30px) rotateY(-20deg) scale(.9);
+}
+
+[dir="rtl"] .right-card {
+  transform: translate(30px) rotateY(20deg) scale(.9);
+}
+
+[dir="rtl"] .left-card:hover {
+  transform: translateX(-2.5em) rotateY(-25deg) scale(1.02) translateY(-10px);
+}
+
+[dir="rtl"] .right-card:hover {
+  transform: translateX(2.5em) rotateY(25deg) scale(1.02) translateY(-10px);
+}
+
+[dir="rtl"] .service-card {
+  text-align: right;
+  direction: rtl;
+}
+
+[dir="rtl"] .label,
+[dir="rtl"] h5,
+[dir="rtl"] p {
+  font-family: 'Cairo', sans-serif;
+}
+
+[dir="rtl"] .custom-btn {
+  font-family: 'Cairo', sans-serif;
+}

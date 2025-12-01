@@ -81,6 +81,38 @@
           {{ listing.pricePerNight }} EGP
           <span class="per-night">per night</span>
         </h2>
+ <!-- Booking Success Message -->
+        <div *ngIf="bookingSuccess" class="alert alert-success">
+          <i class="bi bi-check-circle"></i>
+          <strong>Booking Created Successfully!</strong>
+          <p>Redirecting to payment...</p>
+        </div>
+
+        <!-- Booking Form Section -->
+        <div *ngIf="showBookingForm" class="booking-form-section">
+          <div class="booking-form-header">
+            <h3>Book This Listing</h3>
+            <button class="glass-btn" (click)="toggleBookingForm()">
+              <i class="bi bi-x"></i>Close
+            </button>
+          </div>
+          
+          <!-- Integrated Create Booking Component -->
+          <app-create-booking 
+            [listingId]="listing.id"
+            [listingPrice]="listing.pricePerNight"
+            [listingMaxGuests]="listing.maxGuests"
+            (bookingCreated)="onBookingCreated($event)"
+            (bookingCancelled)="onBookingCancelled()">
+          </app-create-booking>
+        </div>
+
+        <!-- Show Book Now button when form is hidden -->
+        <div *ngIf="!showBookingForm && !bookingSuccess" class="booking-actions">
+          <button class="glass-btn primary large" (click)="toggleBookingForm()">
+            <i class="bi bi-calendar-check"></i>Book Now
+          </button>
+        </div>
 
         <div class="description">
           <h3>About this listing</h3>
