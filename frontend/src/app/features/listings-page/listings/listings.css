@@ -2,7 +2,7 @@
 
 .broker-listings-container {
   background: linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(220, 20, 60, 0.1) 100%),
-              url('/bg1.png') center/cover fixed;
+    url('/bg1.png') center/cover fixed;
   min-height: 100vh;
   position: relative;
 }
@@ -18,7 +18,7 @@
   z-index: 1;
 }
 
-.broker-listings-container > * {
+.broker-listings-container>* {
   position: relative;
   z-index: 2;
 }
@@ -81,15 +81,37 @@
 }
 
 @keyframes searchFloat {
-  0%, 100% { transform: translateY(0px) rotateY(0deg); }
-  25% { transform: translateY(-8px) rotateY(5deg); }
-  50% { transform: translateY(0px) rotateY(0deg); }
-  75% { transform: translateY(-5px) rotateY(-3deg); }
+
+  0%,
+  100% {
+    transform: translateY(0px) rotateY(0deg);
+  }
+
+  25% {
+    transform: translateY(-8px) rotateY(5deg);
+  }
+
+  50% {
+    transform: translateY(0px) rotateY(0deg);
+  }
+
+  75% {
+    transform: translateY(-5px) rotateY(-3deg);
+  }
 }
 
 @keyframes searchGlow {
-  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.6; }
-  50% { transform: scale(1.1) rotate(180deg); opacity: 0.8; }
+
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: scale(1.1) rotate(180deg);
+    opacity: 0.8;
+  }
 }
 
 /* ===== SEARCH CONTROLS ===== */
@@ -99,7 +121,7 @@
 }
 
 .broker-branding-header {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .broker-title {
@@ -119,11 +141,30 @@
   font-weight: 300;
 }
 
-.broker-search-filters {
-  display: grid;
-  grid-template-columns: 2fr 1.5fr 1.2fr 1.2fr auto;
+/* Search & Reset Row */
+.broker-search-row {
+  display: flex;
   gap: 1rem;
-  align-items: end;
+  margin-bottom: 1rem;
+}
+
+.broker-search-main {
+  flex: 3;
+  /* Takes 3/4 of the width */
+}
+
+.broker-reset-container {
+  flex: 1;
+  /* Takes 1/4 of the width */
+  display: flex;
+  align-items: stretch;
+}
+
+/* Filters Row */
+.broker-filters-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
 }
 
 .broker-search-group {
@@ -136,6 +177,11 @@
   padding: 0.75rem 1rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(10px);
+  height: 100%;
+}
+
+.broker-search-group.search-large {
+  height: 100%;
 }
 
 .broker-search-group:hover {
@@ -166,6 +212,7 @@
   flex: 1;
   font-size: 0.95rem;
   font-weight: 500;
+  width: 100%;
 }
 
 .broker-search-input::placeholder {
@@ -174,6 +221,10 @@
 
 .broker-search-select {
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: transparent;
 }
 
 .broker-search-select option {
@@ -190,10 +241,13 @@
   font-weight: 600;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
   backdrop-filter: blur(10px);
+  width: 100%;
+  height: 100%;
 }
 
 .btn-broker-reset:hover {
@@ -409,8 +463,13 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .broker-error-state i,
@@ -425,34 +484,6 @@
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
   margin-bottom: 0.5rem;
-}
-
-/* ===== RESPONSIVE DESIGN ===== */
-
-@media (max-width: 992px) {
-  .broker-search-filters {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
-
-  .broker-character-container {
-    width: 200px;
-    height: 200px;
-  }
-
-  .listings-character {
-    width: 160px;
-    height: 160px;
-  }
-
-  .listings-accent-circle {
-    width: 140px;
-    height: 140px;
-  }
-
-  .broker-title {
-    font-size: 2rem;
-  }
 }
 
 /* ===== PAGINATION STYLES ===== */
@@ -471,7 +502,7 @@
   width: fit-content;
 }
 
-.pagination-section > :nth-child(1) {
+.pagination-section> :nth-child(1) {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -535,14 +566,47 @@
   font-weight: 500;
 }
 
-@media (max-width: 992px) {
-  .broker-search-hero {
-    padding: 1.5rem 0;
-  }
+/* ===== RESPONSIVE DESIGN ===== */
 
+@media (max-width: 992px) {
   .broker-search-section {
     padding-left: 0;
     margin-top: 1.5rem;
+  }
+
+  .broker-search-row,
+  .broker-filters-row {
+    flex-direction: column;
+    grid-template-columns: 1fr;
+  }
+
+  .broker-search-main,
+  .broker-reset-container {
+    flex: 1;
+    width: 100%;
+  }
+
+  .broker-filters-row {
+    gap: 0.75rem;
+  }
+
+  .broker-character-container {
+    width: 200px;
+    height: 200px;
+  }
+
+  .listings-character {
+    width: 160px;
+    height: 160px;
+  }
+
+  .listings-accent-circle {
+    width: 140px;
+    height: 140px;
+  }
+
+  .broker-title {
+    font-size: 2rem;
   }
 
   .broker-cards-grid {
@@ -552,6 +616,16 @@
 
   .broker-amenities-section {
     margin-top: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .broker-search-hero {
+    padding: 1.5rem 0;
+  }
+
+  .broker-filters-row {
+    grid-template-columns: 1fr;
   }
 }
 

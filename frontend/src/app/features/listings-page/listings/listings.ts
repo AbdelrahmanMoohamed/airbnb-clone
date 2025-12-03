@@ -17,19 +17,19 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angul
   styleUrls: ['./listings.css']
 })
 export class Listings implements OnInit {
-  // raw data
-  listings = signal<ListingOverviewVM[]>([]);
-  totalCount = signal<number>(0);
+  // raw data - all listings loaded at once
+  allListings = signal<ListingOverviewVM[]>([]);
   loading = signal<boolean>(false);
   error = signal<string>('');
 
-  // pagination
+  // pagination for filtered results
   currentPage = signal<number>(1);
   pageSize = signal<number>(12);
-  
+
   // filters (signals)
   search = signal<string>('');
-  location = signal<string>('');
+  destination = signal<string>('');  // Changed from location to destination
+  type = signal<string>('');
   maxPrice = signal<number | null>(null);
   minRating = signal<number | null>(null);
 
@@ -40,8 +40,7 @@ export class Listings implements OnInit {
     private listingService: ListingService,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private fb: FormBuilder
-    ,
+    private fb: FormBuilder,
     public favoriteStore: FavoriteStoreService
   ) {
     this.form = this.fb.group({
@@ -50,15 +49,12 @@ export class Listings implements OnInit {
   }
 
   onListingFavoriteChanged(payload: { listingId: number; isFavorited: boolean }) {
-    // Parent receives event from child listing card when favorite toggles.
-    // Keep UI in sync: ensure local listings signal doesn't contain stale favorite markers.
     try {
-      const idx = this.listings().findIndex(l => l.id === payload.listingId);
+      const idx = this.allListings().findIndex(l => l.id === payload.listingId);
       if (idx >= 0) {
-        const copy = [...this.listings()];
-        // attach a transient isFavorited flag so the card can pick it up if needed
+        const copy = [...this.allListings()];
         (copy[idx] as any).isFavorited = payload.isFavorited;
-        this.listings.set(copy);
+        this.allListings.set(copy);
       }
     } catch (e) { console.warn('Failed to update listing favorite state in parent', e); }
   }
@@ -66,9 +62,7 @@ export class Listings implements OnInit {
   // list of amenities
   amenitiesList = [
     'Wi-Fi', 'Pool', 'Air Conditioning', 'Kitchen',
-    'Washer', 'Dryer', 'TV', 'Heating', 'Parking',
-    // 'Pet Friendly', 'Gym', 'Hot Tub', 'Fireplace', 'Breakfast',
-    // 'Elevator', 'Wheelchair Accessible', 'Garden', 'Balcony', 'Sauna'
+    'Washer', 'Dryer', 'TV', 'Heating', 'Parking'
   ];
 
   toggleAmenity(amenity: string): void {
@@ -80,6 +74,9 @@ export class Listings implements OnInit {
     else amenities.push(amenity);
 
     this.form.patchValue({ amenities });
+
+    // Reset to first page when filters change
+    this.currentPage.set(1);
   }
 
   isAmenitySelected(amenity: string): boolean {
@@ -105,62 +102,96 @@ export class Listings implements OnInit {
     return s;
   }
 
-  // computed list of unique locations
-  locations = computed(() => {
-    const data = this.listings();
+  // computed list of unique destinations from all data
+  destinations = computed(() => {
+    const data = this.allListings();
     const set = new Set<string>();
-    data.forEach(l => set.add(l.location));
-    return Array.from(set);
+    data.forEach(l => set.add(l.destination));
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
   });
 
-  // computed filtered list (client-side filtering after server load)
+  // computed list of unique types from all data
+  types = computed(() => {
+    const data = this.allListings();
+    const set = new Set<string>();
+    data.forEach(l => set.add(l.type));
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  });
+
+  // computed filtered list (client-side filtering on ALL data)
   filtered = computed<ListingOverviewVM[]>(() => {
-    const data = this.listings();
+    const data = this.allListings();
     if (!data || !Array.isArray(data)) return [];
 
     const rawQuery = this.search().trim();
-    const rawLoc = this.location().trim();
+    const rawDest = this.destination().trim();
+    const rawType = this.type().trim();
     const maxP = this.maxPrice();
     const minR = this.minRating();
+    const selectedAmenities = this.form.get('amenities')?.value || [];
 
     const q = this.normalize(rawQuery);
-    const locNormalized = this.normalize(rawLoc);
+    const destNormalized = this.normalize(rawDest);
+    const typeNormalized = this.normalize(rawType);
 
     return data.filter(l => {
       const title = this.normalize(l.title);
-      const locationVal = this.normalize(l.location);
+      const destinationVal = this.normalize(l.destination);
+      const typeVal = this.normalize(l.type);
       const description = this.normalize(l.description ?? '');
 
       const matchesSearch =
         !q ||
         title.includes(q) ||
-        locationVal.includes(q) ||
+        destinationVal.includes(q) ||
         description.includes(q);
 
-      const matchesLocation =
-        !locNormalized || locationVal.includes(locNormalized);
+      const matchesDestination =
+        !destNormalized || destinationVal.includes(destNormalized);
+
+      const matchesType =
+        !typeNormalized || typeVal.includes(typeNormalized);
 
       const priceOk = maxP === null || l.pricePerNight <= maxP;
 
       const ratingOk =
         minR === null || (l.averageRating ?? 0) >= minR;
 
-      return matchesSearch && matchesLocation && priceOk && ratingOk;
+      // Amenities filter
+      // const amenitiesOk = selectedAmenities.length === 0 || 
+      //   selectedAmenities.every((amenity: string) => 
+      //     l.amenities && l.amenities.includes(amenity)
+      //   );
+
+      return matchesSearch && matchesDestination && matchesType && priceOk && ratingOk; // && amenitiesOk;
     });
   });
 
-  // computed pagination values
+  // computed paginated results from filtered data
+  paginatedListings = computed(() => {
+    const filteredData = this.filtered();
+    const pageSize = this.pageSize();
+    const currentPage = this.currentPage();
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+
+    return filteredData.slice(startIndex, endIndex);
+  });
+
+  // computed pagination values based on filtered results
+  totalFilteredCount = computed(() => this.filtered().length);
+
   totalPages = computed(() => {
-    const total = this.totalCount();
+    const total = this.totalFilteredCount();
     const pageSize = this.pageSize();
     return total === 0 ? 1 : Math.ceil(total / pageSize);
   });
-  
+
   paginationPages = computed(() => {
     const total = this.totalPages();
     const current = this.currentPage();
     const pages: (number | string)[] = [];
-    
+
     if (total <= 7) {
       for (let i = 1; i <= total; i++) {
         pages.push(i);
@@ -168,46 +199,48 @@ export class Listings implements OnInit {
     } else {
       pages.push(1);
       if (current > 3) pages.push('...');
-      
+
       const start = Math.max(2, current - 1);
       const end = Math.min(total - 1, current + 1);
-      
+
       for (let i = start; i <= end; i++) {
         pages.push(i);
       }
-      
+
       if (current < total - 2) pages.push('...');
       pages.push(total);
     }
-    
+
     return pages;
   });
 
   ngOnInit(): void {
-    this.loadListings();
+    this.loadAllListings();
 
     // refresh on navigation
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd && this.router.url.startsWith('/listings')) {
-        this.loadListings();
+        this.loadAllListings();
       }
     });
   }
 
-  loadListings(): void {
+  viewOnMap() {
+    this.router.navigate(['/map']);
+  }
+
+  loadAllListings(): void {
     this.loading.set(true);
     this.error.set('');
 
-    this.listingService.getPaged(this.currentPage(), this.pageSize()).subscribe({
+    // Load all listings at once (use a large page size to get all data)
+    this.listingService.getPaged(1, 10000).subscribe({
       next: (res) => {
-        console.log('Listings Response:', res);
-        this.listings.set(res.data || []);
-        const total = res.totalCount || res.data?.length || 0;
-        this.totalCount.set(total);
-        console.log('Total count set to:', total);
+        console.log('All Listings Response:', res);
+        this.allListings.set(res.data || []);
+        console.log('Total listings loaded:', res.data?.length || 0);
         this.loading.set(false);
         this.cdr.markForCheck();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
       },
       error: (err) => {
         console.error('Error loading listings:', err);
@@ -221,9 +254,10 @@ export class Listings implements OnInit {
   goToPage(page: number | string): void {
     if (typeof page === 'string') return;
     if (page < 1 || page > this.totalPages()) return;
-    
+
     this.currentPage.set(page);
-    this.loadListings();
+    // No need to reload data, just update the page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   nextPage(): void {
@@ -241,31 +275,36 @@ export class Listings implements OnInit {
     }
   }
 
+  // Reset to first page when filters change
+  onSearchChange(): void {
+    this.currentPage.set(1);
+  }
+
+  onDestinationChange(): void {
+    this.currentPage.set(1);
+  }
+
+  onTypeChange(): void {
+    this.currentPage.set(1);
+  }
+
+  onPriceChange(): void {
+    this.currentPage.set(1);
+  }
+
+  onRatingChange(): void {
+    this.currentPage.set(1);
+  }
+
   resetFilters() {
     this.search.set('');
-    this.location.set('');
+    this.destination.set('');
+    this.type.set('');
     this.maxPrice.set(null);
     this.minRating.set(null);
     this.form.patchValue({ amenities: [] });
     this.currentPage.set(1);
-    this.loadListings();
-  }
-
-  viewOnMap() {
-    this.router.navigate(['/map']);
-  }
-
-  onDelete(id: number) {
-    if (!confirm('Delete this listing?')) return;
-
-    this.listingService.delete(id).subscribe({
-      next: () => {
-        this.listings.update(list => list.filter(l => l.id !== id));
-      },
-      error: () => {
-        this.error.set('Failed to delete listing');
-      }
-    });
+    // No need to reload data, filters are applied client-side
   }
 
   trackById(index: number, item: ListingOverviewVM): number {

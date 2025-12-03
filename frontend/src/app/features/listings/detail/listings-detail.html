@@ -61,8 +61,10 @@
               <!-- Property Title & Status -->
               <div class="property-title-section">
                 <h1 class="property-title">{{ listing.title }}</h1>
-                <div class="property-status" [class.approved]="listing.isApproved" [class.pending]="!listing.isApproved">
-                  <i class="bi" [class.bi-check-circle-fill]="listing.isApproved" [class.bi-clock-fill]="!listing.isApproved"></i>
+                <div class="property-status" [class.approved]="listing.isApproved"
+                  [class.pending]="!listing.isApproved">
+                  <i class="bi" [class.bi-check-circle-fill]="listing.isApproved"
+                    [class.bi-clock-fill]="!listing.isApproved"></i>
                   {{ listing.isApproved ? ('listings.approved' | translate) : ('listings.pending' | translate) }}
                 </div>
               </div>
@@ -75,7 +77,8 @@
                 </div>
                 <div class="meta-item rating" *ngIf="listing.averageRating">
                   <i class="bi bi-star-fill"></i>
-                  <span>{{ listing.averageRating.toFixed(1) }} ({{ listing.reviewCount }} {{ 'listings.reviews' | translate }})</span>
+                  <span>{{ listing.averageRating.toFixed(1) }} ({{ listing.reviewCount }} {{ 'listings.reviews' |
+                    translate }})</span>
                 </div>
                 <div class="meta-item rating" *ngIf="!listing.averageRating">
                   <i class="bi bi-star"></i>
@@ -113,19 +116,15 @@
               <div class="main-image-container">
                 <img [src]="listing.images && listing.images.length > 0
                     ? listing.images[currentImageIndex].imageUrl
-                    : '/assets/images/placeholder-listing.jpg'"
-                     [alt]="listing.title"
-                     class="main-property-image" />
+                    : '/assets/images/placeholder-listing.jpg'" [alt]="listing.title" class="main-property-image" />
 
                 <!-- Image Navigation -->
-                <button *ngIf="listing.images && listing.images.length > 1"
-                        class="image-nav-btn prev"
-                        (click)="prevImage()">
+                <button *ngIf="listing.images && listing.images.length > 1" class="image-nav-btn prev"
+                  (click)="prevImage()">
                   <i class="bi bi-chevron-left"></i>
                 </button>
-                <button *ngIf="listing.images && listing.images.length > 1"
-                        class="image-nav-btn next"
-                        (click)="nextImage()">
+                <button *ngIf="listing.images && listing.images.length > 1" class="image-nav-btn next"
+                  (click)="nextImage()">
                   <i class="bi bi-chevron-right"></i>
                 </button>
 
@@ -137,10 +136,8 @@
 
               <!-- Thumbnails -->
               <div class="image-thumbnails" *ngIf="listing.images && listing.images.length > 1">
-                <button *ngFor="let img of listing.images; let i = index"
-                        class="thumbnail-btn"
-                        [class.active]="i === currentImageIndex"
-                        (click)="selectImage(i)">
+                <button *ngFor="let img of listing.images; let i = index" class="thumbnail-btn"
+                  [class.active]="i === currentImageIndex" (click)="selectImage(i)">
                   <img [src]="img.imageUrl" [alt]="'Image ' + (i + 1)" class="thumbnail-image" />
                 </button>
               </div>
@@ -318,6 +315,327 @@
       </div>
     </div>
 
+    <!-- Reviews Section -->
+    <div class="broker-reviews-section">
+      <div class="container-fluid">
+        <div class="broker-reviews-card">
+
+          <!-- Review Header -->
+          <div class="review-header-main">
+            <h2>
+              <i class="bi bi-star-fill"></i>
+              Guest Reviews
+            </h2>
+            <div class="review-count">
+              24 reviews
+            </div>
+          </div>
+
+          <!-- Overall Rating -->
+          <div class="broker-overall-rating">
+            <div class="rating-summary">
+              <div class="rating-number-main">
+                4.8
+              </div>
+              <div class="star-display-main">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-half"></i>
+              </div>
+              <div class="review-count">
+                Overall Rating
+              </div>
+            </div>
+
+            <!-- Rating Breakdown -->
+            <div class="rating-breakdown">
+              <div class="breakdown-item">
+                <span class="rating-label">5 stars</span>
+                <div class="rating-bar">
+                  <div class="rating-fill" style="width: 75%"></div>
+                </div>
+                <span class="rating-count">18</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="rating-label">4 stars</span>
+                <div class="rating-bar">
+                  <div class="rating-fill" style="width: 16.7%"></div>
+                </div>
+                <span class="rating-count">4</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="rating-label">3 stars</span>
+                <div class="rating-bar">
+                  <div class="rating-fill" style="width: 8.3%"></div>
+                </div>
+                <span class="rating-count">2</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="rating-label">2 stars</span>
+                <div class="rating-bar">
+                  <div class="rating-fill" style="width: 0%"></div>
+                </div>
+                <span class="rating-count">0</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="rating-label">1 star</span>
+                <div class="rating-bar">
+                  <div class="rating-fill" style="width: 0%"></div>
+                </div>
+                <span class="rating-count">0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Review Form -->
+          <div class="broker-review-form">
+            <h3>
+              <i class="bi bi-pencil-square"></i>
+              Write a Review
+            </h3>
+
+            <form class="review-form">
+              <!-- Rating Selection -->
+              <div class="broker-rating-selector">
+                <label>Your Rating:</label>
+                <div class="broker-star-btns">
+                  <button type="button" class="broker-star-btn active">
+                    <i class="bi bi-star-fill"></i>
+                  </button>
+                  <button type="button" class="broker-star-btn active">
+                    <i class="bi bi-star-fill"></i>
+                  </button>
+                  <button type="button" class="broker-star-btn active">
+                    <i class="bi bi-star-fill"></i>
+                  </button>
+                  <button type="button" class="broker-star-btn active">
+                    <i class="bi bi-star-fill"></i>
+                  </button>
+                  <button type="button" class="broker-star-btn">
+                    <i class="bi bi-star"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Review Comment -->
+              <div class="broker-form-group">
+                <label for="comment">Your Review</label>
+                <textarea id="comment" name="comment" class="broker-textarea"
+                  placeholder="Share details of your experience at this property..."
+                  rows="4">The property was even better than the photos! The host was very responsive and the location was perfect for exploring the city. Would definitely stay here again.</textarea>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="broker-form-actions">
+                <button type="submit" class="btn-broker-primary">
+                  <i class="bi bi-send-fill"></i>
+                  Submit Review
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Reviews List -->
+          <div class="broker-reviews-list">
+            <!-- Reviews Sorting -->
+            <!-- <div class="reviews-sorting">
+              <label>Sort by:</label>
+              <select class="form-select">
+                <option value="newest">Newest First</option>
+                <option value="highest">Highest Rated</option>
+                <option value="lowest">Lowest Rated</option>
+              </select>
+            </div> -->
+
+            <!-- Review Cards -->
+            <div class="broker-review-cards">
+
+              <!-- Review 1 -->
+              <div class="broker-review-card">
+                <div class="broker-review-header">
+                  <div class="broker-reviewer-info">
+                    <div class="broker-reviewer-avatar">
+                      S
+                    </div>
+                    <div class="broker-reviewer-details">
+                      <div class="broker-reviewer-name">Sarah Johnson</div>
+                      <div class="broker-review-date">March 15, 2024</div>
+                    </div>
+                  </div>
+                  <div class="broker-review-rating">
+                    <div class="broker-review-stars">
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star-fill"></i>
+                    </div>
+                    <div class="broker-review-rating-value">
+                      5.0
+                    </div>
+                  </div>
+                </div>
+                <div class="broker-review-content">
+                  <p class="broker-review-comment">Absolutely loved our stay here! The property was clean, modern, and
+                    had everything we needed. The view from the balcony was breathtaking, especially during sunrise. The
+                    host was very responsive and provided great local recommendations.</p>
+                </div>
+              </div>
+
+              <!-- Review 2 -->
+              <div class="broker-review-card">
+                <div class="broker-review-header">
+                  <div class="broker-reviewer-info">
+                    <div class="broker-reviewer-avatar">
+                      M
+                    </div>
+                    <div class="broker-reviewer-details">
+                      <div class="broker-reviewer-name">Michael Chen</div>
+                      <div class="broker-review-date">February 28, 2024</div>
+                    </div>
+                  </div>
+                  <div class="broker-review-rating">
+                    <div class="broker-review-stars">
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star"></i>
+                    </div>
+                    <div class="broker-review-rating-value">
+                      4.0
+                    </div>
+                  </div>
+                </div>
+                <div class="broker-review-content">
+                  <p class="broker-review-comment">Very comfortable stay with excellent amenities. The location is
+                    convenient with good transportation links. The only minor issue was the Wi-Fi speed, but everything
+                    else was perfect. Would recommend for business travelers.</p>
+                </div>
+              </div>
+
+              <!-- Review 3 -->
+              <div class="broker-review-card">
+                <div class="broker-review-header">
+                  <div class="broker-reviewer-info">
+                    <div class="broker-reviewer-avatar">
+                      E
+                    </div>
+                    <div class="broker-reviewer-details">
+                      <div class="broker-reviewer-name">Emma Rodriguez</div>
+                      <div class="broker-review-date">January 10, 2024</div>
+                    </div>
+                  </div>
+                  <div class="broker-review-rating">
+                    <div class="broker-review-stars">
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star"></i>
+                      <i class="bi bi-star"></i>
+                    </div>
+                    <div class="broker-review-rating-value">
+                      3.0
+                    </div>
+                  </div>
+                </div>
+                <div class="broker-review-content">
+                  <p class="broker-review-comment">The property has great potential but there were some maintenance
+                    issues during our stay. The air conditioning wasn't working properly and some kitchen appliances
+                    were outdated. However, the host was very apologetic and offered a partial refund.</p>
+                </div>
+              </div>
+
+              <!-- Review 4 -->
+              <div class="broker-review-card">
+                <div class="broker-review-header">
+                  <div class="broker-reviewer-info">
+                    <div class="broker-reviewer-avatar">
+                      D
+                    </div>
+                    <div class="broker-reviewer-details">
+                      <div class="broker-reviewer-name">David Wilson</div>
+                      <div class="broker-review-date">December 5, 2023</div>
+                    </div>
+                  </div>
+                  <div class="broker-review-rating">
+                    <div class="broker-review-stars">
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star-half"></i>
+                    </div>
+                    <div class="broker-review-rating-value">
+                      4.5
+                    </div>
+                  </div>
+                </div>
+                <div class="broker-review-content">
+                  <p class="broker-review-comment">Excellent value for money! The apartment was spacious and
+                    well-equipped. The neighborhood was quiet and safe. The check-in process was smooth and the host was
+                    available whenever we had questions. Would definitely book again!</p>
+                </div>
+              </div>
+
+              <!-- Review 5 -->
+              <div class="broker-review-card">
+                <div class="broker-review-header">
+                  <div class="broker-reviewer-info">
+                    <div class="broker-reviewer-avatar">
+                      J
+                    </div>
+                    <div class="broker-reviewer-details">
+                      <div class="broker-reviewer-name">Jessica Lee</div>
+                      <div class="broker-review-date">November 20, 2023</div>
+                    </div>
+                  </div>
+                  <div class="broker-review-rating">
+                    <div class="broker-review-stars">
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star-fill"></i>
+                      <i class="bi bi-star-fill"></i>
+                    </div>
+                    <div class="broker-review-rating-value">
+                      5.0
+                    </div>
+                  </div>
+                </div>
+                <div class="broker-review-content">
+                  <p class="broker-review-comment">Perfect for our family vacation! The kids loved the pool and the
+                    nearby park. The kitchen had all the utensils we needed to cook meals. Everything was spotlessly
+                    clean. Thank you for a wonderful stay!</p>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Load More Button -->
+            <div class="broker-load-more">
+              <button class="btn-broker-outline">
+                <i class="bi bi-arrow-down"></i>
+                Load More Reviews
+              </button>
+            </div>
+          </div>
+
+          <!-- No Reviews Section (hidden when there are reviews) -->
+          <div class="no-reviews" style="display: none;">
+            <div class="text-center py-4">
+              <i class="bi bi-chat-square-text display-4 text-muted"></i>
+              <h4 class="mt-3 mb-2">No Reviews Yet</h4>
+              <p class="text-muted">Be the first to review this property!</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
     <!-- Bottom Actions -->
     <div class="broker-bottom-actions">
       <div class="container-fluid">
@@ -341,110 +659,4 @@
     </div>
 
   </div>
-
 </div>
-
-
-
-
-
-
-
-
-
-<!-- <div class="listing-detail-container">
-  <div *ngIf="loading" class="loading">
-    <p>Loading listing details...</p>
-  </div>
-
-  <div *ngIf="error && !loading" class="alert alert-error">
-    <p>{{ error }}</p>
-    <button class="btn btn-secondary" (click)="goBack()">← Back to Listings</button>
-  </div>
-
-  <div *ngIf="listing && !loading && !error" class="detail-content">
-    <div class="detail-header">
-      <button class="btn-back" (click)="goBack()">← Back</button>
-      <h1>{{ listing.title }}</h1>
-      <button class="btn btn-primary" (click)="editListing()">Edit Listing</button>
-    </div>
-
-    <div class="images-section">
-      <div class="main-image">
-        <img [src]="listing.images && listing.images.length > 0
-            ? listing.images[currentImageIndex].imageUrl
-            : 'https://via.placeholder.com/800x600?text=No+Image'" [alt]="listing.title" />
-        <button *ngIf="listing.images && listing.images.length > 1" class="nav-btn prev" (click)="prevImage()">
-          ❮
-        </button>
-        <button *ngIf="listing.images && listing.images.length > 1" class="nav-btn next" (click)="nextImage()">
-          ❯
-        </button>
-      </div>
-
-      <div *ngIf="listing.images && listing.images.length > 1" class="thumbnails">
-        <button *ngFor="let img of listing.images; let i = index" class="thumbnail"
-          [class.active]="i === currentImageIndex" (click)="selectImage(i)">
-          <img [src]="img.imageUrl" [alt]="'Image ' + (i + 1)" />
-        </button>
-      </div>
-    </div>
-
-    <div class="main-info">
-      <div class="info-header">
-        <div class="location-rating">
-          <p class="location">📍 {{ listing.location }}</p>
-          <div class="rating" *ngIf="listing.averageRating">
-            <span class="stars">⭐ {{ listing.averageRating.toFixed(1) }}</span>
-            <span class="count">({{ listing.reviewCount }} reviews)</span>
-          </div>
-          <div class="no-rating" *ngIf="!listing.averageRating">
-            <span>No reviews yet</span>
-          </div>
-        </div>
-
-        <div class="status" [class.approved]="listing.isApproved" [class.pending]="!listing.isApproved">
-          {{ listing.isApproved ? '✓ Approved' : '⏳ Pending Review' }}
-        </div>
-      </div>
-
-      <h2 class="price">{{ listing.pricePerNight }} EGP <span class="per-night">per night</span></h2>
-
-      <div class="description">
-        <h3>About this listing</h3>
-        <p>{{ listing.description }}</p>
-      </div>
-
-      <div class="details-grid">
-        <div class="detail-item">
-          <span class="label">Max Guests</span>
-          <span class="value">{{ listing.maxGuests }}</span>
-        </div>
-      </div>
-
-      <div *ngIf="listing.amenities && listing.amenities.length > 0" class="amenities">
-        <h3>Amenities</h3>
-        <div class="amenities-list">
-          <span *ngFor="let amenity of listing.amenities" class="amenity-tag">
-            {{ amenity }}
-          </span>
-        </div>
-      </div>
-
-      <div class="location-info">
-        <h3>Location : {{ listing.location }}</h3>
-        <div id="detail-map" class="detail-map" style="height:300px; border-radius:6px; overflow:hidden;"></div>
-        <p class="map-coords"></p>
-      </div>
-
-      <div class="actions">
-        <button class="btn btn-primary btn-large" [routerLink]="['/booking/create', listing.id]">
-          Book Now
-        </button>
-        <button class="btn btn-secondary btn-large" (click)="goBack()">
-          Back to Listings
-        </button>
-      </div>
-    </div>
-  </div>
-</div> -->

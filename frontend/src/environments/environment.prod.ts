@@ -1,6 +1,5 @@
 export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:5235/api',
+  production: true,
   firebaseConfig: {
     apiKey: "AIzaSyAeyZ11lRJDmV7cB41YJ-gdtj2tkvefWk0",
     authDomain: "airbnb-clone-b24a1.firebaseapp.com",

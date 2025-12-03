@@ -1,7 +1,7 @@
 import { Component, inject, Inject, PLATFORM_ID, ChangeDetectorRef, NgZone } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import {  FormGroup } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ListingService } from '../../../core/services/listings/listing.service';
@@ -48,8 +48,8 @@ export class ListingsCreateEdit {
   private tempLongitude: number | null = null;
 
   amenitiesList = [
-    'Wi-Fi', 'Pool', 'Air Conditioning', 'Kitchen', 
-    'Washer', 'Dryer', 'TV', 'Heating', 'Parking' , 'hire'
+    'Wi-Fi', 'Pool', 'AC', 'Kitchen', 'Washer', 'Dryer', 'TV', 'Heating', 'Parking',
+    'Fireplace', 'Gym', 'Breakfast', 'Pets Allowed', 'Hot Tub', 'Elevator'
   ];
 
   constructor() {
@@ -59,8 +59,8 @@ export class ListingsCreateEdit {
   private initForm(): void {
     this.form = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(5)]],
-      description: ['', [Validators.required, Validators.minLength(20)]],
-      pricePerNight: [0, [Validators.required, Validators.min(1)]],
+      description: ['', [Validators.required, Validators.minLength(10)]],
+      pricePerNight: [1, [Validators.required, Validators.min(1)]],
       location: ['', [Validators.required, Validators.minLength(3)]],
       destination: ['', [Validators.required, Validators.minLength(2)]],
       type: ['', [Validators.required]],
@@ -97,7 +97,7 @@ export class ListingsCreateEdit {
       void this.initPickerMap();
     } else {
       if (this.pickerMap) {
-        try { this.pickerMap.remove(); } catch {}
+        try { this.pickerMap.remove(); } catch { }
         this.pickerMap = null;
         this.pickerMarker = null;
       }
@@ -123,7 +123,7 @@ export class ListingsCreateEdit {
           <circle cx="15" cy="11" r="4" fill="#fff"/>
         </svg>
       `;
-      const customIcon = this.leaflet.divIcon({ html: svgPin, className: 'custom-leaflet-icon', iconSize: [30,42], iconAnchor: [15,42] });
+      const customIcon = this.leaflet.divIcon({ html: svgPin, className: 'custom-leaflet-icon', iconSize: [30, 42], iconAnchor: [15, 42] });
 
       // place initial marker if form already has coords
       const lat = Number(this.form.get('latitude')?.value);
@@ -149,7 +149,7 @@ export class ListingsCreateEdit {
         // ensure form inputs reflect tentative coords immediately
         this.ngZone.run(() => {
           this.form.patchValue({ latitude: this.tempLatitude, longitude: this.tempLongitude });
-          try { this.cdr.detectChanges(); } catch {}
+          try { this.cdr.detectChanges(); } catch { }
         });
       });
     } catch (err) {
@@ -168,14 +168,14 @@ export class ListingsCreateEdit {
           if (g && g.formattedAddress) {
             this.ngZone.run(() => {
               this.form.patchValue({ location: g.formattedAddress });
-              try { this.cdr.detectChanges(); } catch {}
+              try { this.cdr.detectChanges(); } catch { }
             });
           }
-        }, () => {/* ignore geocode errors */});
-      } catch {}
+        }, () => {/* ignore geocode errors */ });
+      } catch { }
     }
     this.showMapPicker = false;
-    if (this.pickerMap) { try { this.pickerMap.remove(); } catch {} this.pickerMap = null; this.pickerMarker = null; }
+    if (this.pickerMap) { try { this.pickerMap.remove(); } catch { } this.pickerMap = null; this.pickerMarker = null; }
     // clear temporary coords
     this.tempLatitude = null;
     this.tempLongitude = null;
@@ -196,7 +196,7 @@ export class ListingsCreateEdit {
               id: img.id,
               url: img.imageUrl
             }));
-            try { this.cdr.detectChanges(); } catch {}
+            try { this.cdr.detectChanges(); } catch { }
           });
         } else {
           this.error = response.message || 'Failed to load listing';
@@ -224,7 +224,9 @@ export class ListingsCreateEdit {
       longitude: listing.longitude,
       maxGuests: listing.maxGuests,
       bedrooms: listing.bedrooms,
-      bathrooms: listing.bathrooms
+      bathrooms: listing.bathrooms,
+      amenities: listing.amenities || []
+
     });
   }
 
@@ -245,7 +247,7 @@ export class ListingsCreateEdit {
         this.ngZone.run(() => {
           this.imagePreviews.push(reader.result as string);
           this.selectedFiles.push(file);
-          try { this.cdr.detectChanges(); } catch {}
+          try { this.cdr.detectChanges(); } catch { }
         });
       };
       reader.readAsDataURL(file);
@@ -256,7 +258,7 @@ export class ListingsCreateEdit {
     this.ngZone.run(() => {
       this.imagePreviews.splice(index, 1);
       this.selectedFiles.splice(index, 1);
-      try { this.cdr.detectChanges(); } catch {}
+      try { this.cdr.detectChanges(); } catch { }
     });
   }
 
@@ -264,7 +266,7 @@ export class ListingsCreateEdit {
     this.ngZone.run(() => {
       this.removeImageIds.push(imageId);
       this.existingImages = this.existingImages.filter(img => img.id !== imageId);
-      try { this.cdr.detectChanges(); } catch {}
+      try { this.cdr.detectChanges(); } catch { }
     });
   }
 
@@ -356,8 +358,8 @@ export class ListingsCreateEdit {
           if (!response.isError) {
             this.successMessage = 'Listing created successfully!';
             setTimeout(() => {
-                // after create, redirect to listings overview
-                this.router.navigate(['/host']);
+              // after create, redirect to listings overview
+              this.router.navigate(['/host']);
             }, 1500);
           } else {
             this.error = response.message || 'Failed to create listing';
@@ -398,5 +400,5 @@ export class ListingsCreateEdit {
 
   goBack(): void {
     this.router.navigate(['/host']);
-  }
+  }
 }

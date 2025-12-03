@@ -19,52 +19,67 @@
               <p class="broker-subtitle">{{ 'listings.discoverProperties' | translate }}</p>
             </div>
 
-            <!-- Search Filters Row -->
+            <!-- Search Filters - Two Row Layout -->
             <div class="broker-search-filters">
-              <!-- Main Search -->
-              <div class="broker-search-group">
-                <i class="bi bi-search"></i>
-                <input class="broker-search-input" type="text"
-                       [placeholder]="'listings.searchPlaceholder' | translate"
-                       [ngModel]="search()"
-                       (ngModelChange)="search.set($event)" />
+              <!-- First Row: Search + Reset -->
+              <div class="broker-search-row">
+                <!-- Main Search (3/4 width) -->
+                <div class="broker-search-main">
+                  <div class="broker-search-group search-large">
+                    <i class="bi bi-search"></i>
+                    <input class="broker-search-input" type="text"
+                      [placeholder]="'Title, destination, or description'" [ngModel]="search()"
+                      (ngModelChange)="search.set($event); onSearchChange()" />
+                  </div>
+                </div>
+
+                <!-- Reset Button (1/4 width) -->
+                <div class="broker-reset-container">
+                  <button class="btn-broker-reset" (click)="resetFilters()">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    <span>{{ 'listings.reset' | translate }}</span>
+                  </button>
+                </div>
               </div>
 
-              <!-- Location Filter -->
-              <div class="broker-search-group">
-                <i class="bi bi-geo-alt"></i>
-                <select class="broker-search-select" [ngModel]="location()" (ngModelChange)="location.set($event)">
-                  <option value="">{{ 'listings.allLocations' | translate }}</option>
-                  <option *ngFor="let loc of locations()" [value]="loc">{{ loc }}</option>
-                </select>
-              </div>
+              <!-- Second Row: Other 4 Filters -->
+              <div class="broker-filters-row">
+                <!-- Destination Filter -->
+                <div class="broker-search-group">
+                  <i class="bi bi-geo-alt"></i>
+                  <select class="broker-search-select" [ngModel]="destination()"
+                    (ngModelChange)="destination.set($event); onDestinationChange()">
+                    <option value="">Destination</option>
+                    <option *ngFor="let dest of destinations()" [value]="dest">{{ dest }}</option>
+                  </select>
+                </div>
 
-              <!-- Price Filter -->
-              <div class="broker-search-group">
-                <i class="bi bi-currency-dollar"></i>
-                <input type="number"
-                       [placeholder]="'listings.maxPrice' | translate"
-                       class="broker-search-input"
-                       [ngModel]="maxPrice()"
-                       (ngModelChange)="maxPrice.set($event === '' ? null : +$event)" />
-              </div>
+                <!-- Type Filter -->
+                <div class="broker-search-group">
+                  <i class="bi bi-house"></i>
+                  <select class="broker-search-select" [ngModel]="type()"
+                    (ngModelChange)="type.set($event); onTypeChange()">
+                    <option value="">Type</option>
+                    <option *ngFor="let propertyType of types()" [value]="propertyType">{{ propertyType }}</option>
+                  </select>
+                </div>
 
-              <!-- Rating Filter -->
-              <div class="broker-search-group">
-                <i class="bi bi-star"></i>
-                <input type="number"
-                       [placeholder]="'listings.minRating' | translate"
-                       class="broker-search-input"
-                       min="0" max="5" step="0.5"
-                       [ngModel]="minRating()"
-                       (ngModelChange)="minRating.set($event === '' ? null : +$event)" />
-              </div>
+                <!-- Price Filter -->
+                <div class="broker-search-group">
+                  <i class="bi bi-currency-dollar"></i>
+                  <input type="number" [placeholder]="'listings.maxPrice' | translate" class="broker-search-input"
+                    [ngModel]="maxPrice()"
+                    (ngModelChange)="maxPrice.set($event === '' ? null : +$event); onPriceChange()" />
+                </div>
 
-              <!-- Reset Button -->
-              <button class="btn-broker-reset" (click)="resetFilters()">
-                <i class="bi bi-arrow-clockwise"></i>
-                <span>{{ 'listings.reset' | translate }}</span>
-              </button>
+                <!-- Rating Filter -->
+                <div class="broker-search-group">
+                  <i class="bi bi-star"></i>
+                  <input type="number" [placeholder]="'listings.minRating' | translate" class="broker-search-input"
+                    min="0" max="5" step="0.5" [ngModel]="minRating()"
+                    (ngModelChange)="minRating.set($event === '' ? null : +$event); onRatingChange()" />
+                </div>
+              </div>
             </div>
 
             <!-- View on Map Button -->
@@ -84,7 +99,6 @@
     </div>
   </div>
 
-
   <!-- Main Content Area -->
   <div class="broker-main-content">
     <div class="container-fluid">
@@ -94,13 +108,11 @@
         <div class="col-lg-9 col-md-8">
           <div class="broker-listings-grid">
             <div class="broker-listings-header">
-              <h3 class="listings-count">{{ filtered().length }} {{ 'listings.propertiesFound' | translate }}</h3>
+              <h3 class="listings-count">{{ totalFilteredCount() }} {{ 'listings.propertiesFound' | translate }}</h3>
             </div>
 
             <div class="broker-cards-grid">
-              <app-listing-card
-                *ngFor="let listing of filtered(); trackBy: trackById"
-                [listing]="listing"
+              <app-listing-card *ngFor="let listing of paginatedListings(); trackBy: trackById" [listing]="listing"
                 [isFavorited]="favoriteStore.isFavorited(listing.id)"
                 (favoriteChanged)="onListingFavoriteChanged($event)">
               </app-listing-card>
@@ -119,7 +131,7 @@
             </div>
 
             <!-- Empty State -->
-            <div *ngIf="!loading() && !error() && filtered().length === 0" class="broker-empty-state">
+            <div *ngIf="!loading() && !error() && totalFilteredCount() === 0" class="broker-empty-state">
               <i class="bi bi-house-x"></i>
               <h4>{{ 'listings.noProperties' | translate }}</h4>
               <p>{{ 'listings.tryDifferentFilters' | translate }}</p>
@@ -130,7 +142,8 @@
             <div *ngIf="!loading() && totalPages() > 1" class="pagination-section">
               <button *ngIf="currentPage() > 1" (click)="prevPage()" class="pagination-btn">Previous</button>
               <span *ngFor="let page of paginationPages()" class="pagination-number">
-                <button *ngIf="typeof page === 'number'" (click)="goToPage(+page)" [class.active]="page === currentPage()" class="pagination-page-btn">{{ page }}</button>
+                <button *ngIf="typeof page === 'number'" (click)="goToPage(+page)"
+                  [class.active]="page === currentPage()" class="pagination-page-btn">{{ page }}</button>
                 <span *ngIf="typeof page === 'string'" class="pagination-ellipsis">{{ page }}</span>
               </span>
               <button *ngIf="currentPage() < totalPages()" (click)="nextPage()" class="pagination-btn">Next</button>
@@ -149,11 +162,8 @@
               </div>
 
               <div class="amenities-list">
-                <button *ngFor="let amenity of amenitiesList"
-                        type="button"
-                        class="broker-amenity-btn"
-                        [class.selected]="isAmenitySelected(amenity)"
-                        (click)="toggleAmenity(amenity)">
+                <button *ngFor="let amenity of amenitiesList" type="button" class="broker-amenity-btn"
+                  [class.selected]="isAmenitySelected(amenity)" (click)="toggleAmenity(amenity)">
                   <span class="amenity-text">{{ amenity }}</span>
                   <i class="bi bi-check-circle-fill" *ngIf="isAmenitySelected(amenity)"></i>
                 </button>
