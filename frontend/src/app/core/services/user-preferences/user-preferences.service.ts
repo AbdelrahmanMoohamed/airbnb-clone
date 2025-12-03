@@ -20,33 +20,50 @@ export class UserPreferencesService {
   private readonly MAX_AMENITY_SCORE = 100;
   private readonly DECAY_FACTOR = 0.95; // Decay older preferences slightly
   private authService = inject(AuthService);
+  private currentUserId: string = this.GUEST_USER_ID;
+  private isInitialized = false;
 
   constructor() {
-    this.initializePreferences();
+    // Subscribe to auth state changes FIRST before getting current user
+    this.authService.currentUser$.subscribe(user => {
+      console.log('🔔 UserPreferencesService: currentUser$ emitted:', user);
+
+      // Extract userId from user object - use userName if available, fallback to email or guest
+      const newUserId = user?.userName || user?.email || this.GUEST_USER_ID;
+      console.log('📊 Determined userId:', newUserId, 'from user:', { userName: user?.userName, email: user?.email });
+
+      // Only update if user ID actually changed to avoid unnecessary re-initialization
+      if (newUserId !== this.currentUserId) {
+        console.log('✅ User ID changed from', this.currentUserId, 'to', newUserId);
+        this.currentUserId = newUserId;
+        this.initializePreferences();
+      } else if (!this.isInitialized) {
+        // First time initialization even if user hasn't changed
+        console.log('🆕 First initialization with userId:', this.currentUserId);
+        this.initializePreferences();
+      }
+    });
   }
 
   /**
    * Get the storage key for the current user
    */
   private getStorageKey(): string {
-    const user = this.authService.getCurrentUser();
-    const userId = user?.id || this.GUEST_USER_ID;
-    return `${this.STORAGE_KEY_PREFIX}${userId}`;
+    return `${this.STORAGE_KEY_PREFIX}${this.currentUserId}`;
   }
 
   private initializePreferences(): void {
+    this.isInitialized = true;
     const storageKey = this.getStorageKey();
     const stored = localStorage.getItem(storageKey);
     if (!stored) {
-      const user = this.authService.getCurrentUser();
-      const userId = user?.id || this.GUEST_USER_ID;
       this.savePreferences({
         amenities: new Map(),
         destinations: new Map(),
         types: new Map(),
         priceRanges: [],
         lastUpdated: Date.now(),
-        userId: userId
+        userId: this.currentUserId
       });
     }
   }
@@ -54,8 +71,6 @@ export class UserPreferencesService {
   private getPreferences(): UserPreferences {
     const storageKey = this.getStorageKey();
     const stored = localStorage.getItem(storageKey);
-    const user = this.authService.getCurrentUser();
-    const userId = user?.id || this.GUEST_USER_ID;
 
     if (!stored) {
       return {
@@ -64,7 +79,7 @@ export class UserPreferencesService {
         types: new Map(),
         priceRanges: [],
         lastUpdated: Date.now(),
-        userId: userId
+        userId: this.currentUserId
       };
     }
 
@@ -75,12 +90,13 @@ export class UserPreferencesService {
       types: new Map(Object.entries(parsed.types || {})),
       priceRanges: parsed.priceRanges || [],
       lastUpdated: parsed.lastUpdated || Date.now(),
-      userId: parsed.userId || userId
+      userId: parsed.userId || this.currentUserId
     };
   }
 
   private savePreferences(preferences: UserPreferences): void {
     const storageKey = this.getStorageKey();
+    console.log('💾 Saving preferences to:', storageKey, 'userId:', this.currentUserId);
     const toSave = {
       amenities: Object.fromEntries(preferences.amenities),
       destinations: Object.fromEntries(preferences.destinations),

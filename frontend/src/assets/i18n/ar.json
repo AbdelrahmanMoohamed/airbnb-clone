@@ -294,7 +294,11 @@
     "personalized": "مخصص لك",
     "personalizedResults": "النتائج مخصصة بناءً على تفضيلاتك",
     "personalizedTooltip": "قمنا بترتيب هذه النتائج بناءً على سجل التصفح والمفضلة والمرشحات الخاصة بك لإظهار العقارات الأكثر صلة أولاً.",
-    "yourPreferences": "تفضيلاتك"
+    "yourPreferences": "تفضيلاتك",
+    "perfectMatch": "تطابق مثالي",
+    "greatMatch": "تطابق رائع",
+    "goodMatch": "تطابق جيد",
+    "recommended": "موصى به"
   },
   "bookings": {
     "myBookings": "حجوزاتي",

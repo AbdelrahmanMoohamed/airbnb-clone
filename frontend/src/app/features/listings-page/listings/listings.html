@@ -115,6 +115,7 @@
             <div class="broker-cards-grid">
               <app-listing-card *ngFor="let listing of paginatedListings(); trackBy: trackById" [listing]="listing"
                 [isFavorited]="favoriteStore.isFavorited(listing.id)"
+                [relevanceScore]="getRelevanceScore(listing)"
                 (favoriteChanged)="onListingFavoriteChanged($event)">
               </app-listing-card>
             </div>

@@ -24,6 +24,13 @@
       <app-favorite-button class="broker-favorite-btn" [listingId]="listing.id" [isFavorited]="isFavorited"
         (favoriteChanged)="onFavoriteChanged($event)">
       </app-favorite-button>
+
+      <!-- Personalization Badge -->
+      <div class="personalization-badge" *ngIf="showPersonalizationBadge">
+        <i class="bi bi-stars"></i>
+        <span>{{ personalizedLabelKey | translate }}</span>
+        <!-- <div class="relevance-score">{{ relevanceScore }}%</div> -->
+      </div>
     </div>
 
     <!-- Property Details Section -->

@@ -44,6 +44,7 @@ import { UserPreferencesService } from '../../../core/services/user-preferences/
 
     .personalization-badge:hover {
       transform: translateY(-2px);
+      z-index: 5;
       box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
     }
 
@@ -61,6 +62,7 @@ import { UserPreferencesService } from '../../../core/services/user-preferences/
       position: absolute;
       top: calc(100% + 10px);
       left: 50%;
+      z-index: 5;
       transform: translateX(-50%);
       background: white;
       color: #333;
@@ -71,11 +73,12 @@ import { UserPreferencesService } from '../../../core/services/user-preferences/
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s ease;
-      z-index: 1000;
+      z-index: 5000;
     }
 
     .personalization-badge:hover .badge-tooltip {
       opacity: 1;
+      z-index: 5;
       pointer-events: auto;
     }
 

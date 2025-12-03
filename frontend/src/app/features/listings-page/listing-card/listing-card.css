@@ -66,6 +66,61 @@
 
 /* ===== BADGES AND BUTTONS ===== */
 
+/* Personalization Badge */
+.personalization-badge {
+  position: absolute;
+  top: 50px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  z-index: 3;
+  animation: slideInBadge 0.5s ease-out;
+  transition: all 0.3s ease;
+}
+
+@keyframes slideInBadge {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.personalization-badge i {
+  font-size: 1rem;
+  animation: sparkle 2s infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+.personalization-badge .relevance-score {
+  background: rgba(255, 255, 255, 0.25);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.personalization-badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+}
+
 .broker-property-badge {
   position: absolute;
   top: 12px;

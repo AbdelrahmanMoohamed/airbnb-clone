@@ -294,7 +294,11 @@
     "personalized": "Personalized",
     "personalizedResults": "Results personalized based on your preferences",
     "personalizedTooltip": "We've sorted these results based on your browsing history, favorites, and filters to show you the most relevant properties first.",
-    "yourPreferences": "Your preferences"
+    "yourPreferences": "Your preferences",
+    "perfectMatch": "Perfect Match",
+    "greatMatch": "Great Match",
+    "goodMatch": "Good Match",
+    "recommended": "Recommended"
   },
   "bookings": {
     "myBookings": "My Bookings",

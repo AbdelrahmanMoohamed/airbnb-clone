@@ -132,7 +132,13 @@ export class ListingService {
           destination: item.destination ?? item.Destination ?? '',
           type: item.type ?? item.Type ?? '',
           bedrooms: item.bedrooms ?? item.Bedrooms ?? 0,
-          bathrooms: item.bathrooms ?? item.Bathrooms ?? 0
+          bathrooms: item.bathrooms ?? item.Bathrooms ?? 0,
+          createdAt: item.createdAt ?? item.CreatedAt ?? '',
+          priority: item.priority ?? item.Priority ?? 0,
+          viewCount: item.viewCount ?? item.ViewCount ?? 0,
+          favoriteCount: item.favoriteCount ?? item.FavoriteCount ?? 0,
+          bookingCount: item.bookingCount ?? item.BookingCount ?? 0,
+          amenities: this.normalizeAmenities(item.amenities ?? item.Amenities ?? [])
         }));
 
         return {
@@ -373,6 +379,31 @@ export class ListingService {
     if (u.startsWith('http://') || u.startsWith('https://')) return u;
     if (u.startsWith('/')) return `${this.backendOrigin}${u}`;
     return `${this.backendOrigin}/${u}`;
+  }
+
+  private normalizeAmenities(amenities: any): string[] {
+    if (!amenities) return [];
+
+    // If it's already an array of strings, return it
+    if (Array.isArray(amenities)) {
+      // Check if array contains strings
+      if (amenities.length > 0 && typeof amenities[0] === 'string') {
+        return amenities
+          .filter(a => a && typeof a === 'string')
+          .map(a => a.trim())
+          .filter(a => a.length > 0);
+      }
+
+      // Check if array contains objects with Word property (backend Amenity entity format)
+      if (amenities.length > 0 && typeof amenities[0] === 'object') {
+        return amenities
+          .filter(a => a && (a.word || a.Word))
+          .map(a => (a.word ?? a.Word).trim())
+          .filter(a => a.length > 0);
+      }
+    }
+
+    return [];
   }
 
   checkUserHasListings(): Observable<any> {

@@ -172,11 +172,17 @@ export class Listings implements OnInit {
       const ratingOk =
         minR === null || (l.averageRating ?? 0) >= minR;
 
-      // Amenities filter
+      // Amenities filter - case-insensitive comparison
       const amenitiesOk = selectedAmenities.length === 0 ||
-        selectedAmenities.every((amenity: string) =>
-          l.amenities && l.amenities.includes(amenity)
-        );
+        selectedAmenities.every((amenity: string) => {
+          const normalizedAmenity = amenity.toLowerCase().replace(/[^a-z0-9]/g, '');
+          return l.amenities && l.amenities.some((listingAmenity: string) => {
+            const normalizedListingAmenity = listingAmenity.toLowerCase().replace(/[^a-z0-9]/g, '');
+            return normalizedListingAmenity === normalizedAmenity ||
+                   normalizedListingAmenity.includes(normalizedAmenity) ||
+                   normalizedAmenity.includes(normalizedListingAmenity);
+          });
+        });
 
       return matchesSearch && matchesDestination && matchesType && priceOk && ratingOk && amenitiesOk;
     });
@@ -332,6 +338,11 @@ export class Listings implements OnInit {
     this.amenities.set([]);
     this.currentPage.set(1);
     // No need to reload data, filters are applied client-side
+  }
+
+  // Get relevance score for a specific listing (0-100)
+  getRelevanceScore(listing: ListingOverviewVM): number {
+    return this.userPreferences.calculateRelevanceScore(listing);
   }
 
   trackById(index: number, item: ListingOverviewVM): number {

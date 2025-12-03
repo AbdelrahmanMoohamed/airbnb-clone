@@ -16,6 +16,7 @@ import { FavoriteStoreService } from '../../../core/services/favoriteService/fav
 export class ListingCard implements OnInit {
   @Input() listing!: ListingOverviewVM;
   @Input() isFavorited = false;
+  @Input() relevanceScore?: number; // Personalization relevance score (0-100)
   // Emit a payload containing listing id + new favorite state so parent components can react
   @Output() favoriteChanged = new EventEmitter<{ listingId: number; isFavorited: boolean }>();
   private favoriteStore = inject(FavoriteStoreService);
@@ -46,6 +47,19 @@ export class ListingCard implements OnInit {
   get price(): number {
     return this.listing?.pricePerNight ?? 0;
   }
+
+  get showPersonalizationBadge(): boolean {
+    return this.relevanceScore !== undefined && this.relevanceScore > 0;
+  }
+
+  get personalizedLabelKey(): string {
+    if (!this.relevanceScore) return '';
+    if (this.relevanceScore >= 80) return 'listings.perfectMatch';
+    if (this.relevanceScore >= 60) return 'listings.greatMatch';
+    if (this.relevanceScore >= 40) return 'listings.goodMatch';
+    return 'listings.recommended';
+  }
+
   onFavoriteChanged(isFavorited: boolean): void {
     console.log('Listing card favorite changed:', this.listing.id, isFavorited);
     this.isFavorited = isFavorited;
@@ -57,4 +71,4 @@ export class ListingCard implements OnInit {
       this.favoriteStore.updateFavoriteState(this.listing.id, isFavorited);
     }
   }
-} 
+}
