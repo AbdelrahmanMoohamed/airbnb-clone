@@ -153,8 +153,8 @@
             <i class="bi bi-eye"></i>
             <span>{{ 'map.viewDetails' | translate }}</span>
           </button>
-          <app-favorite-button 
-            [listingId]="selectedProperty.id" 
+          <app-favorite-button
+            [listingId]="selectedProperty.id"
             [isFavorited]="isFavorited"
             (favoriteChanged)="onFavoriteChanged($event)"
             class="btn-favorite">

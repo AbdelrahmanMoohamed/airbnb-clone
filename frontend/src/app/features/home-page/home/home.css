@@ -349,7 +349,82 @@
             drop-shadow(0 20px 40px rgba(220, 20, 60, 0.4))
             drop-shadow(0 0 60px rgba(220, 20, 60, 0.3))
             brightness(1.1) contrast(1.05);
-}@keyframes floatCharacter {
+}
+
+/* Broker Speech Bubble */
+.broker-speech-bubble {
+    position: absolute;
+    top: 10%;
+    left: -20px;
+    background: #FFFFFF;
+    padding: 1.2rem 1.8rem;
+    border-radius: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    z-index: 3;
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    pointer-events: none;
+    min-width: 200px;
+    max-width: 280px;
+}
+
+.broker-speech-bubble::before {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    right: 40px;
+    width: 30px;
+    height: 30px;
+    background: #FFFFFF;
+    border-radius: 50%;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.broker-speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -25px;
+    right: 20px;
+    width: 20px;
+    height: 20px;
+    background: #FFFFFF;
+    border-radius: 50%;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+}
+
+.broker-speech-bubble span {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--broker-red, #DC143C);
+    font-family: 'Cairo', 'Poppins', sans-serif;
+    line-height: 1.4;
+    text-align: center;
+}
+
+.broker-character-container:hover .broker-speech-bubble {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* RTL support for speech bubble */
+[dir="rtl"] .broker-speech-bubble {
+    left: auto;
+    right: -20px;
+}
+
+[dir="rtl"] .broker-speech-bubble::before {
+    right: auto;
+    left: 40px;
+}
+
+[dir="rtl"] .broker-speech-bubble::after {
+    right: auto;
+    left: 20px;
+}
+
+@keyframes floatCharacter {
     0%, 100% {
         transform: perspective(1000px) translateY(0px) rotateY(0deg);
     }
