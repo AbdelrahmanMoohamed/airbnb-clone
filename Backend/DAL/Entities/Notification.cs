@@ -13,6 +13,10 @@ namespace DAL.Entities
         public bool IsRead { get; private set; } = false;
         public bool IsSentViaFCM { get; private set; } =false;
         public DateTime CreatedAt { get; private set; }
+        
+        // Action button support for frontend navigation
+        public string? ActionUrl { get; private set; }
+        public string? ActionLabel { get; private set; }
 
         public DateTime? DeletedOn { get; private set; }
         public DateTime? UpdatedOn { get; private set; }
@@ -31,7 +35,9 @@ namespace DAL.Entities
             Guid userId,
             string title,
             string body,
-            NotificationType type)
+            NotificationType type,
+            string? actionUrl = null,
+            string? actionLabel = null)
         {
             return new Notification
             {
@@ -41,7 +47,9 @@ namespace DAL.Entities
                 Type = type,
                 IsRead = false,
                 IsSentViaFCM = false,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                ActionUrl = actionUrl,
+                ActionLabel = actionLabel
             };
         }
 

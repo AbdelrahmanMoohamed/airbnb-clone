@@ -11,6 +11,11 @@
     color: rgb(255, 253, 240);
 }
 
+[dir="rtl"] .hero-card {
+    margin-right: 0;
+    margin-left: 2vw;
+}
+
 .overlay {
     position: absolute;
     inset: 0;
@@ -31,6 +36,22 @@
     width: 65%;
     display: flex;
     flex-direction: column;
+}
+
+[dir="rtl"] .content {
+    left: auto;
+    right: 5%;
+    text-align: right;
+}
+
+[dir="rtl"] .badge,
+[dir="rtl"] .desc,
+[dir="rtl"] .title {
+    font-family: 'Cairo', sans-serif;
+}
+
+[dir="rtl"] .badge {
+    align-self: flex-end;
 }
 
 .badge {
@@ -110,6 +131,10 @@
     border-color: rgba(105, 91, 59, 0.719);
     text-shadow: 0 0 0.5em rgba(133, 124, 72, 0.842);
     transform: translateY(-0.3vh);
+}
+
+[dir="rtl"] .btn {
+    font-family: 'Cairo', sans-serif;
 }
 
 .btn:hover i {

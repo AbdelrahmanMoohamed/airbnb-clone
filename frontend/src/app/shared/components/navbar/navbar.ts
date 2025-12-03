@@ -9,12 +9,15 @@ import { RouterModule } from '@angular/router';
 import { MessageStoreService } from '../../../core/services/message-store';
 import { MessageDto } from '../../../core/models/message';
 import { FavoriteStoreService } from '../../../core/services/favoriteService/favorite-store-service';
+import { TranslateModule } from '@ngx-translate/core';
+import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
+import { LanguageService } from '../../../core/services/language.service';
 
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, DatePipe, RouterModule],
+  imports: [CommonModule, DatePipe, RouterModule, TranslateModule, LanguageSwitcherComponent],
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.css'],
 })
@@ -31,26 +34,46 @@ export class Navbar implements OnInit, OnDestroy {
   messageOpen = false;
   favoriteCount = 0;
   private favoriteStore = inject(FavoriteStoreService);
+  notificationService = inject(NotificationStoreService);
+  messageService = inject(MessageStoreService);
+  languageService = inject(LanguageService);
+  currentLang: string = 'en';
 
   isAuthenticated = false;
+  userFullName: string | null = null;
 
   private docClickUnlisten?: () => void;
 
   constructor(private store: NotificationStoreService, private cdr: ChangeDetectorRef, private messageStore: MessageStoreService, public auth: AuthService, private router: Router, private el: ElementRef, private renderer: Renderer2) {}
 
   ngOnInit() {
+    this.currentLang = this.languageService.getCurrentLanguage();
+    this.languageService.currentLanguage$.subscribe(lang => {
+      this.currentLang = lang;
+    });
+
+    // Debug: Check current token on init
+    const currentFullName = this.auth.getUserFullName();
+    console.log('Navbar ngOnInit: Current user full name from token:', currentFullName);
+
     // Subscribe to authentication state changes
     this.sub.add(this.auth.isAuthenticated$.subscribe(isAuth => {
       Promise.resolve().then(() => {
         this.isAuthenticated = isAuth;
+        // Get user's full name when authenticated
+        this.userFullName = isAuth ? this.auth.getUserFullName() : null;
+        console.log('Navbar: Authentication state changed:', isAuth);
+        console.log('Navbar: User full name:', this.userFullName);
         // Load notifications and messages when user logs in
         if (isAuth) {
           console.log('User authenticated, loading unread notifications and messages');
           this.store.loadUnread();
+          this.store.loadUnreadCount();
           this.messageStore.loadUnread();
+          this.messageStore.loadUnreadCount();
             // Load favorites
-          try { this.favoriteStore.loadFavorites(); } catch (err) { 
-            console.warn('Failed to load favorites:', err); 
+          try { this.favoriteStore.loadFavorites(); } catch (err) {
+            console.warn('Failed to load favorites:', err);
           }
         } else {
           // Clear data when logged out
@@ -99,7 +122,11 @@ export class Navbar implements OnInit, OnDestroy {
     }));
 
     this.sub.add(this.store.unreadCount$.subscribe(cnt => {
-      Promise.resolve().then(() => { this.unreadCount = cnt; this.cdr.detectChanges(); });
+      Promise.resolve().then(() => {
+        this.unreadCount = cnt;
+        console.log('Navbar: Unread count updated to:', cnt);
+        this.cdr.detectChanges();
+      });
     }));
 
     // messages
@@ -154,18 +181,34 @@ export class Navbar implements OnInit, OnDestroy {
     });
   }
 
-  markAll() { this.store.markAllAsRead().subscribe(); }
+  markAll() { this.store.markAllAsRead(); }
 
   markAllMessagesRead() {
     // Mark all messages as read in the message store
     this.messageStore.markAllAsRead();
   }
 
+  onNotificationClick(id: number, event?: Event) {
+    event?.stopPropagation();
+    // Mark as read and remove from newIds
+    this.newIds.delete(id);
+    this.store.markAsRead(id);
+    // Close dropdown and navigate to notifications page
+    this.notificationOpen = false;
+    this.router.navigate(['/notifications']);
+  }
+
+  onMessageClick(message: MessageDto) {
+    // Close dropdown and navigate to messages/chat page
+    this.messageOpen = false;
+    this.router.navigate(['/messages']);
+  }
+
   markAsRead(id: number, event?: Event) {
     event?.stopPropagation();
     // if user marks it as read, remove from newIds immediately
     this.newIds.delete(id);
-    this.store.markAsRead(id).subscribe();
+    this.store.markAsRead(id);
   }
 
   trackById(_index: number, item: NotificationDto) { return item.id; }

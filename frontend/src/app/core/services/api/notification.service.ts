@@ -16,6 +16,7 @@ export class NotificationService extends BaseService {
   create(model: Partial<NotificationDto>): Observable<any> { return this.http.post<any>(this.url, model); }
   getPaged(page = 1, pageSize = 10) { return this.http.get<any>(`${this.url}/paged`, { params: this.buildParams({ page, pageSize }) }); }
   getUnread() { return this.http.get<any>(`${this.url}/unread`); }
+  getUnreadCount() { return this.http.get<any>(`${this.url}/unread-count`); }
   markAsRead(id: number) { return this.http.put(`${this.url}/${id}/read`, {}); }
   markAllAsRead() { return this.http.put(`${this.url}/read-all`, {}); }
   sendPending() { return this.http.post(`${this.url}/send-pending`, {}); }

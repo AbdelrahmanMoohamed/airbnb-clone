@@ -32,7 +32,16 @@ namespace PL.Controllers
             var result = await _listingService.GetPagedOverviewAsync(page, pageSize, filter, ct);
             if (result.IsHaveErrorOrNo) return BadRequest(result);
 
-            return Ok(result);
+            // Return with totalCount for pagination (from database total, not current page count)
+            var response = new
+            {
+                data = result.result,
+                totalCount = result.TotalCount,
+                message = result.errorMessage,
+                isError = result.IsHaveErrorOrNo
+            };
+
+            return Ok(response);
         }
 
         [HttpGet("{id:int}")]
@@ -108,7 +117,33 @@ namespace PL.Controllers
             var result = await _listingService.GetByUserAsync(userId.Value, page, pageSize, ct);
             if (result.IsHaveErrorOrNo) return BadRequest(result);
 
-            return Ok(result);
+            // Return with totalCount for pagination
+            var response = new
+            {
+                data = result.result,
+                totalCount = result.TotalCount,
+                message = result.errorMessage,
+                isError = result.IsHaveErrorOrNo
+            };
+
+            return Ok(response);
+        }
+
+        [HttpGet("has-listings")]
+        [Authorize(Roles = "Guest")]
+        public async Task<IActionResult> CheckUserHasListings(CancellationToken ct = default)
+        {
+            var userId = GetUserIdFromClaims();
+            if (userId == null) return Unauthorized();
+
+            var hasListings = await _listingService.UserHasListingsAsync(userId.Value, ct);
+
+            return Ok(new
+            {
+                hasListings = hasListings,
+                message = "Check user listings status",
+                isError = false
+            });
         }
 
         [HttpPut("{listingId:int}/image/{imageId:int}/main")]
@@ -144,7 +179,16 @@ namespace PL.Controllers
             var result = await _listingService.GetAllForAdminAsync(page, pageSize, ct);
             if (result.IsHaveErrorOrNo) return BadRequest(result);
 
-            return Ok(result);
+            // Return with totalCount for pagination
+            var response = new
+            {
+                data = result.result,
+                totalCount = result.TotalCount,
+                message = result.errorMessage,
+                isError = result.IsHaveErrorOrNo
+            };
+
+            return Ok(response);
         }
 
 

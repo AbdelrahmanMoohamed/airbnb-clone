@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, TranslateModule],
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
@@ -28,8 +29,20 @@ export class Login {
     this.auth.login({ email: this.email, password: this.password }).subscribe({
       next: (response) => {
         console.log('Login response:', response);
-        // redirect to home if not admin (AuthService will go to admin if admin)
-        if (!this.auth.isAdmin()) this.router.navigate(['/']);
+
+        // Check if this is first-time login
+        const isFirstLogin = localStorage.getItem('isFirstLogin') === 'true';
+
+        if (isFirstLogin) {
+          // Redirect to onboarding for first-time users
+          this.router.navigate(['/onboarding']);
+        } else if (this.auth.isAdmin()) {
+          // Admin users go to admin dashboard
+          this.router.navigate(['/admin']);
+        } else {
+          // Regular users go to home
+          this.router.navigate(['/']);
+        }
       },
       error: err => {
         console.error('Login failed', err);

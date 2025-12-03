@@ -12,5 +12,9 @@ namespace BLL.ModelVM.Notification
         public NotificationType Type { get; set; }
         public bool IsRead { get; set; } = false;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        
+        // Action button for frontend navigation
+        public string? ActionUrl { get; set; }
+        public string? ActionLabel { get; set; }
     }
 }

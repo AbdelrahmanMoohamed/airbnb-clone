@@ -1,0 +1,544 @@
+{
+  "common": {
+    "welcome": "مرحباً",
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "logout": "تسجيل الخروج",
+    "submit": "إرسال",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "search": "بحث",
+    "filter": "تصفية",
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجح",
+    "confirm": "تأكيد",
+    "close": "إغلاق",
+    "yes": "نعم",
+    "no": "لا",
+    "back": "رجوع",
+    "next": "التالي",
+    "previous": "السابق",
+    "viewAll": "عرض الكل",
+    "viewDetails": "عرض التفاصيل",
+    "noData": "لا توجد بيانات",
+    "or": "أو",
+    "about": "حول",
+    "contact": "اتصل بنا"
+  },
+  "navbar": {
+    "home": "الرئيسية",
+    "listings": "القوائم",
+    "myBookings": "حجوزاتي",
+    "messages": "الرسائل",
+    "notifications": "الإشعارات",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "becomeHost": "كن مضيفاً",
+    "account": "الحساب",
+    "airbnbYourHome": "أضف منزلك على Airbnb",
+    "help": "مساعدة",
+    "signUp": "إنشاء حساب",
+    "logIn": "تسجيل الدخول",
+    "hostYourHome": "استضف منزلك",
+    "hostAnExperience": "استضف تجربة",
+    "accountSettings": "إعدادات الحساب",
+    "support": "الدعم",
+    "logOut": "تسجيل الخروج"
+  },
+  "auth": {
+    "welcomeBack": "مرحباً بعودتك",
+    "createAccount": "إنشاء حسابك",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "fullName": "الاسم الكامل",
+    "phoneNumber": "رقم الهاتف",
+    "forgotPassword": "هل نسيت كلمة المرور؟",
+    "rememberMe": "تذكرني",
+    "dontHaveAccount": "ليس لديك حساب؟",
+    "alreadyHaveAccount": "لديك حساب بالفعل؟",
+    "signInWith": "أو سجل الدخول باستخدام",
+    "signUpWith": "أو أنشئ حساباً باستخدام",
+    "continueWithGoogle": "المتابعة باستخدام Google",
+    "continueWithFacebook": "المتابعة باستخدام Facebook",
+    "continueWithEmail": "المتابعة بالبريد الإلكتروني",
+    "termsAndConditions": "بإنشاء حساب، فإنك توافق على الشروط والأحكام",
+    "privacyPolicy": "سياسة الخصوصية",
+    "emailRequired": "البريد الإلكتروني مطلوب",
+    "emailInvalid": "البريد الإلكتروني غير صالح",
+    "passwordRequired": "كلمة المرور مطلوبة",
+    "passwordMinLength": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+    "passwordsNotMatch": "كلمات المرور غير متطابقة",
+    "fullNameRequired": "الاسم الكامل مطلوب",
+    "loginSuccess": "تم تسجيل الدخول بنجاح",
+    "loginError": "فشل تسجيل الدخول. يرجى التحقق من بيانات الاعتماد.",
+    "registerSuccess": "تم التسجيل بنجاح",
+    "registerError": "فشل التسجيل. يرجى المحاولة مرة أخرى."
+  },
+  "home": {
+    "title": "ابحث عن إقامتك القادمة",
+    "subtitle": "ابحث عن عروض على الفنادق والمنازل والمزيد...",
+    "searchPlaceholder": "إلى أين أنت ذاهب؟",
+    "checkIn": "تسجيل الوصول",
+    "checkOut": "تسجيل المغادرة",
+    "guests": "الضيوف",
+    "searchButton": "بحث",
+    "popularDestinations": "الوجهات الشائعة",
+    "featuredListings": "القوائم المميزة",
+    "recentlyViewed": "شوهدت مؤخراً",
+    "exploreNearby": "استكشف القريب",
+    "featuredForYou": "مميز لك",
+    "beachfrontStays": "إقامات على الشاطئ",
+    "popularInCairo": "الأكثر شعبية في القاهرة",
+    "welcomeTo": "مرحباً بك في",
+    "discoverEgypt": "اكتشف أجود العقارات في جميع أنحاء مصر. إقامتك المثالية في انتظارك.",
+    "exploreListing": "استكشف العقارات",
+    "listProperty": "أضف عقارك",
+    "TopPriorityListings": "العقارات ذات الأولوية العالية",
+    "villas": "الفلل",
+    "hero": {
+      "popular": "شائع",
+      "description": "استكشف مجموعة واسعة من العقارات",
+      "title": "اكتشف أفضل العقارات في مصر",
+      "properties": "العقارات",
+      "hostNow": "استضف الآن"
+    },
+    "cards": {
+      "experiences": "التجارب",
+      "curatedProperties": "عقارات منتقاة",
+      "bookNow": "احجز الآن",
+      "featured": "مميز",
+      "topPicks": "أفضل الاختيارات لك",
+      "handpickedHomes": "منازل منتقاة يدوياً",
+      "explore": "استكشف",
+      "popular": "شائع",
+      "trendingInCairo": "الأكثر رواجاً في القاهرة",
+      "mostBooked": "الأكثر حجزاً",
+      "seeMore": "شاهد المزيد"
+    },
+    "listing": {
+      "topRated": "الأعلى تقييماً",
+      "currency": "جنيه",
+      "night": "ليلة"
+    }
+  },
+  "listings": {
+    "title": "القوائم المتاحة",
+    "noListingsFound": "لم يتم العثور على قوائم",
+    "pricePerNight": "لكل ليلة",
+    "bedrooms": "غرف النوم",
+    "bathrooms": "الحمامات",
+    "guests": "الضيوف",
+    "amenities": "المرافق",
+    "description": "الوصف",
+    "location": "الموقع",
+    "reviews": "المراجعات",
+    "rating": "التقييم",
+    "availability": "التوفر",
+    "bookNow": "احجز الآن",
+    "contactHost": "اتصل بالمضيف",
+    "findProperty": "ابحث عن العقار المثالي",
+    "discoverProperties": "اكتشف عقارات استثنائية في جميع أنحاء مصر مع السمسارة",
+    "searchPlaceholder": "العنوان أو الموقع أو الوصف",
+    "allLocations": "جميع المواقع",
+    "maxPrice": "أقصى سعر",
+    "minRating": "أدنى تقييم",
+    "reset": "إعادة تعيين",
+    "propertiesFound": "عقار موجود",
+    "loading": "تحميل العقارات...",
+    "noProperties": "لم يتم العثور على عقارات",
+    "tryDifferentFilters": "جرب تعديل مرشحات البحث",
+    "clearFilters": "مسح جميع المرشحات",
+    "property": "عقار",
+    "beds": "غرف",
+    "baths": "حمامات",
+    "egp": "جنيه",
+    "night": "ليلة",
+    "loadingProperty": "تحميل تفاصيل العقار",
+    "preparingDetails": "نحضر لك أفضل عرض للعقار المثالي",
+    "errorOccurred": "عذراً! حدث خطأ ما",
+    "backToListings": "العودة للقوائم",
+    "allProperties": "جميع العقارات",
+    "approved": "موافق عليه",
+    "pending": "قيد المراجعة",
+    "reviews": "مراجعة",
+    "noReviewsYet": "لا توجد مراجعات بعد",
+    "edit": "تعديل",
+    "perNight": "لكل ليلة",
+    "propertyType": "نوع العقار",
+    "destination": "الوجهة",
+    "maxGuests": "أقصى عدد ضيوف",
+    "bookThisProperty": "احجز هذا العقار",
+    "aboutProperty": "عن هذا العقار",
+    "hostedBy": "مضيف من قبل",
+    "hostName": "مضيف العقار",
+    "verifiedHost": "مضيف موثق",
+    "safetyFeatures": "الأمان والثقة",
+    "verifiedProperty": "عقار موثق",
+    "secureBooking": "حجز آمن",
+    "customerSupport": "دعم 24/7",
+    "viewOnMap": "عرض على الخريطة",
+    "locationDescription": "اكتشف هذا الموقع الرائع والمعالم القريبة",
+    "editProperty": "تعديل العقار",
+    "shareLink": "مشاركة",
+    "addToFavorites": "أضف إلى المفضلة",
+    "removeFromFavorites": "إزالة من المفضلة",
+    "viewOnMap": "عرض على الخريطة",
+    "seeAllPhotos": "عرض جميع الصور",
+    "checkAvailability": "تحقق من التوفر"
+  },
+  "bookings": {
+    "myBookings": "حجوزاتي",
+    "upcomingBookings": "القادمة",
+    "pastBookings": "السابقة",
+    "cancelledBookings": "الملغاة",
+    "bookingDetails": "تفاصيل الحجز",
+    "bookingId": "رقم الحجز",
+    "checkInDate": "تاريخ الوصول",
+    "checkOutDate": "تاريخ المغادرة",
+    "totalPrice": "السعر الإجمالي",
+    "bookingStatus": "الحالة",
+    "cancelBooking": "إلغاء الحجز",
+    "confirmCancellation": "هل أنت متأكد من إلغاء هذا الحجز؟",
+    "cancellationPolicy": "سياسة الإلغاء",
+    "refundAmount": "مبلغ الاسترداد",
+    "noBookingsFound": "لا توجد حجوزات",
+    "statusPending": "قيد الانتظار",
+    "statusConfirmed": "مؤكد",
+    "statusCancelled": "ملغى",
+    "statusCompleted": "مكتمل"
+  },
+  "messages": {
+    "title": "الرسائل",
+    "conversations": "المحادثات",
+    "noMessages": "لا توجد رسائل بعد",
+    "typeMessage": "اكتب رسالة...",
+    "send": "إرسال",
+    "online": "متصل",
+    "offline": "غير متصل",
+    "typing": "يكتب...",
+    "seen": "تمت المشاهدة",
+    "delivered": "تم التسليم",
+    "markAsRead": "قراءة الكل",
+    "deleteConversation": "حذف المحادثة",
+    "blockUser": "حظر المستخدم",
+    "reportUser": "الإبلاغ عن المستخدم"
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "stayUpdated": "ابق مطلعاً على آخر أنشطتك",
+    "total": "إجمالي",
+    "unread": "غير مقروء",
+    "markAllRead": "قراءة الكل",
+    "markAsRead": "قراءة الكل",
+    "markAllAsRead": "قراءة الكل",
+    "noNotifications": "لا توجد إشعارات",
+    "allCaughtUp": "لقد اطلعت على كل شيء! لا توجد إشعارات جديدة.",
+    "newBooking": "طلب حجز جديد",
+    "bookingConfirmed": "تم تأكيد الحجز",
+    "bookingCancelled": "تم إلغاء الحجز",
+    "newMessage": "رسالة جديدة من",
+    "reviewReceived": "تم استلام مراجعة جديدة",
+    "paymentReceived": "تم استلام الدفع",
+    "clearAll": "مسح الكل"
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "editProfile": "تعديل الملف الشخصي",
+    "personalInfo": "المعلومات الشخصية",
+    "accountSettings": "إعدادات الحساب",
+    "changePassword": "تغيير كلمة المرور",
+    "currentPassword": "كلمة المرور الحالية",
+    "newPassword": "كلمة المرور الجديدة",
+    "confirmNewPassword": "تأكيد كلمة المرور الجديدة",
+    "updateProfile": "تحديث الملف الشخصي",
+    "uploadPhoto": "تحميل صورة",
+    "removePhoto": "إزالة الصورة",
+    "phoneVerified": "تم التحقق من الهاتف",
+    "emailVerified": "تم التحقق من البريد الإلكتروني",
+    "verifyNow": "تحقق الآن",
+    "memberSince": "عضو منذ",
+    "language": "اللغة",
+    "currency": "العملة",
+    "timezone": "المنطقة الزمنية"
+  },
+  "payment": {
+    "title": "الدفع",
+    "paymentMethod": "طريقة الدفع",
+    "cardNumber": "رقم البطاقة",
+    "expiryDate": "تاريخ الانتهاء",
+    "cvv": "رمز الأمان",
+    "cardholderName": "اسم حامل البطاقة",
+    "billingAddress": "عنوان الفواتير",
+    "payNow": "ادفع الآن",
+    "securePayment": "دفع آمن",
+    "totalAmount": "المبلغ الإجمالي",
+    "subtotal": "المجموع الفرعي",
+    "tax": "الضريبة",
+    "serviceFee": "رسوم الخدمة",
+    "discount": "الخصم",
+    "paymentSuccess": "تم الدفع بنجاح",
+    "paymentFailed": "فشل الدفع"
+  },
+  "errors": {
+    "somethingWentWrong": "حدث خطأ ما",
+    "pageNotFound": "الصفحة غير موجودة",
+    "unauthorized": "وصول غير مصرح به",
+    "forbidden": "الوصول ممنوع",
+    "serverError": "خطأ في الخادم",
+    "networkError": "خطأ في الشبكة",
+    "tryAgain": "يرجى المحاولة مرة أخرى",
+    "contactSupport": "اتصل بالدعم"
+  },
+  "validation": {
+    "required": "هذا الحقل مطلوب",
+    "invalidEmail": "عنوان بريد إلكتروني غير صالح",
+    "invalidPhone": "رقم هاتف غير صالح",
+    "minLength": "الحد الأدنى للطول هو {{min}} حرفاً",
+    "maxLength": "الحد الأقصى للطول هو {{max}} حرفاً",
+    "pattern": "تنسيق غير صالح",
+    "mustMatch": "يجب أن تتطابق الحقول"
+  },
+  "favorites": {
+    "myFavorites": "المفضلة",
+    "savedProperties": "مجموعتك المختارة من العقارات المثالية",
+    "savedItems": "عنصر محفوظ",
+    "browseListings": "تصفح العقارات",
+    "clearAll": "مسح الكل",
+    "loadingFavorites": "تحميل المفضلة",
+    "gatheringProperties": "جمع العقارات المحفوظة الخاصة بك",
+    "errorOccurred": "خطأ في تحميل المفضلة",
+    "tryAgain": "حاول مرة أخرى",
+    "noFavorites": "لا توجد مفضلة بعد",
+    "startExploring": "ابدأ الاستكشاف واحفظ القوائم المفضلة لديك هنا!",
+    "yourSavedProperties": "العقارات المحفوظة",
+    "gridView": "عرض الشبكة",
+    "listView": "عرض القائمة",
+    "viewProperty": "عرض العقار",
+    "addedToFavorites": "تمت الإضافة للمفضلة"
+  },
+  "chat": {
+    "messages": "الرسائل",
+    "stayConnected": "ابق متصلاً مع المضيفين والمسافرين",
+    "conversations": "المحادثات",
+    "newConversation": "محادثة جديدة",
+    "enterUsername": "أدخل اسم المستخدم...",
+    "start": "ابدأ",
+    "noConversations": "لا توجد محادثات بعد. ابدأ المحادثة!",
+    "online": "متصل",
+    "moreOptions": "خيارات أكثر",
+    "typing": "يكتب...",
+    "attachFile": "إرفاق ملف",
+    "typeMessage": "اكتب رسالتك...",
+    "emoji": "أضف رمزاً",
+    "selectConversation": "اختر محادثة",
+    "chooseFromList": "اختر من محادثاتك أو ابدأ محادثة جديدة"
+  },
+  "onboarding": {
+    "stepCounter": "الخطوة {{current}} من {{total}}",
+    "previous": "السابق",
+    "next": "التالي",
+    "skip": "تخطي",
+    "getStarted": "ابدأ الآن",
+    "skipConfirmation": "هل أنت متأكد من رغبتك في تخطي الجولة التعريفية؟ يمكنك الوصول إلى المساعدة من ملفك الشخصي في أي وقت.",
+    "step1": {
+      "title": "مرحباً بك في Airbnb! ✨",
+      "description": "تبدأ رحلتك للعثور على أماكن الإقامة المثالية هنا. دعنا نعرض لك الجولة!"
+    },
+    "step2": {
+      "title": "اكتشف قوائم مذهلة",
+      "description": "تصفح آلاف العقارات الموثوقة حول العالم. استخدم الفلاتر للعثور على ما تحتاجه بالضبط."
+    },
+    "step3": {
+      "title": "احجز بثقة",
+      "description": "عملية حجز آمنة مع تأكيدات فورية. مدفوعاتك محمية."
+    },
+    "step4": {
+      "title": "ابق متصلاً",
+      "description": "تحدث مع المضيفين مباشرة، واستلم إشعارات فورية، وأدر حجوزاتك بسهولة."
+    },
+    "step5": {
+      "title": "كن مضيفاً",
+      "description": "لديك عقار؟ أدرجه وابدأ في كسب المال! قم بالتبديل إلى وضع المضيف في أي وقت من ملفك الشخصي."
+    }
+  },
+  "footer": {
+    "title": "السمسارة",
+    "subtitle": "شريكك الموثوق في العثور على إقامات مثالية",
+    "company": {
+      "title": "الشركة",
+      "aboutUs": "عنا",
+      "careers": "الوظائف",
+      "press": "الصحافة",
+      "blog": "المدونة"
+    },
+    "support": {
+      "title": "الدعم",
+      "helpCenter": "مركز المساعدة",
+      "safety": "الأمان",
+      "cancellation": "الإلغاء",
+      "contactUs": "اتصل بنا"
+    },
+    "legal": {
+      "title": "القانوني",
+      "privacyPolicy": "سياسة الخصوصية",
+      "termsOfService": "شروط الخدمة",
+      "sitemap": "خريطة الموقع",
+      "cookies": "ملفات تعريف الارتباط"
+    },
+    "connect": {
+      "title": "تواصل",
+      "stayUpdated": "ابق مطلعاً",
+      "subscribe": "اشترك"
+    },
+    "social": {
+      "facebook": "فيسبوك",
+      "twitter": "تويتر",
+      "instagram": "انستجرام",
+      "linkedin": "لينكدإن"
+    },
+    "copyright": "© 2025 السمسارة. جميع الحقوق محفوظة.",
+    "tagline": "صُنع بـ ❤️ للإقامات الاستثنائية",
+    "badges": {
+      "verifiedPlatform": "منصة موثقة",
+      "trustedByThousands": "موثوق من الآلاف"
+    }
+  },
+  "about": {
+    "title": "من نحن",
+    "hero": {
+      "title": "اكتشف قصة السمسارة",
+      "subtitle": "نحن نُحدث ثورة في طريقة العثور على أماكن الإقامة وحجزها في جميع أنحاء مصر، ونبني الثقة ونخلق تجارب استثنائية."
+    },
+    "stats": {
+      "properties": "العقارات",
+      "users": "المستخدمون السعداء",
+      "cities": "المدن",
+      "bookings": "الحجوزات"
+    },
+    "story": {
+      "title": "قصتنا",
+      "paragraph1": "تأسست السمسارة في عام 2023، نشأت من رؤية بسيطة: جعل حجز العقارات في مصر شفافاً وموثوقاً ومتاحاً للجميع. بدأت رحلتنا عندما واجه مؤسسونا تحديات العثور على أماكن إقامة جديرة بالثقة بأنفسهم.",
+      "paragraph2": "اليوم، نمونا لنصبح منصة حجز العقارات الرائدة في مصر، نربط آلاف المسافرين بالمضيفين الموثوقين والعقارات الاستثنائية. التزامنا بالجودة والأمان جعلنا الخيار الأمثل للمسافرين المحليين والدوليين.",
+      "paragraph3": "نؤمن أن كل إقامة يجب أن تكون لا تُنسى، وكل مضيف يجب أن يكون موثوقاً، وكل حجز يجب أن يكون سلساً. هذه الفلسفة تقود كل ما نفعله، من عملية التحقق الصارمة إلى دعم العملاء على مدار الساعة.",
+      "imageAlt": "مكتب وفريق السمسارة"
+    },
+    "features": {
+      "title": "لماذا تختار السمسارة",
+      "smartSearch": {
+        "title": "البحث الذكي",
+        "description": "فلترة متقدمة وتوصيات مدعومة بالذكاء الاصطناعي للعثور على إقامتك المثالية في ثوانٍ."
+      },
+      "secureBooking": {
+        "title": "حجز آمن",
+        "description": "تشفير شامل ومعالجة دفع آمنة لراحة البال التامة."
+      },
+      "verifiedHosts": {
+        "title": "مضيفون موثقون",
+        "description": "جميع مضيفينا يخضعون لتحقق شامل لضمان الجودة والموثوقية."
+      },
+      "support247": {
+        "title": "دعم 24/7",
+        "description": "دعم عملاء على مدار الساعة بعدة لغات متى احتجت إلينا."
+      }
+    },
+    "team": {
+      "title": "تعرف على فريقنا",
+      "ceo": {
+        "title": "الرئيس التنفيذي والمؤسس"
+      },
+      "cto": {
+        "title": "كبير مسؤولي التكنولوجيا"
+      },
+      "designer": {
+        "title": "رئيس التصميم"
+      }
+    },
+    "mission": {
+      "title": "مهمتنا",
+      "description": "جعل السفر في مصر ديمقراطياً من خلال توفير منصة موثوقة حيث يمكن للمضيفين والضيوف التواصل بثقة، وخلق تجارب لا تُنسى وتعزيز التبادل الثقافي."
+    },
+    "values": {
+      "trust": "الثقة",
+      "security": "الأمان",
+      "excellence": "التميز",
+      "community": "المجتمع"
+    },
+    "cta": {
+      "title": "مستعد لبدء رحلتك؟",
+      "description": "انضم لآلاف المسافرين الراضين الذين يثقون في السمسارة لاحتياجات الإقامة.",
+      "exploreListings": "استكشف العقارات",
+      "hostProperty": "استضف عقارك"
+    }
+  },
+  "contact": {
+    "title": "اتصل بنا",
+    "hero": {
+      "title": "تواصل مع السمسارة",
+      "subtitle": "نحن هنا لمساعدتك في أي أسئلة أو مخاوف أو ملاحظات. تواصل معنا في أي وقت!"
+    },
+    "methods": {
+      "title": "طرق التواصل",
+      "phone": {
+        "title": "دعم هاتفي",
+        "value": "+20 123 456 789"
+      },
+      "email": {
+        "title": "دعم بالبريد الإلكتروني",
+        "value": "support@thebroker.com"
+      },
+      "address": {
+        "title": "موقع المكتب",
+        "value": "القاهرة، مصر"
+      },
+      "hours": {
+        "title": "ساعات الدعم",
+        "value": "متاح 24/7"
+      }
+    },
+    "form": {
+      "title": "أرسل لنا رسالة",
+      "subtitle": "املأ النموذج أدناه وسنرد عليك في أقرب وقت ممكن.",
+      "name": "الاسم الكامل",
+      "namePlaceholder": "أدخل اسمك الكامل",
+      "email": "البريد الإلكتروني",
+      "emailPlaceholder": "أدخل بريدك الإلكتروني",
+      "subject": "الموضوع",
+      "subjectPlaceholder": "ما هو الموضوع؟",
+      "message": "الرسالة",
+      "messagePlaceholder": "أخبرنا كيف يمكننا مساعدتك...",
+      "send": "إرسال الرسالة",
+      "sending": "جاري الإرسال...",
+      "successMessage": "شكراً لك! تم إرسال رسالتك بنجاح. سنرد عليك قريباً."
+    },
+    "faqs": {
+      "title": "الأسئلة الشائعة",
+      "booking": {
+        "question": "كيف يمكنني إلغاء أو تعديل حجزي؟",
+        "answer": "يمكنك إلغاء أو تعديل حجزك من خلال لوحة تحكم حسابك حتى 24 ساعة قبل تسجيل الوصول، وفقاً لسياسة الإلغاء الخاصة بالعقار."
+      },
+      "cancellation": {
+        "question": "ما هي سياسة الإلغاء لديكم؟",
+        "answer": "تختلف سياسات الإلغاء حسب العقار. معظم المضيفين يقدمون إلغاء مرن حتى 24 ساعة قبل تسجيل الوصول. تحقق من السياسة المحددة في كل قائمة."
+      },
+      "payment": {
+        "question": "ما هي طرق الدفع التي تقبلونها؟",
+        "answer": "نقبل جميع بطاقات الائتمان الرئيسية وPayPal وطرق الدفع المحلية المصرية. جميع المعاملات آمنة ومشفرة."
+      },
+      "hosting": {
+        "question": "كيف يمكنني أن أصبح مضيفاً؟",
+        "answer": "البدء كمضيف سهل! ببساطة أنشئ حساباً، أدرج عقارك مع الصور والتفاصيل، وابدأ في الكسب. نوفر دعماً كاملاً طوال العملية."
+      }
+    },
+    "location": {
+      "title": "زر مكتبنا",
+      "office": "المكتب الرئيسي",
+      "address": "123 شارع النيل، وسط القاهرة، مصر",
+      "description": "يقع في قلب القاهرة، مكتبنا مفتوح للاجتماعات والاستشارات.",
+      "mapPlaceholder": "الخريطة التفاعلية قريباً"
+    }
+  }
+}

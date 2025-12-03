@@ -1,16 +1,20 @@
 ﻿using BLL.ModelVM.LIstingVM;
+using DAL.Entities;
+using Stripe.V2;
 
 public class ListingService : IListingService
 {
     private readonly IUnitOfWork unitOfWork;
     private readonly IMapper mapper;
     private readonly UserManager<User> userManager;
+    private readonly INotificationService notificationService;
 
-    public ListingService(IUnitOfWork uow, IMapper mapper, UserManager<User> userManager)
+    public ListingService(IUnitOfWork uow, IMapper mapper, UserManager<User> userManager, INotificationService notificationService)
     {
         unitOfWork = uow;
         this.mapper = mapper;
         this.userManager = userManager;
+        this.notificationService = notificationService;
     }
 
     private async Task<string> ResolveFullNameAsync(Guid userId, CancellationToken ct = default)
@@ -81,6 +85,18 @@ public class ListingService : IListingService
                 hostId,
                 ct);
 
+            //create notification for the host after creation
+            await notificationService.CreateAsync(new BLL.ModelVM.Notification.CreateNotificationVM 
+            { 
+                UserId = hostId, 
+                Title = "Listing Created", 
+                Body = "Your listing was created successfully and is pending approval.", 
+                CreatedAt = DateTime.UtcNow,
+                ActionUrl = $"/listings/{id}",
+                ActionLabel = "View Listing"
+            });
+
+
             return new Response<int>(id, null, false);
         }
         catch (Exception ex)
@@ -98,6 +114,9 @@ public class ListingService : IListingService
         {
             var listing = await unitOfWork.Listings.GetListingByIdAsync(id, ct);
             if (listing == null) return new Response<ListingDetailVM?>(null, "Not found", true);
+
+            // Increment view count and priority for engagement tracking
+            await unitOfWork.Listings.IncrementViewPriorityAsync(id, ct);
 
             var vm = mapper.Map<ListingDetailVM>(listing);
             return new Response<ListingDetailVM?>(vm, null, false);
@@ -117,7 +136,13 @@ public class ListingService : IListingService
         {
             var (listings, total) = await unitOfWork.Listings.GetUserViewAsync(filter, page, pageSize, ct);
             var vms = mapper.Map<List<ListingOverviewVM>>(listings);
-            return new Response<List<ListingOverviewVM>>(vms, null, false);
+            
+            // Create a response that includes totalCount metadata
+            var response = new Response<List<ListingOverviewVM>>(vms, null, false);
+            // Store totalCount in a way that the controller can access it
+            response.TotalCount = total;
+            
+            return response;
         }
         catch (Exception ex)
         {
@@ -132,7 +157,9 @@ public class ListingService : IListingService
         {
             var (listings, total) = await unitOfWork.Listings.GetHostViewAsync(userId, null, page, pageSize, ct);
             var vms = mapper.Map<List<ListingOverviewVM>>(listings);
-            return new Response<List<ListingOverviewVM>>(vms, null, false);
+            var response = new Response<List<ListingOverviewVM>>(vms, null, false);
+            response.TotalCount = total;
+            return response;
         }
         catch (Exception ex)
         {
@@ -157,8 +184,9 @@ public class ListingService : IListingService
             );
 
             var vms = mapper.Map<List<ListingOverviewVM>>(listings);
-
-            return new Response<List<ListingOverviewVM>>(vms, null, false);
+            var response = new Response<List<ListingOverviewVM>>(vms, null, false);
+            response.TotalCount = total;
+            return response;
         }
         catch (Exception ex)
         {
@@ -178,12 +206,12 @@ public class ListingService : IListingService
     CancellationToken ct = default)
     {
         if (vm == null)
-            return new Response<ListingUpdateVM>(null, "Input is null", true);
+            return new Response<ListingUpdateVM>(null!, "Input is null", true);
 
         // 1. Owner check
         var isOwner = await unitOfWork.Listings.IsOwnerAsync(listingId, hostId, ct);
         if (!isOwner)
-            return new Response<ListingUpdateVM>(null, "Not owner", true);
+            return new Response<ListingUpdateVM>(null!, "Not owner", true);
 
         try
         {
@@ -192,20 +220,20 @@ public class ListingService : IListingService
             // Fetch existing listing to preserve Destination and Type
             var existingListing = await unitOfWork.Listings.GetByIdAsync(listingId, ct);
             if (existingListing == null)
-                return new Response<ListingUpdateVM>(null, "Listing not found", true);
+                return new Response<ListingUpdateVM>(null!, "Listing not found", true);
 
             // Validate provided values (only if they are provided)
             if (vm.PricePerNight.HasValue && (vm.PricePerNight < 1 || vm.PricePerNight > 100000))
-                return new Response<ListingUpdateVM>(null, "PricePerNight must be between 1 and 100000", true);
+                return new Response<ListingUpdateVM>(null!, "PricePerNight must be between 1 and 100000", true);
 
             if (vm.MaxGuests.HasValue && (vm.MaxGuests < 1 || vm.MaxGuests > 50))
-                return new Response<ListingUpdateVM>(null, "MaxGuests must be between 1 and 50", true);
+                return new Response<ListingUpdateVM>(null!, "MaxGuests must be between 1 and 50", true);
 
             if (vm.Latitude.HasValue && (vm.Latitude < -90 || vm.Latitude > 90))
-                return new Response<ListingUpdateVM>(null, "Latitude must be between -90 and 90", true);
+                return new Response<ListingUpdateVM>(null!, "Latitude must be between -90 and 90", true);
 
             if (vm.Longitude.HasValue && (vm.Longitude < -180 || vm.Longitude > 180))
-                return new Response<ListingUpdateVM>(null, "Longitude must be between -180 and 180", true);
+                return new Response<ListingUpdateVM>(null!, "Longitude must be between -180 and 180", true);
 
             // 2. Handle image removal
             if (vm.RemoveImageIds != null && vm.RemoveImageIds.Any())
@@ -217,7 +245,7 @@ public class ListingService : IListingService
 
                     // Validation checks
                     if (image.ListingId != listingId)
-                        return new Response<ListingUpdateVM>(null, "Image does not belong to this listing", true);
+                        return new Response<ListingUpdateVM>(null!, "Image does not belong to this listing", true);
 
                     if (image.Listing.UserId != hostId)
                         continue;
@@ -241,7 +269,7 @@ public class ListingService : IListingService
 
                     // Check if upload failed
                     if (Upload.IsError(fileName))
-                        return new Response<ListingUpdateVM>(null, fileName, true);
+                        return new Response<ListingUpdateVM>(null!, fileName, true);
 
                     newImageUrls.Add(fileName);
                 }
@@ -279,17 +307,29 @@ public class ListingService : IListingService
             );
 
             if (!ok)
-                return new Response<ListingUpdateVM>(null, "Update failed", true);
+                return new Response<ListingUpdateVM>(null!, "Update failed", true);
 
             // 6. Return updated data
             var finalListing = await unitOfWork.Listings.GetListingByIdAsync(listingId, ct);
             var vmOut = mapper.Map<ListingUpdateVM>(finalListing);
 
+            //create notification for the host after edited
+            await notificationService.CreateAsync(new BLL.ModelVM.Notification.CreateNotificationVM
+            { 
+                UserId = hostId, 
+                Title = "Listing Updated", 
+                Body = "Your listing was updated successfully.", 
+                CreatedAt = DateTime.UtcNow,
+                ActionUrl = $"/listings/{listingId}",
+                ActionLabel = "View Listing"
+            });
+
+
             return new Response<ListingUpdateVM>(vmOut, null, false);
         }
         catch (Exception ex)
         {
-            return new Response<ListingUpdateVM>(null, ex.Message, true);
+            return new Response<ListingUpdateVM>(null!, ex.Message, true);
         }
     }
 
@@ -318,6 +358,10 @@ public class ListingService : IListingService
     // Records who approved it and when for audit trail.
     public async Task<Response<bool>> ApproveAsync(int id, Guid approverUserId, CancellationToken ct = default)
     {
+        //check if the listing exists
+        var exist = await unitOfWork.Listings.GetByIdAsync(id, ct);
+        if (exist == null) return new Response<bool>(false, "Listing not found", true);
+        
         var approver = await userManager.FindByIdAsync(approverUserId.ToString());
         if (approver == null) return new Response<bool>(false, "Not found", true);
 
@@ -327,6 +371,17 @@ public class ListingService : IListingService
         try
         {
             var ok = await unitOfWork.Listings.ApproveAsync(id, approverUserId, ct);
+            //create notification for the host after approve
+            await notificationService.CreateAsync(new BLL.ModelVM.Notification.CreateNotificationVM
+            { 
+                UserId = exist.UserId, 
+                Title = "Listing Approved", 
+                Body = "Great news! Your listing has been approved and is now live.", 
+                CreatedAt = DateTime.UtcNow,
+                ActionUrl = $"/listings/{id}",
+                ActionLabel = "View Listing"
+            });
+
             return new Response<bool>(ok, ok ? null : "Approve failed", !ok);
         }
         catch (Exception ex)
@@ -341,6 +396,10 @@ public class ListingService : IListingService
     // Records who rejected it, when, and why for audit trail.
     public async Task<Response<bool>> RejectAsync(int id, Guid approverUserId, string? note, CancellationToken ct = default)
     {
+        //check if the listing exists
+        var exist = await unitOfWork.Listings.GetByIdAsync(id, ct);
+        if (exist == null) return new Response<bool>(false, "Listing not found", true);
+
         var approver = await userManager.FindByIdAsync(approverUserId.ToString());
         if (approver == null) return new Response<bool>(false, "Not found", true);
 
@@ -350,6 +409,17 @@ public class ListingService : IListingService
         try
         {
             var ok = await unitOfWork.Listings.RejectAsync(id, approverUserId, note, ct);
+            //create notification for the host after rejection
+            await notificationService.CreateAsync(new BLL.ModelVM.Notification.CreateNotificationVM
+            { 
+                UserId = exist.UserId, 
+                Title = "Listing Needs Revision", 
+                Body = note ?? "Your listing needs some changes before approval. Please review and resubmit.", 
+                CreatedAt = DateTime.UtcNow,
+                ActionUrl = $"/listings/{id}",
+                ActionLabel = "Edit Listing"
+            });
+
             return new Response<bool>(ok, ok ? null : "Reject failed", !ok);
         }
         catch (Exception ex)
@@ -369,6 +439,10 @@ public class ListingService : IListingService
         {
             var performer = await ResolveFullNameAsync(hostId, ct);
             var ok = await unitOfWork.ListingImages.SetMainImageAsync(listingId, imageId, performer, ct);
+            //create notification for the host after update
+            await notificationService.CreateAsync(new BLL.ModelVM.Notification.CreateNotificationVM
+            { UserId = hostId, Title = "Listing created", Body = "Your listing main image updated succefully", CreatedAt = DateTime.UtcNow });
+
             return new Response<bool>(ok, ok ? null : "Set main image failed", !ok);
         }
         catch (Exception ex)
@@ -389,6 +463,10 @@ public class ListingService : IListingService
     {
         try
         {
+            //check if the listing exists
+            var exist = await unitOfWork.Listings.GetByIdAsync(id, ct);
+            if (exist == null) return new Response<bool>(false, "Listing not found", true);
+
             //  Get and validate user exists
             var performer = await userManager.FindByIdAsync(performedByUserId.ToString());
             if (performer == null)
@@ -408,6 +486,11 @@ public class ListingService : IListingService
 
             // Call repository to promote
             var ok = await unitOfWork.Listings.PromoteAsync(id, promotionEndDate, performedByUserId, ct);
+
+            //create notification for the host after promotted
+            await notificationService.CreateAsync(new BLL.ModelVM.Notification.CreateNotificationVM
+            { UserId = exist.UserId, Title = "Listing created", Body = "Admin has approve your promotion", CreatedAt = DateTime.UtcNow });
+
             return new Response<bool>(ok, null, false);
         }
        
@@ -483,6 +566,20 @@ public class ListingService : IListingService
         catch (Exception ex)
         {
             return new Response<List<HomeVM>>(new List<HomeVM>(), ex.Message, true);
+        }
+    }
+
+    // Check if user has any listings
+    public async Task<bool> UserHasListingsAsync(Guid userId, CancellationToken ct = default)
+    {
+        try
+        {
+            var count = await unitOfWork.Listings.GetListingCountByUserAsync(userId, ct);
+            return count > 0;
+        }
+        catch
+        {
+            return false;
         }
     }
 }

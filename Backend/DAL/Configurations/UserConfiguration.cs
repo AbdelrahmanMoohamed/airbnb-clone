@@ -37,6 +37,11 @@
             builder.Property(u => u.IsActive)
                    .HasDefaultValue(true)
                    .IsRequired();
+            
+            // Onboarding flag - defaults to true for new users
+            builder.Property(u => u.IsFirstLogin)
+                   .HasDefaultValue(true)
+                   .IsRequired();
 
             // Identity properties
             builder.Property(u => u.Email)

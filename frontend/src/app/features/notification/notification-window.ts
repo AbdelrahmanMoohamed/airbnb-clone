@@ -1,5 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { NotificationDto } from '../../core/models/notification';
 import { NotificationStoreService } from '../../core/services/notification-store';
 import { Subscription } from 'rxjs';
@@ -7,7 +9,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-notification-window',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   templateUrl: './notification-window.html',
   styleUrls: ['./notification-window.css']
 })
@@ -20,7 +22,8 @@ export class NotificationWindow implements OnInit, OnDestroy {
 
   constructor(
     private store: NotificationStoreService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -67,14 +70,19 @@ export class NotificationWindow implements OnInit, OnDestroy {
   }
 
   markAll() {
-    this.store.markAllAsRead().subscribe();
+    this.store.markAllAsRead();
   }
 
   markAsRead(id: number, event?: Event) {
     event?.stopPropagation();
     // Remove from newIds immediately
     this.newIds.delete(id);
-    this.store.markAsRead(id).subscribe();
+    this.store.markAsRead(id);
+  }
+
+  handleAction(url: string, event?: Event) {
+    event?.stopPropagation();
+    this.router.navigate([url]);
   }
 
   trackById(_index: number, item: NotificationDto) {

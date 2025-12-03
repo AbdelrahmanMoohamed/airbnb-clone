@@ -1,9 +1,12 @@
-<nav class="navbar navbar-expand-sm">
+<nav class="navbar navbar-expand-sm navbar-broker">
   <div class="container-fluid">
 
-    <a class="navbar-brand d-flex align-items-center" routerLink="/home">
-      <img src="logo.png" alt="logo" class="me-3">
-      Airbnb
+    <a class="navbar-brand d-flex align-items-center broker-logo" routerLink="/home">
+      <img src="/3.png" alt="The Broker" class="broker-character me-2">
+      <div class="brand-text" [attr.dir]="currentLang">
+        <span class="brand-name" [class.primary]="currentLang === 'en'" [class.secondary]="currentLang === 'ar'">The Broker</span>
+        <span class="brand-name-ar" [class.primary]="currentLang === 'ar'" [class.secondary]="currentLang === 'en'">السمسارة</span>
+      </div>
     </a>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
@@ -16,19 +19,19 @@
       <!-- LEFT NAV -->
       <ul class="navbar-nav me-auto">
         <li class="left nav-item">
-          <a class="nav-link" routerLink="home" routerLinkActive="active">Home</a>
+          <a class="nav-link" routerLink="home" routerLinkActive="active">{{ 'navbar.home' | translate }}</a>
         </li>
 
         <li class="left nav-item">
-          <a class="nav-link" routerLink="listings" routerLinkActive="active">Listings</a>
+          <a class="nav-link" routerLink="listings" routerLinkActive="active">{{ 'navbar.listings' | translate }}</a>
         </li>
 
         <li class="left nav-item">
-          <a class="nav-link" routerLink="about" routerLinkActive="active">About</a>
+          <a class="nav-link" routerLink="about" routerLinkActive="active">{{ 'common.about' | translate }}</a>
         </li>
 
         <li class="left nav-item">
-          <a class="nav-link" routerLink="contact" routerLinkActive="active">Contact</a>
+          <a class="nav-link" routerLink="contact" routerLinkActive="active">{{ 'common.contact' | translate }}</a>
         </li>
       </ul>
 
@@ -45,28 +48,30 @@
             </button>
 
             <div class="dropdown" *ngIf="notificationOpen" role="menu">
-              <div *ngIf="notifications.length > 0; else emptyList">
-                <div *ngFor="let n of notifications; trackBy: trackById" class="item" [class.unread]="!n.isRead"
-                  [class.just-arrived]="newIds.has(n.id)" (click)="markAsRead(n.id, $event)">
+              <div class="dropdown-content">
+                <div *ngIf="notifications.length > 0; else emptyList">
+                  <div *ngFor="let n of notifications; trackBy: trackById" class="item" [class.unread]="!n.isRead"
+                    [class.just-arrived]="newIds.has(n.id)" (click)="onNotificationClick(n.id, $event)">
 
-                  <div class="item-content">
-                    <div class="title-row">
-                      <strong class="title">{{ n.title }}</strong>
-                      <small class="time">{{ n.createdAt | date:'short' }}</small>
+                    <div class="item-content">
+                      <div class="title-row">
+                        <strong class="title">{{ n.title }}</strong>
+                        <small class="time">{{ n.createdAt | date:'short' }}</small>
+                      </div>
+                      <p class="body">{{ n.body }}</p>
                     </div>
-                    <p class="body">{{ n.body }}</p>
-                  </div>
 
+                  </div>
                 </div>
+
+                <ng-template #emptyList>
+                  <div class="empty">{{ 'notifications.noNotifications' | translate }}</div>
+                </ng-template>
               </div>
 
-              <ng-template #emptyList>
-                <div class="empty">No notifications</div>
-              </ng-template>
-
               <div class="dropdown-actions">
-                <button class="mark-all" (click)="markAll()">Read All</button>
-                <button class="view-all" (click)="openNotifications()">View All</button>
+                <button class="mark-all" (click)="markAll(); $event.stopPropagation()">{{ 'notifications.markAllAsRead' | translate }}</button>
+                <button class="view-all" (click)="openNotifications(); $event.stopPropagation()">{{ 'common.viewAll' | translate }}</button>
               </div>
             </div>
           </div>
@@ -79,52 +84,55 @@
             </button>
 
             <div class="dropdown" *ngIf="messageOpen" role="menu">
-              <div *ngIf="messages.length > 0; else emptyMsg">
-                <div *ngFor="let m of messages" class="item" [class.unread]="!m.isRead">
-                  <div class="item-content">
-                    <div class="title-row">
-                      <strong class="title">{{ m.content | slice:0:30 }}</strong>
-                      <small class="time">{{ m.sentAt | date:'short' }}</small>
+              <div class="dropdown-content">
+                <div *ngIf="messages.length > 0; else emptyMsg">
+                  <div *ngFor="let m of messages" class="item" [class.unread]="!m.isRead" (click)="onMessageClick(m)">
+                    <div class="item-content">
+                      <div class="title-row">
+                        <strong class="title">{{ m.content | slice:0:30 }}</strong>
+                        <small class="time">{{ m.sentAt | date:'short' }}</small>
+                      </div>
+                      <p class="body">From: {{ m.senderId }}</p>
                     </div>
-                    <p class="body">From: {{ m.senderId }}</p>
                   </div>
                 </div>
+
+                <ng-template #emptyMsg>
+                  <div class="empty">{{ 'messages.noMessages' | translate }}</div>
+                </ng-template>
               </div>
 
-              <ng-template #emptyMsg>
-                <div class="empty">No messages</div>
-              </ng-template>
-
               <div class="dropdown-actions">
-                <button class="mark-all" (click)="markAllMessagesRead()">Read All</button>
-                <button class="view-all" (click)="openChat()">View All</button>
+                <button class="mark-all" (click)="markAllMessagesRead(); $event.stopPropagation()">{{ 'messages.markAsRead' | translate }}</button>
+                <button class="view-all" (click)="openChat(); $event.stopPropagation()">{{ 'common.viewAll' | translate }}</button>
               </div>
             </div>
           </div>
           <!-- ❤️ FAVORITES -->
-          <li class="right nav-item favorites-link">
-            <a class="nav-link" routerLink="/favorites" title="My Favorites">
+          <div class="right favorites-bell">
+            <a class="bell-btn" routerLink="/favorites" title="My Favorites" aria-label="Favorites">
               <i class="bi bi-heart"></i>
               <span *ngIf="favoriteCount > 0" class="badge">{{ favoriteCount }}</span>
             </a>
-          </li>
-          <!-- 🌐 Language icon -->
-          <li class="right nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-globe-americas"></i>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end"></ul>
+          </div>
+          <!-- 🌐 Language Switcher -->
+          <li class="right nav-item language-switcher-container">
+            <app-language-switcher></app-language-switcher>
           </li>
 
           <!-- User Menu -->
-          <li class="right nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-list"></i>
+          <li class="right nav-item dropdown user-dropdown">
+            <a class="nav-link dropdown-toggle user-menu" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-person-circle me-2"></i>
+              <span class="user-name" *ngIf="userFullName">{{ userFullName }}</span>
+              <span class="user-name" *ngIf="!userFullName">{{ 'navbar.account' | translate }}</span>
             </a>
 
             <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" href="#">Profile</a></li>
-              <li><a class="dropdown-item" href="#" (click)="auth.logout()">Log Out</a></li>
+              <li *ngIf="userFullName" class="dropdown-header">{{ userFullName }}</li>
+              <li><a class="dropdown-item" href="#">{{ 'navbar.profile' | translate }}</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#" (click)="auth.logout()">{{ 'navbar.logOut' | translate }}</a></li>
             </ul>
           </li>
 
@@ -135,8 +143,12 @@
       <!-- NOT LOGGED -->
       <ng-template #notLogged>
         <ul class="navbar-nav ms-auto">
+          <!-- Language Switcher for non-authenticated users -->
+          <li class="right nav-item language-switcher-container">
+            <app-language-switcher></app-language-switcher>
+          </li>
           <li class="right nav-item">
-            <a class="nav-link" routerLink="/auth/login">Log In</a>
+            <a class="nav-link" routerLink="/auth/login">{{ 'navbar.logIn' | translate }}</a>
           </li>
         </ul>
       </ng-template>

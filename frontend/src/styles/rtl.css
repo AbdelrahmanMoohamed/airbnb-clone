@@ -1,0 +1,199 @@
+/* RTL (Right-to-Left) Support for Arabic */
+
+/* Base RTL styles */
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir="rtl"] body {
+  text-align: right;
+}
+
+/* Flip margins and paddings */
+[dir="rtl"] .ms-auto {
+  margin-left: 0 !important;
+  margin-right: auto !important;
+}
+
+[dir="rtl"] .me-auto {
+  margin-right: 0 !important;
+  margin-left: auto !important;
+}
+
+[dir="rtl"] .ms-1 { margin-left: 0; margin-right: 0.25rem !important; }
+[dir="rtl"] .ms-2 { margin-left: 0; margin-right: 0.5rem !important; }
+[dir="rtl"] .ms-3 { margin-left: 0; margin-right: 1rem !important; }
+[dir="rtl"] .me-1 { margin-right: 0; margin-left: 0.25rem !important; }
+[dir="rtl"] .me-2 { margin-right: 0; margin-left: 0.5rem !important; }
+[dir="rtl"] .me-3 { margin-right: 0; margin-left: 1rem !important; }
+
+[dir="rtl"] .ps-1 { padding-left: 0; padding-right: 0.25rem !important; }
+[dir="rtl"] .ps-2 { padding-left: 0; padding-right: 0.5rem !important; }
+[dir="rtl"] .ps-3 { padding-left: 0; padding-right: 1rem !important; }
+[dir="rtl"] .pe-1 { padding-right: 0; padding-left: 0.25rem !important; }
+[dir="rtl"] .pe-2 { padding-right: 0; padding-left: 0.5rem !important; }
+[dir="rtl"] .pe-3 { padding-right: 0; padding-left: 1rem !important; }
+
+/* Flip floats */
+[dir="rtl"] .float-start {
+  float: right !important;
+}
+
+[dir="rtl"] .float-end {
+  float: left !important;
+}
+
+/* Flip text alignment */
+[dir="rtl"] .text-start {
+  text-align: right !important;
+}
+
+[dir="rtl"] .text-end {
+  text-align: left !important;
+}
+
+/* Dropdown menu positioning */
+[dir="rtl"] .dropdown-menu-end {
+  right: auto !important;
+  left: 0 !important;
+}
+
+/* Border radius flip */
+[dir="rtl"] .rounded-start {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-top-right-radius: var(--bs-border-radius) !important;
+  border-bottom-right-radius: var(--bs-border-radius) !important;
+}
+
+[dir="rtl"] .rounded-end {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-top-left-radius: var(--bs-border-radius) !important;
+  border-bottom-left-radius: var(--bs-border-radius) !important;
+}
+
+/* Navbar specific RTL */
+[dir="rtl"] .navbar-brand {
+  margin-right: 0;
+  margin-left: 1rem;
+}
+
+[dir="rtl"] .navbar-nav {
+  padding-right: 0;
+  padding-left: 0;
+}
+
+[dir="rtl"] .navbar-nav .dropdown-menu {
+  right: auto;
+  left: 0;
+}
+
+/* Icons and badges */
+[dir="rtl"] .bi {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .bi-arrow-left,
+[dir="rtl"] .bi-arrow-right,
+[dir="rtl"] .bi-chevron-left,
+[dir="rtl"] .bi-chevron-right {
+  transform: scaleX(-1);
+}
+
+/* Form controls */
+[dir="rtl"] .form-check {
+  padding-right: 1.5em;
+  padding-left: 0;
+}
+
+[dir="rtl"] .form-check-input {
+  float: right;
+  margin-right: -1.5em;
+  margin-left: 0;
+}
+
+/* Modal */
+[dir="rtl"] .modal-header .btn-close {
+  margin: -0.5rem auto -0.5rem -0.5rem;
+}
+
+/* List group */
+[dir="rtl"] .list-group {
+  padding-right: 0;
+  padding-left: 0;
+}
+
+/* Breadcrumb */
+[dir="rtl"] .breadcrumb-item + .breadcrumb-item::before {
+  float: right;
+  padding-left: 0.5rem;
+  padding-right: 0;
+  content: "/" !important;
+}
+
+/* Carousel */
+[dir="rtl"] .carousel-control-prev {
+  right: 0;
+  left: auto;
+}
+
+[dir="rtl"] .carousel-control-next {
+  left: 0;
+  right: auto;
+}
+
+/* Pagination */
+[dir="rtl"] .page-item:first-child .page-link {
+  border-top-right-radius: var(--bs-border-radius);
+  border-bottom-right-radius: var(--bs-border-radius);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+[dir="rtl"] .page-item:last-child .page-link {
+  border-top-left-radius: var(--bs-border-radius);
+  border-bottom-left-radius: var(--bs-border-radius);
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* Toast */
+[dir="rtl"] .toast {
+  direction: rtl;
+}
+
+/* Offcanvas */
+[dir="rtl"] .offcanvas-start {
+  right: 0;
+  left: auto;
+  transform: translateX(100%);
+}
+
+[dir="rtl"] .offcanvas-end {
+  left: 0;
+  right: auto;
+  transform: translateX(-100%);
+}
+
+/* Custom scrollbar for RTL */
+[dir="rtl"] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+/* Utility: Prevent icon flip for certain icons */
+[dir="rtl"] .no-flip {
+  transform: none !important;
+}
+
+/* Form input groups */
+[dir="rtl"] .input-group > :not(:first-child):not(.dropdown-menu):not(.valid-tooltip):not(.valid-feedback):not(.invalid-tooltip):not(.invalid-feedback) {
+  margin-right: -1px;
+  margin-left: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-top-left-radius: var(--bs-border-radius);
+  border-bottom-left-radius: var(--bs-border-radius);
+}

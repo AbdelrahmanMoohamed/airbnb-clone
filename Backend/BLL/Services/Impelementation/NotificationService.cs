@@ -5,34 +5,47 @@ namespace BLL.Services.Impelementation
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly Abstractions.INotificationPublisher? _publisher;
 
 
-        public NotificationService(IUnitOfWork unitOfWork, IMapper mapper)
+        public NotificationService(IUnitOfWork unitOfWork, IMapper mapper, Abstractions.INotificationPublisher? publisher = null)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _publisher = publisher;
         }
 
-        // CreateImage
-        public async Task<Response<CreateNotificationVM>> CreateAsync(CreateNotificationVM model)
+        // CreateImage 
+        public async Task<Response<GetNotificationVM>> CreateAsync(CreateNotificationVM model)
         {
             try
             {
-
                 var entity = _mapper.Map<Notification>(model);
-
 
                 var result = await _unitOfWork.Notifications.CreateAsync(entity);
                 await _unitOfWork.SaveChangesAsync();
 
                 if (result != null)
-                    return new Response<CreateNotificationVM>(model, null, false);
+                {
+                    var mapped = _mapper.Map<GetNotificationVM>(result);
+                    // publish via hub if available
+                    try
+                    {
+                        if (_publisher != null)
+                        {
+                            await _publisher.PublishAsync(mapped);
+                        }
+                    }
+                    catch { /* swallow publisher errors */ }
 
-                return new Response<CreateNotificationVM>(null, "Failed to create notification", true);
+                    return new Response<GetNotificationVM>(mapped, null, false);
+                }
+
+                return new Response<GetNotificationVM>(null, "Failed to create notification", true);
             }
             catch (Exception ex)
             {
-                return new Response<CreateNotificationVM>(null, ex.Message, true);
+                return new Response<GetNotificationVM>(null, ex.Message, true);
             }
         }
 
@@ -117,21 +130,22 @@ namespace BLL.Services.Impelementation
         }
 
         // Mark one as read
-        public async Task<Response<bool>> MarkAsReadAsync(int notificationId)
+        public async Task<Response<GetNotificationVM>> MarkAsReadAsync(int notificationId)
         {
             try
             {
-                var ok = await _unitOfWork.Notifications.MarkAsReadAsync(notificationId);
+                var notification = await _unitOfWork.Notifications.MarkAsReadAsync(notificationId);
                 await _unitOfWork.SaveChangesAsync();
 
-                if (!ok)
-                    return new Response<bool>(false, "Failed to mark notification as read", true);
+                if (notification == null)
+                    return new Response<GetNotificationVM>(null, "Failed to mark notification as read", true);
 
-                return new Response<bool>(true, null, false);
+                var mapped = _mapper.Map<GetNotificationVM>(notification);
+                return new Response<GetNotificationVM>(mapped, null, false);
             }
             catch (Exception ex)
             {
-                return new Response<bool>(false, ex.Message, true);
+                return new Response<GetNotificationVM>(null, ex.Message, true);
             }
         }
 

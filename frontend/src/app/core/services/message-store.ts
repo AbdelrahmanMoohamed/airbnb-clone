@@ -30,9 +30,20 @@ export class MessageStoreService {
       }));
 
       this.messagesSubject.next(list);
-      this.unreadCountSubject.next(list.length);
       console.log('Unread messages loaded:', list.length);
     }, err => console.error('Failed to load unread messages', err));
+  }
+
+  // Load unread count from server
+  loadUnreadCount() {
+    this.api.getUnreadCount().subscribe({
+      next: (res: any) => {
+        const count = res.result ?? 0;
+        this.unreadCountSubject.next(count);
+        console.log('Unread message count from server:', count);
+      },
+      error: err => console.error('Failed to load unread count', err)
+    });
   }
 
   // Load all conversations for chat window
@@ -57,6 +68,7 @@ export class MessageStoreService {
   // Backward compatibility - loads unread by default
   loadInitial() {
     this.loadUnread();
+    this.loadUnreadCount();
   }
 
   markAsRead(id: number) {
@@ -72,25 +84,23 @@ export class MessageStoreService {
     }
     if (changed) {
       this.messagesSubject.next(msgs);
-      const newCount = Math.max(0, this.unreadCountSubject.value - 1);
-      this.unreadCountSubject.next(newCount);
     }
 
-    // Call backend API to mark as read (don't wait for response)
+    // Call backend API to mark as read and reload count
     if (id > 0) {
       this.api.markAsRead(id).subscribe({
-        next: () => console.log('Message marked as read on backend:', id),
+        next: () => {
+          console.log('Message marked as read on backend:', id);
+          this.loadUnreadCount(); // Reload count from server
+        },
         error: (err) => console.error('Failed to mark message as read on backend:', err)
       });
     }
   }
 
   markAllAsRead() {
-    // Get all message IDs that need to be marked
-    const msgs = this.messagesSubject.value.slice();
-    const unreadIds = msgs.filter(m => !m.isRead && m.id > 0).map(m => m.id);
-
     // Update local state immediately
+    const msgs = this.messagesSubject.value.slice();
     let changed = false;
     for (let i = 0; i < msgs.length; i++) {
       if (!msgs[i].isRead) {
@@ -100,16 +110,17 @@ export class MessageStoreService {
     }
     if (changed) {
       this.messagesSubject.next(msgs);
-      this.unreadCountSubject.next(0);
+      this.unreadCountSubject.next(0); // Immediate UI update
     }
 
-    // Call backend API for each unread message
-    for (const id of unreadIds) {
-      this.api.markAsRead(id).subscribe({
-        next: () => console.log('Message marked as read on backend:', id),
-        error: (err) => console.error('Failed to mark message as read on backend:', err)
-      });
-    }
+    // Call backend API to mark all as read
+    this.api.markAllAsRead().subscribe({
+      next: () => {
+        console.log('All messages marked as read on backend');
+        this.loadUnreadCount(); // Reload count to confirm
+      },
+      error: (err) => console.error('Failed to mark all messages as read on backend:', err)
+    });
   }
 
   private prepend(m: MessageDto) {

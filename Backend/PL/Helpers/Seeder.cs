@@ -36,6 +36,16 @@ namespace PL.Helpers
                     await roleManager.CreateAsync(new IdentityRole<Guid>(r));
             }
 
+            //create system user with static id
+            //var systemUserId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+            var systemUser = User.Create("System", DAL.Enum.UserRole.Admin);
+            systemUser.Email = "system@airbnb.com";
+            systemUser.UserName = "system";
+            await userManager.CreateAsync(systemUser, "system123");
+            await userManager.AddToRoleAsync(systemUser, "Admin");
+            //systemUser.Id = systemUserId;
+            
+
             // create admins
             var admin1 = User.Create("Admin One", DAL.Enum.UserRole.Admin);
             admin1.Email = admin1Email;
@@ -126,7 +136,7 @@ namespace PL.Helpers
             var allUsers = owners;
             foreach (var u in allUsers)
             {
-                await uow.Notifications.CreateAsync(u.Id, "Welcome", $"Welcome {u.FullName}", DAL.Enum.NotificationType.System);
+                await uow.Notifications.CreateAsync(u.Id, "Welcome to Airbnb Clone!", $"Hi {u.FullName}! We're excited to have you here. Explore amazing stays around the world.", DAL.Enum.NotificationType.System, "/onboarding", "Start Tour");
             }
 
             await uow.SaveChangesAsync();

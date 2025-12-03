@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- Authentication Messages -->
+  <data name="LoginSuccess" xml:space="preserve">
+    <value>تم تسجيل الدخول بنجاح. مرحباً بعودتك!</value>
+  </data>
+  <data name="LoginFailed" xml:space="preserve">
+    <value>فشل تسجيل الدخول. يرجى التحقق من بيانات الاعتماد.</value>
+  </data>
+  <data name="RegisterSuccess" xml:space="preserve">
+    <value>تم التسجيل بنجاح. مرحباً بك!</value>
+  </data>
+  <data name="RegisterFailed" xml:space="preserve">
+    <value>فشل التسجيل. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>المستخدم غير موجود.</value>
+  </data>
+  <data name="InvalidCredentials" xml:space="preserve">
+    <value>البريد الإلكتروني أو كلمة المرور غير صحيحة.</value>
+  </data>
+  <data name="EmailAlreadyExists" xml:space="preserve">
+    <value>هذا البريد الإلكتروني مسجل بالفعل.</value>
+  </data>
+  <data name="EmailRequired" xml:space="preserve">
+    <value>البريد الإلكتروني مطلوب.</value>
+  </data>
+  <data name="PasswordRequired" xml:space="preserve">
+    <value>كلمة المرور مطلوبة.</value>
+  </data>
+  
+  <!-- General Messages -->
+  <data name="Success" xml:space="preserve">
+    <value>تمت العملية بنجاح.</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>حدث خطأ. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>المورد المطلوب غير موجود.</value>
+  </data>
+  <data name="Unauthorized" xml:space="preserve">
+    <value>غير مصرح لك بتنفيذ هذا الإجراء.</value>
+  </data>
+  <data name="ValidationError" xml:space="preserve">
+    <value>فشل التحقق. يرجى التحقق من المدخلات.</value>
+  </data>
+  
+  <!-- Booking Messages -->
+  <data name="BookingCreated" xml:space="preserve">
+    <value>تم إنشاء الحجز بنجاح.</value>
+  </data>
+  <data name="BookingCancelled" xml:space="preserve">
+    <value>تم إلغاء الحجز بنجاح.</value>
+  </data>
+  <data name="BookingNotFound" xml:space="preserve">
+    <value>الحجز غير موجود.</value>
+  </data>
+  <data name="BookingConfirmed" xml:space="preserve">
+    <value>تم تأكيد الحجز بنجاح.</value>
+  </data>
+  
+  <!-- Listing Messages -->
+  <data name="ListingCreated" xml:space="preserve">
+    <value>تم إنشاء القائمة بنجاح.</value>
+  </data>
+  <data name="ListingUpdated" xml:space="preserve">
+    <value>تم تحديث القائمة بنجاح.</value>
+  </data>
+  <data name="ListingDeleted" xml:space="preserve">
+    <value>تم حذف القائمة بنجاح.</value>
+  </data>
+  <data name="ListingNotFound" xml:space="preserve">
+    <value>القائمة غير موجودة.</value>
+  </data>
+  
+  <!-- Payment Messages -->
+  <data name="PaymentSuccess" xml:space="preserve">
+    <value>تمت معالجة الدفع بنجاح.</value>
+  </data>
+  <data name="PaymentFailed" xml:space="preserve">
+    <value>فشل الدفع. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="RefundProcessed" xml:space="preserve">
+    <value>تمت معالجة الاسترداد بنجاح.</value>
+  </data>
+  
+  <!-- Favorite Messages -->
+  <data name="FavoriteAdded" xml:space="preserve">
+    <value>تمت الإضافة إلى المفضلة.</value>
+  </data>
+  <data name="FavoriteRemoved" xml:space="preserve">
+    <value>تمت الإزالة من المفضلة.</value>
+  </data>
+  
+  <!-- Message/Chat -->
+  <data name="MessageSent" xml:space="preserve">
+    <value>تم إرسال الرسالة بنجاح.</value>
+  </data>
+  <data name="MessageDeleted" xml:space="preserve">
+    <value>تم حذف الرسالة بنجاح.</value>
+  </data>
+  
+  <!-- Notification Messages -->
+  <data name="NotificationMarkedAsRead" xml:space="preserve">
+    <value>تم وضع علامة على الإشعار كمقروء.</value>
+  </data>
+  <data name="AllNotificationsMarkedAsRead" xml:space="preserve">
+    <value>تم وضع علامة على جميع الإشعارات كمقروءة.</value>
+  </data>
+</root>
