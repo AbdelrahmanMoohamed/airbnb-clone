@@ -39,23 +39,13 @@ export class StripePayment implements OnInit, OnDestroy {
   showLoginCTA = false;
   private existingClientSecret?: string | null;
   private existingPaymentIntentId?: string | null;
-  // keep lifecycle state of intent creation
   intentCreationFailed = false;
   intentCreationInProgress = false;
   bookingLoaded = false;
   
   private stripePublishableKey = 'pk_test_51QcFrYAIOvv3gPwPsSer0XmyVWEEuWMzHUX6faseM6I99rQOVdqGpklBAtfUdACpZUXYBv4z1sOb1GQSgqv8Ck1200RQCnRXYc';
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private paymentService: PaymentService
-  ) { }
   ngOnInit(): void {
-    this.bookingId = Number(this.route.snapshot.paramMap.get('bookingId'));
-    // Try to use clientSecret stored by the booking flow first
-    this.existingClientSecret = this.bookingStore.getPaymentIntentClientSecret();
-    this.existingPaymentIntentId = this.bookingStore.getPaymentIntentId();
 
     this.bookingId = Number(
       this.route.snapshot.paramMap.get('bookingId') ?? 
@@ -84,12 +74,7 @@ export class StripePayment implements OnInit, OnDestroy {
       } catch (e) {
         console.warn('Card element already destroyed');
       }
-            else if (err && err.error) userFriendly = (err.error?.errorMessage ?? err.error?.message ?? JSON.stringify(err.error));
-            else if (err && err.message) userFriendly = err.message;
-          } catch { }
-          this.errorMessage = `Missing booking amount (and no stored clientSecret). ${userFriendly}`;
     }
-      });
   }
 
   loginRedirect(): void {
@@ -287,10 +272,6 @@ export class StripePayment implements OnInit, OnDestroy {
           this.isLoading.next(false);
         });
       }
-        } catch (e) {
-          console.warn('[StripePayment] error calling confirmPayment', e);
-        }
-        this.isLoading.next(false);
     };
 
     if (this.existingClientSecret) {
@@ -366,7 +347,6 @@ export class StripePayment implements OnInit, OnDestroy {
 
       },
       error: (err) => {
-        console.error('[StripePayment] retry createIntent failed', err);
         this.errorMessage = 'Failed to create payment intent. Try again.';
         this.intentCreationFailed = true;
         this.intentCreationInProgress = false;

@@ -243,20 +243,6 @@ export class ListingsList implements OnInit {
     }
   }
 
-  nextPage() {
-    if (this.currentPage() < this.totalPages()) {
-      this.currentPage.update(p => p + 1);
-      this.loadListings();
-    }
-  }
-
-  prevPage() {
-    if (this.currentPage() > 1) {
-      this.currentPage.update(p => p - 1);
-      this.loadListings();
-    }
-  }
-
   trackById(index: number, item: ListingOverviewVM): number {
     return item.id ?? index;
   }

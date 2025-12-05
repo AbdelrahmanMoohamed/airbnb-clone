@@ -256,7 +256,7 @@
     "successMessage": "شكراً لك! تم معالجة وجهك بنجاح.",
     "faceLoginFailed": "فشل تسجيل الدخول باستخدام معرف الوجه. يرجى المحاولة مرة أخرى.",
     "faceLoginHint": "استخدم معرف الوجه لتسجيل الدخول بسرعة وأمان",
-    "faceLoginReady": "معرف الوجه جاهز. يرجى التقاط وجهك لتسجيل الدخول."
+    "faceLoginReady": "معرف الوجه جاهز. يرجى التقاط وجهك لتسجيل الدخول.",
     "loggingIn": "جاري تسجيل الدخول...",
     "creatingAccount": "جاري إنشاء الحساب..."
   },
@@ -570,7 +570,6 @@
     "greatMatch": "تطابق رائع",
     "goodMatch": "تطابق جيد",
     "recommended": "موصى به"
-    "checkAvailability": "تحقق من التوفر"
   },
   "bookings": {
     "myBookings": "حجوزاتي",
@@ -703,7 +702,6 @@
     "addedToFavorites": "تمت الإضافة للمفضلة",
     "remove": "إزالة",
     "removeFromFavorites": "إزالة من المفضلة"
-    "addedToFavorites": "تمت الإضافة للمفضلة"
   },
   "chat": {
     "messages": "الرسائل",

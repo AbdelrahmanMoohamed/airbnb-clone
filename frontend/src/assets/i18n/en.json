@@ -280,7 +280,7 @@
     "successMessage": "Login successful with FaceID",
     "faceLoginFailed": "FaceID login failed. Please try again.",
     "faceLoginHint": "Use FaceID to login quickly and securely",
-    "faceLoginReady": "FaceID is ready. Please capture your face to login."
+    "faceLoginReady": "FaceID is ready. Please capture your face to login.",
     "loggingIn": "Logging in...",
     "creatingAccount": "Creating account..."
   },
@@ -515,7 +515,7 @@
     "perfectMatch": "Perfect Match",
     "greatMatch": "Great Match",
     "goodMatch": "Good Match",
-    "recommended": "Recommended"
+    "recommended": "Recommended",
     "checkAvailability": "Check availability"
   },
   "bookings": {

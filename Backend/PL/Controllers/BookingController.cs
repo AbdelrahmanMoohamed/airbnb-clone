@@ -97,16 +97,16 @@ namespace PL.Controllers
             return Ok(resp.result);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var userId = GetUserIdFromClaims();
-            if (userId == null) return Unauthorized();
+        //[HttpGet("{id}")]
+        //public async Task<IActionResult> GetById(int id)
+        //{
+        //    var userId = GetUserIdFromClaims();
+        //    if (userId == null) return Unauthorized();
 
-            var resp = await _bookingService.GetByIdAsync(userId.Value, id);
-            if (!resp.Success) return BadRequest(resp.errorMessage);
-            return Ok(resp.result);
-        }
+        //    var resp = await _bookingService.GetByIdAsync(userId.Value, id);
+        //    if (!resp.Success) return BadRequest(resp.errorMessage);
+        //    return Ok(resp.result);
+        //}
 
         [HttpGet("me")]
         public async Task<IActionResult> MyBookings()

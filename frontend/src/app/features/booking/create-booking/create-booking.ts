@@ -2,13 +2,10 @@ import { ChangeDetectorRef, Component, EventEmitter, inject, Input, NgZone, OnIn
 import { ActivatedRoute, Router } from '@angular/router';
 import { BookingService } from '../../../core/services/Booking/booking-service';
 import { ListingService } from '../../../core/services/listings/listing.service';
-import { PaymentService } from '../../../core/services/payment/payment-service';
 import { CreateBookingVM } from '../../../core/models/booking';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BookingStoreService } from '../../../core/services/Booking/booking-store-service';
-import { AuthService } from '../../../core/services/auth.service';
-import { catchError, map, of, switchMap, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-create-booking',
@@ -20,9 +17,7 @@ export class CreateBooking implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private bookingService = inject(BookingService);
-  private paymentService = inject(PaymentService);
   private listingService = inject(ListingService);
-  private authService = inject(AuthService);
   private bookingStore = inject(BookingStoreService);
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
@@ -30,7 +25,6 @@ export class CreateBooking implements OnInit {
 
 
   bookingForm!: FormGroup;
-  // listingId!: number;
   isLoading = false;
   errorMessage = '';
   today!: string;
@@ -47,9 +41,7 @@ export class CreateBooking implements OnInit {
       this.listingId = Number(this.route.snapshot.paramMap.get('id'));
     }
     this.today = new Date().toISOString().split('T')[0];
-    // (removed dev debugging of token payload) 
 
-    // If the parent did not pass prices / maxGuests (route-based), fetch listing details first
     if (!this.listingPrice || !this.listingMaxGuests) {
       if (this.listingId) {
         this.listingService.getById(this.listingId).subscribe({
@@ -73,14 +65,9 @@ export class CreateBooking implements OnInit {
             console.error('Error loading listing details:', err);
           }
         });
-      } else {
-        this.initForm();
       }
-    } else {
-      this.initForm();
     }
   }
-
   private initForm(): void {
     const today = new Date().toISOString().split('T')[0];
     const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
@@ -178,7 +165,6 @@ onSubmit(): void {
       this.cdr.detectChanges();
     }
   });
-}
 }
   onCancel(): void {
     this.bookingCancelled.emit();
