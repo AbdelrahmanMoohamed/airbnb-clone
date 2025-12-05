@@ -211,9 +211,9 @@ export class StripePayment implements OnInit, OnDestroy {
 
   /**
    */
-  private async verifyPaymentInDatabase(maxAttempts: number = 10): Promise<boolean> {
+  private async verifyPaymentInDatabase(maxAttempts: number = 3): Promise<boolean> {
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       try {
         const booking = await this.bookingService.getById(this.bookingId).toPromise();
