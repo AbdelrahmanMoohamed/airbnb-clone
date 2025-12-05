@@ -1,18 +1,21 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { FaceCaptureComponent } from './face-capture/face-capture.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, TranslateModule],
+  imports: [CommonModule, FormsModule, RouterModule, TranslateModule, FaceCaptureComponent],
   templateUrl: './register.html',
   styleUrls: ['./register.css']
 })
 export class Register {
+  @ViewChild(FaceCaptureComponent) faceCapture!: FaceCaptureComponent;
+
   fullname = '';
   email = '';
   password = '';
@@ -20,25 +23,26 @@ export class Register {
   userName = '';
   showPassword = false;
   showConfirmPassword = false;
-  isLoading = false;
   errorMessage = '';
+  successMessage = '';
+  capturedFaceFile: File | null = null;
+  isLoading = false;
   fieldErrors: { [key: string]: string } = {};
-
+  showFaceRegistrationPrompt = false;
+  
   constructor(
     private auth: AuthService,
     private router: Router,
     private translate: TranslateService,
     private cdr: ChangeDetectorRef
-  ) { }
+  ) {}
 
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
   }
-
   toggleConfirmPasswordVisibility() {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
-
   validateField(fieldName: string, value: string) {
     this.fieldErrors[fieldName] = '';
 
@@ -85,12 +89,10 @@ export class Register {
     }
     this.cdr.detectChanges();
   }
-
   private isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
-
   private handleAuthError(error: any) {
     this.errorMessage = '';
     this.fieldErrors = {};
@@ -142,7 +144,6 @@ export class Register {
 
     this.cdr.detectChanges();
   }
-
   signUpWithGoogle() {
     this.isLoading = true;
     this.auth.googleLogin().subscribe({
@@ -165,7 +166,6 @@ export class Register {
       }
     });
   }
-
   submit(form?: NgForm) {
     // Reset previous errors
     this.errorMessage = '';
@@ -177,38 +177,122 @@ export class Register {
     this.validateField('email', this.email);
     this.validateField('password', this.password);
     this.validateField('confirmPassword', this.confirmPassword);
-
     // Check if there are validation errors
     if (Object.keys(this.fieldErrors).some(key => this.fieldErrors[key])) {
       return;
     }
 
     this.isLoading = true;
-
     const payload = {
       fullName: this.fullname,
       email: this.email,
       password: this.password,
       userName: this.userName,
-      firebaseUid: 'null'
+      firebaseUid: null
     };
+    console.log('Register payload:', payload);
 
     this.auth.register(payload).subscribe({
       next: () => {
         this.isLoading = false;
-        // New users always get onboarding on first registration
-        const isFirstLogin = localStorage.getItem('isFirstLogin') === 'true';
-        if (isFirstLogin) {
-          this.router.navigate(['/onboarding']);
-        } else {
-          this.router.navigate(['/']);
+        this.successMessage = this.translate.instant('auth.registerSuccess') || 'Registration successful!';
+
+        // Show face registration suggestion prompt immediately
+        this.showFaceRegistrationPrompt = true;
+        // Ensure Angular updates the view in case this callback ran outside the normal change detection
+        try {
+          this.cdr.detectChanges();
+        } catch (e) {
+          // ignore - detectChanges only needed in rare edge cases
         }
       },
       error: err => {
-        this.isLoading = false;
+        // Log full error for debugging
         console.error('Register failed', err);
-        this.handleAuthError(err);
+        this.isLoading = false;
+
+        // Try to extract useful message from backend response
+        let msg = '';
+        try {
+          if (err?.error == null) {
+            msg = err?.message || '';
+          } else if (typeof err.error === 'string') {
+            msg = err.error;
+          } else if (err.error.message) {
+            msg = err.error.message;
+          } else if (err.error.errorMessage) {
+            msg = err.error.errorMessage;
+          } else if (err.error.errors) {
+            // some responses may return errors object or array
+            msg = JSON.stringify(err.error.errors);
+          } else {
+            msg = JSON.stringify(err.error);
+          }
+        } catch (e) {
+          msg = err?.message || 'Registration failed';
+        }
+
+        this.errorMessage = msg || this.translate.instant('auth.registerFailed') || 'Registration failed';
       }
     });
   }
+
+  proceedWithFaceRegistration() {
+    this.showFaceRegistrationPrompt = false;
+    this.faceCapture.open();
+  }
+
+  skipFaceRegistration() {
+    this.showFaceRegistrationPrompt = false;
+    this.proceedToNextStep();
+  }
+
+  onFaceCaptured(file: File) {
+    this.isLoading = true;
+    const userId = this.auth.getPayload()?.sub || this.auth.getPayload()?.nameid;
+    
+    if (!userId) {
+      this.isLoading = false;
+      this.errorMessage = this.translate.instant('auth.userIdError') || 'Unable to get user ID. Please try again.';
+      return;
+    }
+
+    this.auth.registerFace(userId, file).subscribe({
+      next: (res) => {
+        console.log('Face registration successful:', res);
+        this.isLoading = false;
+        this.successMessage = this.translate.instant('auth.faceRegistrationSuccess') || 'Face registered successfully!';
+        
+        // Close the face capture modal
+        this.faceCapture.closeModal();
+        
+        setTimeout(() => {
+          this.proceedToNextStep();
+        }, 1500);
+      },
+      error: (err) => {
+        console.error('Face registration failed:', err);
+        this.isLoading = false;
+        this.errorMessage = err?.error?.message || this.translate.instant('auth.faceRegistrationFailed') || 'Face registration failed. Please try again.';
+        
+        // Close the face capture modal on error
+        this.faceCapture.closeModal();
+      }
+    });
+  }
+
+  onFaceCaptureCancelled() {
+    this.showFaceRegistrationPrompt = false;
+    this.proceedToNextStep();
+  }
+
+  private proceedToNextStep() {
+    const isFirstLogin = localStorage.getItem('isFirstLogin') === 'true';
+    if (isFirstLogin) {
+      this.router.navigate(['/onboarding']);
+    } else {
+      this.router.navigate(['/']);
+    }
+  }
 }
+

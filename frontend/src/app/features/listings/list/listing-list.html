@@ -1,0 +1,187 @@
+<div class="broker-listings-container">
+  <!-- Hero Header Section -->
+  <div class="broker-search-hero">
+    <div class="container-fluid">
+      <div class="broker-branding-header text-center">
+        <h2 class="broker-title">My Listings</h2>
+        <p class="broker-subtitle">Manage your properties and track their performance</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="broker-main-content">
+    <div class="container-fluid">
+      <div class="row">
+
+        <!-- Listings Grid -->
+        <div class="col-lg-9 col-md-8">
+          <div class="broker-listings-grid">
+            <div class="broker-listings-header">
+              <h3 class="listings-count">{{ filtered().length }} Properties</h3>
+              <button class="btn-broker" [routerLink]="['/host/create']">
+                <i class="bi bi-plus-circle"></i> Add New Listing
+              </button>
+            </div>
+
+            <div class="broker-cards-grid">
+              <div class="broker-listing-card" *ngFor="let l of filtered(); trackBy: trackById">
+                <img [src]="l.mainImageUrl
+                    ? (l.mainImageUrl.indexOf('http') === 0
+                      ? l.mainImageUrl
+                      : 'http://localhost:5235' + l.mainImageUrl)
+                    : 'assets/default-listing.svg'" class="broker-card-image" />
+
+                <div class="broker-card-status">
+                  <span *ngIf="!l.isApproved" class="status-badge status-pending">Pending</span>
+                  <span *ngIf="l.isApproved" class="status-badge status-approved">Approved</span>
+                </div>
+
+                <div class="broker-card-content">
+                  <h5 class="broker-card-title">{{ l.title }}</h5>
+                  
+                  <div class="broker-card-details">
+                    <p class="broker-detail-item">
+                      <i class="bi bi-geo-alt"></i> {{ l.destination }}
+                    </p>
+                    <p class="broker-detail-item">
+                      <i class="bi bi-house"></i> {{ l.type }}
+                    </p>
+                    <p class="broker-detail-item">
+                      <i class="bi bi-door-open"></i> {{ l.bedrooms }} Bed • {{ l.bathrooms }} Bath
+                    </p>
+                    <p class="broker-detail-item">
+                      <i class="bi bi-star-fill"></i> {{ l.averageRating || 0 }} / 5 ({{ l.reviewCount }} reviews)
+                    </p>
+                  </div>
+
+                  <div class="broker-card-footer">
+                    <div class="broker-card-price">
+                      <span class="price-amount">${{ l.pricePerNight }}</span>
+                      <span class="price-period">/night</span>
+                    </div>
+
+                    <div class="broker-card-actions">
+                      <a class="action-btn action-view" [routerLink]="['/listings', l.id]" title="View">
+                        <i class="bi bi-eye"></i>
+                      </a>
+                      <a class="action-btn action-edit" [routerLink]="['/host', l.id, 'edit']" title="Edit">
+                        <i class="bi bi-pencil"></i>
+                      </a>
+                      <button class="action-btn action-delete" (click)="onDelete(l.id)" title="Delete">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Loading State -->
+            <div *ngIf="loading()" class="broker-loading-state">
+              <div class="loading-spinner"></div>
+              <p>Loading your listings...</p>
+            </div>
+
+            <!-- Error State -->
+            <div *ngIf="error()" class="broker-error-state">
+              <i class="bi bi-exclamation-triangle"></i>
+              <p>{{ error() }}</p>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="!loading() && !error() && filtered().length === 0" class="broker-empty-state">
+              <i class="bi bi-house-x"></i>
+              <h4>No Listings Found</h4>
+              <p>You haven't created any listings yet or they don't match your filters.</p>
+              <button class="btn-broker" [routerLink]="['/host/create']">Create Your First Listing</button>
+            </div>
+
+            <!-- Pagination -->
+            <div *ngIf="!loading() && !error() && filtered().length > 0 && totalPages() > 1" class="pagination-section">
+              <button *ngIf="currentPage() > 1" (click)="prevPage()" class="pagination-btn">Previous</button>
+              <span *ngFor="let page of paginationPages()" class="pagination-number">
+                <button *ngIf="typeof page === 'number'" (click)="goToPage(+page)" [class.active]="page === currentPage()" class="pagination-page-btn">{{ page }}</button>
+                <span *ngIf="typeof page === 'string'" class="pagination-ellipsis">{{ page }}</span>
+              </span>
+              <button *ngIf="currentPage() < totalPages()" (click)="nextPage()" class="pagination-btn">Next</button>
+              <div class="pagination-info">Page {{ currentPage() }} of {{ totalPages() }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters Sidebar -->
+        <div class="col-lg-3 col-md-4">
+          <div class="broker-sidebar">
+            <div class="broker-filters-section">
+              <div class="filters-header">
+                <h4>Filters</h4>
+                <i class="bi bi-funnel"></i>
+              </div>
+
+              <div class="filter-group">
+                <label class="filter-label">Search</label>
+                <div class="broker-search-group">
+                  <i class="bi bi-search"></i>
+                  <input class="broker-filter-input" type="text" placeholder="Search listings..." 
+                         [ngModel]="search()" (ngModelChange)="search.set($event)" />
+                </div>
+              </div>
+
+              <div class="filter-group">
+                <label class="filter-label">Location</label>
+                <div class="broker-search-group">
+                  <i class="bi bi-geo-alt"></i>
+                  <select class="broker-filter-select" [ngModel]="location()" (ngModelChange)="location.set($event)">
+                    <option value="">All Locations</option>
+                    <option *ngFor="let loc of locations()" [value]="loc">{{ loc }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="filter-group">
+                <label class="filter-label">Status</label>
+                <div class="broker-search-group">
+                  <i class="bi bi-check-circle"></i>
+                  <select class="broker-filter-select" [ngModel]="isApproved()" (ngModelChange)="isApproved.set($event)">
+                    <option value="">All Status</option>
+                    <option value="approved">Approved</option>
+                    <option value="not-approved">Pending</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="filter-group">
+                <label class="filter-label">Max Price</label>
+                <div class="broker-search-group">
+                  <i class="bi bi-currency-dollar"></i>
+                  <input type="number" placeholder="Max Price" class="broker-filter-input" 
+                         [ngModel]="maxPrice()" (ngModelChange)="maxPrice.set($event === '' ? null : +$event)">
+                </div>
+              </div>
+
+              <div class="filter-group">
+                <label class="filter-label">Min Rating</label>
+                <div class="broker-search-group">
+                  <i class="bi bi-star"></i>
+                  <input type="number" placeholder="Min Rating" class="broker-filter-input" 
+                         min="0" max="5" step="0.5" 
+                         [ngModel]="minRating()" (ngModelChange)="minRating.set($event === '' ? null : +$event)">
+                </div>
+              </div>
+
+              <div class="filter-results">
+                {{ filtered().length }} results
+              </div>
+
+              <button class="btn-broker-outline w-100" (click)="resetFilters()">
+                <i class="bi bi-arrow-clockwise"></i> Reset Filters
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

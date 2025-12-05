@@ -29,6 +29,7 @@ export class Navbar implements OnInit, OnDestroy {
   public newIds = new Set<number>();
   messages: MessageDto[] = [];
   unreadMsgCount = 0;
+  isAdmin = false;
 
   notificationOpen = false;
   messageOpen = false;
@@ -75,6 +76,13 @@ export class Navbar implements OnInit, OnDestroy {
           try { this.favoriteStore.loadFavorites(); } catch (err) {
             console.warn('Failed to load favorites:', err);
           }
+          // If admin logged in and is on home/root, redirect to admin dashboard
+          try {
+            const url = this.router.url || '';
+            if (this.isAdmin && (url === '/' || url.startsWith('/home') || url === '/')) {
+              this.router.navigate(['/admin']);
+            }
+          } catch {}
         } else {
           // Clear data when logged out
           this.notifications = [];

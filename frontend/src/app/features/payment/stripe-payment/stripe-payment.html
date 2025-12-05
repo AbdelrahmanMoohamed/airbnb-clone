@@ -18,6 +18,7 @@
   <div *ngIf="successMessage" class="success-message">
     <p>{{ successMessage }}</p>
   </div>
+  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
 
   <!-- Payment Form -->
   <div *ngIf="bookingLoaded && !successMessage" class="payment-form">
@@ -33,6 +34,7 @@
     </div>
 
     <button 
+    class="btn btn-primary w-100 py-2"
       (click)="pay()" 
       [disabled]="(isLoading | async) || !bookingLoaded || !amount"
       class="btn-pay">

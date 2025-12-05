@@ -1,23 +1,31 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { FaceCaptureComponent } from './face-capture/face-capture.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, TranslateModule],
+  imports: [CommonModule, FormsModule, RouterModule, TranslateModule, FaceCaptureComponent],
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
 export class Login {
+
+  @ViewChild(FaceCaptureComponent) faceCapture!: FaceCaptureComponent;
+
   email = '';
   password = '';
   showPassword = false;
+
+  isLoginMode: 'email' | 'face' = 'email';
   isLoading = false;
+
   errorMessage = '';
+  successMessage = '';
   fieldErrors: { [key: string]: string } = {};
 
   constructor(
@@ -25,11 +33,11 @@ export class Login {
     private router: Router,
     private cdr: ChangeDetectorRef,
     private translate: TranslateService
-  ) {
-    console.log('Login component initialized');
-    this.cdr.markForCheck();
-  }
+  ) {}
 
+  // ============================================================
+  // UI Helpers
+  // ============================================================
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
   }
@@ -45,6 +53,7 @@ export class Login {
           this.fieldErrors[fieldName] = this.translate.instant('auth.emailInvalid');
         }
         break;
+
       case 'password':
         if (!value) {
           this.fieldErrors[fieldName] = this.translate.instant('auth.passwordRequired');
@@ -61,42 +70,28 @@ export class Login {
     return emailRegex.test(email);
   }
 
+  // ============================================================
+  // ERROR HANDLING
+  // ============================================================
   private handleAuthError(error: any) {
     this.errorMessage = '';
     this.fieldErrors = {};
 
-    console.log('Full error object:', error);
-    console.log('Error.error:', error.error);
-
     if (error.status === 400) {
-      // Bad request - validation errors
       if (error.error?.errors) {
-        // Handle validation errors from backend
         Object.keys(error.error.errors).forEach(field => {
-          const fieldName = field.toLowerCase();
-          this.fieldErrors[fieldName] = error.error.errors[field][0];
+          this.fieldErrors[field.toLowerCase()] = error.error.errors[field][0];
         });
-      } else if (error.error?.errorMessage) {
-        // Handle the backend error structure: error.error.errorMessage
-        this.errorMessage = error.error.errorMessage;
-      } else if (error.error?.message) {
-        // Fallback to message field
-        this.errorMessage = error.error.message;
       } else {
-        // Fallback error message
-        this.errorMessage = this.translate.instant('auth.invalidCredentials');
+        this.errorMessage = error.error?.message || this.translate.instant('auth.invalidCredentials');
       }
     } else if (error.status === 401) {
-      // Unauthorized - wrong credentials
       this.errorMessage = this.translate.instant('auth.invalidCredentials');
     } else if (error.status === 404) {
-      // User not found
       this.errorMessage = this.translate.instant('auth.userNotFound');
     } else if (error.status === 0 || error.status >= 500) {
-      // Network or server error
       this.errorMessage = this.translate.instant('auth.serverError');
     } else {
-      // Generic error
       this.errorMessage = error.error?.errorMessage || error.error?.message || this.translate.instant('auth.loginError');
     }
 
@@ -126,47 +121,98 @@ export class Login {
     });
   }
 
+  // ============================================================
+  // SUBMIT - MAIN ENTRY
+  // ============================================================
   submit(form?: NgForm) {
-    // Reset previous errors
+    if (this.isLoginMode === 'email') {
+      this.submitEmailLogin();
+    }
+  }
+
+  // ============================================================
+  // EMAIL/PASSWORD LOGIN
+  // ============================================================
+  private submitEmailLogin() {
     this.errorMessage = '';
     this.fieldErrors = {};
 
-    // Validate form
+    // Validate
     this.validateField('email', this.email);
     this.validateField('password', this.password);
-
-    // Check if there are validation errors
-    if (Object.keys(this.fieldErrors).some(key => this.fieldErrors[key])) {
-      return;
-    }
+    if (Object.keys(this.fieldErrors).some(k => this.fieldErrors[k])) return;
 
     this.isLoading = true;
-    console.log('Submitting login with:', { email: this.email, password: this.password });
 
     this.auth.login({ email: this.email, password: this.password }).subscribe({
-      next: (response) => {
-        console.log('Login response:', response);
+      next: () => {
         this.isLoading = false;
+        this.successMessage = this.translate.instant('auth.loginSuccess');
 
-        // Check if this is first-time login
-        const isFirstLogin = localStorage.getItem('isFirstLogin') === 'true';
-
-        if (isFirstLogin) {
-          // Redirect to onboarding for first-time users
-          this.router.navigate(['/onboarding']);
-        } else if (this.auth.isAdmin()) {
-          // Admin users go to admin dashboard
-          this.router.navigate(['/admin']);
-        } else {
-          // Regular users go to home
-          this.router.navigate(['/']);
-        }
+        setTimeout(() => this.navigateAfterLogin(), 800);
       },
       error: err => {
         this.isLoading = false;
-        console.error('Login failed', err);
         this.handleAuthError(err);
       }
     });
+  }
+
+  // ============================================================
+  // FACE LOGIN
+  // ============================================================
+  switchToFaceLogin() {
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.isLoginMode = 'face';
+    this.faceCapture.open();
+  }
+
+  switchToEmailLogin() {
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.isLoginMode = 'email';
+  }
+
+  onFaceCaptured(file: File) {
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.isLoading = true;
+
+    this.auth.loginWithFace(file).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        this.successMessage = this.translate.instant('auth.loginSuccess');
+        
+        this.faceCapture.closeModal();
+        setTimeout(() => this.navigateAfterLogin(), 800);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.errorMessage = err?.error?.message || this.translate.instant('auth.faceLoginFailed');
+        this.faceCapture.closeModal();
+        this.switchToEmailLogin();
+      }
+    });
+  }
+
+  onFaceCaptureCancelled() {
+    this.switchToEmailLogin();
+    this.isLoading = false;
+  }
+
+  // ============================================================
+  // NAVIGATION AFTER LOGIN
+  // ============================================================
+  private navigateAfterLogin() {
+    const isFirstLogin = localStorage.getItem('isFirstLogin') === 'true';
+
+    if (isFirstLogin) {
+      this.router.navigate(['/onboarding']);
+    } else if (this.auth.isAdmin()) {
+      this.router.navigate(['/admin']);
+    } else {
+      this.router.navigate(['/']);
+    }
   }
 }

@@ -34,6 +34,9 @@
             // Ensure IdentityService is registered with token service injected
             //services.AddScoped<IIdentityService, IdentityService>();
             services.AddScoped<IFavoriteService, FavoriteService>();
+
+            services.AddScoped<IFaceIdService, FaceIdService>();
+
             return services;
         }
     }

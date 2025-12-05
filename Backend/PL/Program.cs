@@ -2,6 +2,8 @@ using Hangfire;
 using Hangfire.SqlServer;
 using PL.Background_Jobs;
 
+using Microsoft.Extensions.FileProviders;
+
 namespace PL
 {
     public class Program
@@ -230,6 +232,10 @@ namespace PL
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            var modelPath = builder.Configuration["FaceModelsPath"];
+            builder.Services.AddSingleton(provider =>
+                FaceRecognitionDotNet.FaceRecognition.Create(modelPath));
+
             var app = builder.Build();
 
             // --------------------------------------------------------------------
@@ -255,6 +261,14 @@ namespace PL
 
             app.UseAuthentication();
             app.UseAuthorization();
+            // This tells .NET: "If a request comes in starting with /Files, 
+            // look inside the physical 'Files' folder in the project root."
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                    Path.Combine(builder.Environment.ContentRootPath, "Files")),
+                RequestPath = "/Files"
+            });
 
             // Hangfire Dashboard
             app.UseHangfireDashboard("/hangfire");

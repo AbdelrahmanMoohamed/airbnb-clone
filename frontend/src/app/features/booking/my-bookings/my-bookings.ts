@@ -110,6 +110,7 @@ export class MyBookings implements OnInit {
             }
           },
           error: (error) => {
+          alert('An error occurred while cancelling booking');
             console.error('Booking cancellation error:', error);
             Swal.fire({
               icon: 'error',

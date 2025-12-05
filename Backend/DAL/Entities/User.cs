@@ -20,6 +20,7 @@
         public ICollection<Message> MessagesReceived { get; private set; } = new List<Message>();
         public ICollection<Notification> Notifications { get; private set; } = new List<Notification>();
         public ICollection<Favorite> Favorites { get; private set; } = new List<Favorite>();
+        public virtual ICollection<FaceId>? FaceIds { get; private set; }
 
         private User() { }
 

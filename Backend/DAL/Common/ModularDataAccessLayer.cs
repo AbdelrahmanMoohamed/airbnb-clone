@@ -24,6 +24,8 @@ namespace DAL.Common
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             // admin (register abstraction and implementation)
             services.AddScoped<IAdminRepository, AdminRepository>();
+            // Face ID Repositories
+            services.AddScoped<IFaceIdRepo, FaceIdRepo>();
             return services;
         }
 

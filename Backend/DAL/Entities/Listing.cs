@@ -257,7 +257,7 @@
         {
             if (IsDeleted)
                 throw new InvalidOperationException("Cannot reject a deleted listing.");
-            if(!IsApproved)
+            if(!IsApproved && IsReviewed)
                 throw new InvalidOperationException("listing is already rejected.");
 
 
