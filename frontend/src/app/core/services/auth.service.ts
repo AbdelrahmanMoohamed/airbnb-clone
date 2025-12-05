@@ -224,4 +224,68 @@ export class AuthService {
     // navigate to login page
     this.router.navigate(['/auth/login']);
   }
+
+  /**
+   * Register face for an existing user (after login)
+   */
+  registerFace(userId: string, imageFile: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('imageFile', imageFile);
+    formData.append('UserId', userId);
+    formData.append('CreatedBy', userId);
+
+    return this.http.post<any>('http://localhost:5235/api/faceid/register', formData);
+  }
+
+  /**
+   * Login using face recognition
+   */
+  loginWithFace(imageFile: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+
+    return this.http.post<any>('http://localhost:5235/api/faceid/login', formData).pipe(
+      tap(res => {
+        console.log('Face login full response:', res);
+        
+        // Backend returns { result: "token_string", success: boolean, ... }
+        // The token is directly in result as a string, not nested in an object
+        let token = res?.result;
+        
+        // If result is an object with token property, use that
+        if (typeof token === 'object' && token?.token) {
+          token = token.token;
+        }
+
+        console.log('Extracted token:', token ? 'Found (length: ' + token.length + ')' : 'Not found');
+
+        if (token && typeof token === 'string') {
+          this.removeToken();
+          this.setToken(token);
+          console.log('Face login successful, token set');
+
+          // If backend provides explicit isFirstLogin flag use it; otherwise do not change
+          // Allow backend to control whether onboarding should be shown
+          const providedIsFirstLogin = res?.isFirstLogin ?? (res?.result && typeof res.result === 'object' ? res.result.isFirstLogin : undefined);
+          if (this.isBrowser && typeof providedIsFirstLogin !== 'undefined') {
+            try {
+              localStorage.setItem('isFirstLogin', String(providedIsFirstLogin));
+              console.log('isFirstLogin flag stored from backend:', providedIsFirstLogin);
+            } catch (err) {
+              console.warn('Failed to store isFirstLogin flag:', err);
+            }
+          }
+        } else {
+          console.error('Face login: No valid token in response', res);
+        }
+      })
+    );
+  }
+
+  /**
+   * Verify if user has face registered
+   */
+  verifyFaceExists(userId: string): Observable<any> {
+    return this.http.get<any>(`http://localhost:5235/api/faceid/verify/${userId}`);
+  }
 }

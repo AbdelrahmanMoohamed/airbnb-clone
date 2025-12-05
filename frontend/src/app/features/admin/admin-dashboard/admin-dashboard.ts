@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { TranslateService, TranslateModule } from '@ngx-translate/core';
+import Swal from 'sweetalert2';
 import {
   AdminService,
   SystemStats,
@@ -12,16 +14,19 @@ import {
   PromotionSummary,
 } from '../../../core/services/admin.service';
 
+
+
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, TranslateModule],
   templateUrl: './admin-dashboard.html',
   styleUrls: ['./admin-dashboard.css'],
 })
 export class AdminDashboard implements OnInit {
   private adminService = inject(AdminService);
   private cdr = inject(ChangeDetectorRef);
+  private translate = inject(TranslateService);
 
   // Main UI state
   activeTab: string = 'dashboard';
@@ -172,69 +177,206 @@ export class AdminDashboard implements OnInit {
   }
 
   approveListing(listingId: number): void {
-    if (!confirm('Approve this listing?')) return;
-    this.adminService.approveListing(listingId).subscribe({
-      next: (ok) => {
-        if (ok) {
-          if (this.activeTab === 'listings-pending') this.loadPendingListings();
-          else this.loadListings();
-        }
-      },
-      error: (error: any) => this.handleError('approving listing', error),
+    Swal.fire({
+      title: this.translate.instant('admin.actions.approveConfirm'),
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: this.translate.instant('common.confirm'),
+      cancelButtonText: this.translate.instant('common.cancel'),
+      confirmButtonColor: '#667eea',
+      cancelButtonColor: '#d32f2f',
+      allowOutsideClick: false,
+    }).then((result) => {
+      if (!result.isConfirmed) return;
+      this.adminService.approveListing(listingId).subscribe({
+        next: (ok) => {
+          if (ok) {
+            Swal.fire({
+              title: this.translate.instant('common.success'),
+              text: this.translate.instant('admin.actions.approveSuccess'),
+              icon: 'success',
+              confirmButtonColor: '#667eea',
+            });
+            if (this.activeTab === 'listings-pending') this.loadPendingListings();
+            else this.loadListings();
+          }
+        },
+        error: (error: any) => this.handleError('approving listing', error),
+      });
     });
   }
 
   rejectListing(listingId: number): void {
-    const note = prompt('Enter rejection note (optional):');
-    if (!confirm('Reject this listing?')) return;
-    this.adminService.rejectListing(listingId, note || undefined).subscribe({
-      next: (ok) => {
-        if (ok) {
-          if (this.activeTab === 'listings-pending') this.loadPendingListings();
-          else this.loadListings();
-        }
-      },
-      error: (error: any) => this.handleError('rejecting listing', error),
+    Swal.fire({
+      title: this.translate.instant('admin.actions.rejectNotePrompt'),
+      input: 'textarea',
+      inputPlaceholder: this.translate.instant('admin.actions.rejectNotePlaceholder') || 'Enter rejection reason...',
+      showCancelButton: true,
+      confirmButtonText: this.translate.instant('common.confirm'),
+      cancelButtonText: this.translate.instant('common.cancel'),
+      confirmButtonColor: '#667eea',
+      cancelButtonColor: '#d32f2f',
+      allowOutsideClick: false,
+    }).then((result) => {
+      if (!result.isConfirmed) return;
+      Swal.fire({
+        title: this.translate.instant('admin.actions.rejectConfirm'),
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: this.translate.instant('common.confirm'),
+        cancelButtonText: this.translate.instant('common.cancel'),
+        confirmButtonColor: '#d32f2f',
+        cancelButtonColor: '#999',
+        allowOutsideClick: false,
+      }).then((confirmResult) => {
+        if (!confirmResult.isConfirmed) return;
+        this.adminService.rejectListing(listingId, result.value || undefined).subscribe({
+          next: (ok) => {
+            if (ok) {
+              Swal.fire({
+                title: this.translate.instant('common.success'),
+                text: this.translate.instant('admin.actions.rejectSuccess'),
+                icon: 'success',
+                confirmButtonColor: '#667eea',
+              });
+              if (this.activeTab === 'listings-pending') this.loadPendingListings();
+              else this.loadListings();
+            }
+          },
+          error: (error: any) => this.handleError('rejecting listing', error),
+        });
+      });
     });
   }
 
   promoteListing(listingId: number): void {
-    const daysStr = prompt('Promote for how many days? (enter number)');
-    const days = Math.max(1, parseInt(daysStr || '7', 10) || 7);
-    const end = new Date();
-    end.setDate(end.getDate() + days);
-    const iso = end.toISOString();
-    if (!confirm(`Promote listing until ${end.toLocaleString()}?`)) return;
-    this.adminService.promoteListing(listingId, iso).subscribe({
-      next: (ok) => {
-        if (ok) this.loadListings();
+    Swal.fire({
+      title: this.translate.instant('admin.actions.promoteDaysPrompt'),
+      input: 'number',
+      inputValue: 7,
+      inputAttributes: {
+        min: '1',
+        max: '365',
       },
-      error: (error: any) => this.handleError('promoting listing', error),
+      showCancelButton: true,
+      confirmButtonText: this.translate.instant('common.confirm'),
+      cancelButtonText: this.translate.instant('common.cancel'),
+      confirmButtonColor: '#667eea',
+      cancelButtonColor: '#d32f2f',
+      allowOutsideClick: false,
+    }).then((result) => {
+      if (!result.isConfirmed) return;
+      const days = Math.max(1, parseInt(result.value || '7', 10) || 7);
+      const end = new Date();
+      end.setDate(end.getDate() + days);
+      const iso = end.toISOString();
+      Swal.fire({
+        title: this.translate.instant('admin.actions.promoteConfirm'),
+        text: this.translate.instant('admin.actions.promoteExpiresAt') + ' ' + end.toLocaleString(),
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: this.translate.instant('common.confirm'),
+        cancelButtonText: this.translate.instant('common.cancel'),
+        confirmButtonColor: '#667eea',
+        cancelButtonColor: '#d32f2f',
+        allowOutsideClick: false,
+      }).then((confirmResult) => {
+        if (!confirmResult.isConfirmed) return;
+        this.adminService.promoteListing(listingId, iso).subscribe({
+          next: (ok) => {
+            if (ok) {
+              Swal.fire({
+                title: this.translate.instant('common.success'),
+                text: this.translate.instant('admin.actions.promoteSuccess'),
+                icon: 'success',
+                confirmButtonColor: '#667eea',
+              });
+              this.loadListings();
+            }
+          },
+          error: (error: any) => this.handleError('promoting listing', error),
+        });
+      });
     });
   }
 
   unpromoteListing(listingId: number): void {
-    if (!confirm('Cancel promotion for this listing?')) return;
-    this.adminService.unpromoteListing(listingId).subscribe({
-      next: (ok) => {
-        if (ok) this.loadListings();
-      },
-      error: (error: any) => this.handleError('unpromoting listing', error),
+    Swal.fire({
+      title: this.translate.instant('admin.actions.cancelPromotionConfirm'),
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: this.translate.instant('common.confirm'),
+      cancelButtonText: this.translate.instant('common.cancel'),
+      confirmButtonColor: '#d32f2f',
+      cancelButtonColor: '#999',
+      allowOutsideClick: false,
+    }).then((result) => {
+      if (!result.isConfirmed) return;
+      this.adminService.unpromoteListing(listingId).subscribe({
+        next: (ok) => {
+          if (ok) {
+            Swal.fire({
+              title: this.translate.instant('common.success'),
+              text: this.translate.instant('admin.actions.unpromoteSuccess'),
+              icon: 'success',
+              confirmButtonColor: '#667eea',
+            });
+            this.loadListings();
+          }
+        },
+        error: (error: any) => this.handleError('unpromoting listing', error),
+      });
     });
   }
 
   extendPromotion(listingId: number): void {
-    const daysStr = prompt('Extend promotion by how many days? (enter number)');
-    const days = Math.max(1, parseInt(daysStr || '7', 10) || 7);
-    const end = new Date();
-    end.setDate(end.getDate() + days);
-    const iso = end.toISOString();
-    if (!confirm(`Extend promotion until ${end.toLocaleString()}?`)) return;
-    this.adminService.extendPromotion(listingId, iso).subscribe({
-      next: (ok) => {
-        if (ok) this.loadListings();
+    Swal.fire({
+      title: this.translate.instant('admin.actions.extendDaysPrompt'),
+      input: 'number',
+      inputValue: 7,
+      inputAttributes: {
+        min: '1',
+        max: '365',
       },
-      error: (error: any) => this.handleError('extending promotion', error),
+      showCancelButton: true,
+      confirmButtonText: this.translate.instant('common.confirm'),
+      cancelButtonText: this.translate.instant('common.cancel'),
+      confirmButtonColor: '#667eea',
+      cancelButtonColor: '#d32f2f',
+      allowOutsideClick: false,
+    }).then((result) => {
+      if (!result.isConfirmed) return;
+      const days = Math.max(1, parseInt(result.value || '7', 10) || 7);
+      const end = new Date();
+      end.setDate(end.getDate() + days);
+      const iso = end.toISOString();
+      Swal.fire({
+        title: this.translate.instant('admin.actions.extendConfirm'),
+        text: this.translate.instant('admin.actions.extendExpiresAt') + ' ' + end.toLocaleString(),
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: this.translate.instant('common.confirm'),
+        cancelButtonText: this.translate.instant('common.cancel'),
+        confirmButtonColor: '#667eea',
+        cancelButtonColor: '#d32f2f',
+        allowOutsideClick: false,
+      }).then((confirmResult) => {
+        if (!confirmResult.isConfirmed) return;
+        this.adminService.extendPromotion(listingId, iso).subscribe({
+          next: (ok) => {
+            if (ok) {
+              Swal.fire({
+                title: this.translate.instant('common.success'),
+                text: this.translate.instant('admin.actions.extendSuccess'),
+                icon: 'success',
+                confirmButtonColor: '#667eea',
+              });
+              this.loadListings();
+            }
+          },
+          error: (error: any) => this.handleError('extending promotion', error),
+        });
+      });
     });
   }
 
@@ -343,16 +485,28 @@ export class AdminDashboard implements OnInit {
 
   // ===== HELPER METHODS =====
   getTabLabel(tab: string): string {
-    const labels: Record<string, string> = {
-      dashboard: 'Dashboard',
-      guests: 'Guests',
-      listings: 'All Listings',
-      'listings-pending': 'Pending',
-      bookings: 'Bookings',
-      revenue: 'Revenue',
-      promotions: 'Promotions',
+    const map: Record<string, string> = {
+      dashboard: 'admin.tabs.dashboard',
+      guests: 'admin.tabs.guests',
+      listings: 'admin.tabs.listings',
+      'listings-pending': 'admin.tabs.listingsPending',
+      bookings: 'admin.tabs.bookings',
+      revenue: 'admin.tabs.revenue',
+      promotions: 'admin.tabs.promotions',
     };
-    return labels[tab] || tab;
+    return map[tab] || `admin.tabs.${tab}`;
+  }
+
+  /**
+   * Translate booking/payment status keys in a safe, case-insensitive way.
+   * Falls back to the raw status or a dash when no status.
+   */
+  translateBookingStatus(status?: string | null): string {
+    if (!status) return '—';
+    const key = `admin.bookings.${status.toString().toLowerCase()}`;
+    const translated = this.translate.instant(key);
+    // If translate returns the key itself, return original status as fallback
+    return translated === key ? status : translated;
   }
 
   getDaysRemaining(endDate?: Date | string | null): number {

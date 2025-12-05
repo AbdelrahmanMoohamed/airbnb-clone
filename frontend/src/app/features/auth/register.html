@@ -19,29 +19,42 @@
       <form (ngSubmit)="submit()" class="broker-auth-form">
         <div class="input-group">
           <i class="bi bi-person"></i>
-          <input name="fullname" [(ngModel)]="fullname" placeholder="{{ 'auth.fullName' | translate }}" class="broker-input" />
+          <input name="fullname" [(ngModel)]="fullname" placeholder="{{ 'auth.fullName' | translate }}" class="broker-input" [disabled]="isLoading" />
         </div>
         <div class="input-group">
           <i class="bi bi-at"></i>
-          <input name="userName" [(ngModel)]="userName" placeholder="Username" class="broker-input" />
+          <input name="userName" [(ngModel)]="userName" placeholder="Username" class="broker-input" [disabled]="isLoading" />
         </div>
         <div class="input-group">
           <i class="bi bi-envelope"></i>
-          <input name="email" [(ngModel)]="email" placeholder="{{ 'auth.email' | translate }}" class="broker-input" type="email" />
+          <input name="email" [(ngModel)]="email" placeholder="{{ 'auth.email' | translate }}" class="broker-input" type="email" [disabled]="isLoading" />
         </div>
         <div class="input-group">
           <i class="bi bi-lock"></i>
-          <input name="password" [(ngModel)]="password" type="password" placeholder="{{ 'auth.password' | translate }}" class="broker-input" />
+          <input name="password" [(ngModel)]="password" type="password" placeholder="{{ 'auth.password' | translate }}" class="broker-input" [disabled]="isLoading" />
         </div>
         <div class="input-group">
           <i class="bi bi-shield-check"></i>
-          <input name="confirmPassword" [(ngModel)]="confirmPassword" type="password" placeholder="{{ 'auth.confirmPassword' | translate }}" class="broker-input" />
+          <input name="confirmPassword" [(ngModel)]="confirmPassword" type="password" placeholder="{{ 'auth.confirmPassword' | translate }}" class="broker-input" [disabled]="isLoading" />
         </div>
+
         <div *ngIf="errorMessage" class="auth-error">
           <i class="bi bi-exclamation-triangle"></i>
           {{ errorMessage }}
         </div>
-        <button type="submit" class="btn-broker">{{ 'navbar.signUp' | translate }}</button>
+
+        <div *ngIf="successMessage" class="auth-success">
+          <i class="bi bi-check-circle"></i>
+          {{ successMessage }}
+        </div>
+
+        <button type="submit" class="btn-broker" [disabled]="isLoading">
+          <span *ngIf="!isLoading">{{ 'navbar.signUp' | translate }}</span>
+          <span *ngIf="isLoading" class="button-loading">
+            <span class="spinner"></span>
+            {{ 'common.loading' | translate }}
+          </span>
+        </button>
       </form>
       <div class="auth-links">
         {{ 'auth.alreadyHaveAccount' | translate }}
@@ -49,4 +62,47 @@
       </div>
     </div>
   </div>
+
+  <!-- Face Registration Suggestion Modal -->
+  <div class="face-registration-modal" *ngIf="showFaceRegistrationPrompt" (click)="skipFaceRegistration()">
+    <div class="face-registration-content" (click)="$event.stopPropagation()">
+      <div class="face-registration-header">
+        <h2>🔐 {{ 'faceRegistration.enhanceTitle' | translate }}</h2>
+        <button type="button" class="close-btn" (click)="skipFaceRegistration()">✕</button>
+      </div>
+      <div class="face-registration-body">
+        <div class="face-icon">📸</div>
+        <h3>{{ 'faceRegistration.registerTitle' | translate }}</h3>
+        <p>{{ 'faceRegistration.description' | translate }}</p>
+        <div class="benefits-list">
+          <div class="benefit-item">
+            <span class="benefit-icon">✓</span>
+            <span>{{ 'faceRegistration.benefit1' | translate }}</span>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-icon">✓</span>
+            <span>{{ 'faceRegistration.benefit2' | translate }}</span>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-icon">✓</span>
+            <span>{{ 'faceRegistration.benefit3' | translate }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="face-registration-footer">
+        <button type="button" class="btn-register-face" (click)="proceedWithFaceRegistration()">
+          📸 {{ 'faceRegistration.registerBtn' | translate }}
+        </button>
+        <button type="button" class="btn-skip-face" (click)="skipFaceRegistration()">
+          {{ 'faceRegistration.skipBtn' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Face Capture Modal -->
+  <app-face-capture
+    (frameCapture)="onFaceCaptured($event)"
+    (cancel)="onFaceCaptureCancelled()">
+  </app-face-capture>
 </div>

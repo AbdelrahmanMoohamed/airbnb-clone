@@ -14,6 +14,7 @@ namespace DAL.Database
         public DbSet<ListingImage> ListingImages { get; set; } = null!;
         public DbSet<Amenity> Amenities { get; set; } = null!;
         public DbSet<Favorite> Favorites { get; set; } = null!;
+        public DbSet<FaceId> FaceIds { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
