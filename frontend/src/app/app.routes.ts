@@ -2,12 +2,15 @@ import { Routes } from '@angular/router';
 import { Home } from './features/home-page/home/home';
 import { ListingsList } from './features/host-listings/listing-Host-View/listing-list';
 import { ListingsCreateEdit } from './features/host-listings/create-edit/listings-create-edit';
+import { listingExistsGuard } from './core/services/listings/listing-exists.guard';
 import { AuthGuard } from './core/guards/auth.guard';
 import { ListingsDetail } from './features/host-listings/detail/listings-detail';
 import { Login } from './features/auth/login';
 import { Register } from './features/auth/register';
+import { Dashboard } from './features/admin/dashboard';
 import { ChatWindow } from './features/message/chat-window';
 import { NotificationWindow } from './features/notification/notification-window';
+// import { AdminListingsComponent } from './features/host-listings/admin-listings/admin-listings';
 import { MapComponent } from './features/Map/map/map';
 import { Listings } from './features/listings-page-user-View/listings/listings';
 import { AdminDashboard } from './features/admin/admin-dashboard/admin-dashboard';
@@ -27,8 +30,10 @@ export const routes: Routes = [
   { path: 'auth/login', component: Login },
   { path: 'auth/register', component: Register },
   { path: 'onboarding', component: OnboardingWalkthrough, canActivate: [AuthGuard] },
+  //{ path: 'listings/:id/edit', component: ListingsCreateEdit, canActivate: [AuthGuard] },
   { path: 'listings/:id', component: ListingsDetail },
   { path: 'listings', component: Listings},
+  // { path: '**', redirectTo: 'home' },
   {
     path: 'host',
     canActivate: [AuthGuard],
@@ -42,6 +47,8 @@ export const routes: Routes = [
     ],
   },
 
+  // user / admin lists
+  // { path: 'admin/listings', component: AdminListingsComponent },
 
   // other app routes
   { path: 'admin', component: AdminDashboard, canActivate: [AuthGuard] },
