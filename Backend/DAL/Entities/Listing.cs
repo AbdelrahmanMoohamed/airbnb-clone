@@ -137,7 +137,6 @@
             {
                 var mainImage = ListingImage.CreateImage(listing, mainImageUrl, createdBy);
                 listing.Images.Add(mainImage);
-                // no SetMainImage call here
             }
 
             return listing;

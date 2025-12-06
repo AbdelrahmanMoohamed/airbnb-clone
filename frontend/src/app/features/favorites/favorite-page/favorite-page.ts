@@ -1,7 +1,7 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { ListingCard } from '../../listings-page-user-View/listing-card/listing-card';
+import { ListingCard } from '../../guest-listings/listing-card/listing-card';
 import { FavoriteStoreService } from '../../../core/services/favoriteService/favorite-store-service';
 import { FavoriteService } from '../../../core/services/favoriteService/favorite-service';
 import { Router } from '@angular/router';

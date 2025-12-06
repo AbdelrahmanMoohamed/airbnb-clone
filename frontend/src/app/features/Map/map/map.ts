@@ -20,10 +20,10 @@ import { ListingOverviewVM } from '../../../core/models/listing.model';
 export class MapComponent implements OnInit, OnDestroy {
   private map: any;
   private markers: any[] = [];
-  properties: PropertyMap[] = [];
-  selectedProperty: PropertyMap | null = null;
-  isLoading = false;
-  private langChangeSubscription?: Subscription;
+  properties: PropertyMap[] = []; // Properties to display as map pins
+  selectedProperty: PropertyMap | null = null;// Currently selected property for detail view
+  isLoading = false; 
+  private langChangeSubscription?: Subscription; 
   isFavorited = false;
 
   private leaflet: any;
@@ -40,10 +40,7 @@ export class MapComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     if (isPlatformBrowser(this.platformId)) {
       this.leaflet = await import('leaflet');
-      // Add some delay to ensure DOM is ready
-      setTimeout(() => {
         this.initMap();
-      }, 100);
 
       // Subscribe to language changes and refresh markers
       this.langChangeSubscription = this.translate.onLangChange.subscribe(() => {
@@ -68,14 +65,7 @@ export class MapComponent implements OnInit, OnDestroy {
         console.error('Map container element not found!');
         return;
       }
-      // Create a lightweight inline SVG DivIcon to avoid external image requests
-      const createSvgPin = (color: string) => `
-        <svg width="32" height="42" viewBox="0 0 32 42" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));">
-          <path d="M16 0C10.477 0 6 4.477 6 10c0 7.5 10 22 10 22s10-14.5 10-22c0-5.523-4.477-10-10-10z" fill="${color}" stroke="white" stroke-width="2"/>
-          <circle cx="16" cy="11" r="4" fill="white"/>
-          <text x="16" y="14" text-anchor="middle" fill="${color}" font-size="8" font-weight="bold">$</text>
-        </svg>
-      `;
+
 
       this.map = this.leaflet.map('map', {
         center: [30.0444, 31.2357], // Cairo
@@ -91,10 +81,21 @@ export class MapComponent implements OnInit, OnDestroy {
 
       console.log('Tile layer added');
 
-      // Update properties when map moves
+      // Update properties when map moves with debouncing
+      let moveTimeout: any;
       this.map.on('moveend', () => {
-        console.log('Map moved, reloading properties');
-        this.loadProperties();
+        console.log('Map moved, scheduling property reload');
+        
+        // Clear any existing timeout
+        if (moveTimeout) {
+          clearTimeout(moveTimeout);
+        }
+        
+    // Debouncing logic to prevent too many API calls
+        moveTimeout = setTimeout(() => {
+          console.log('Executing debounced property reload');
+          this.loadProperties();
+        }, 300); // 300ms debounce
       });
 
       // Initial load
@@ -113,6 +114,13 @@ export class MapComponent implements OnInit, OnDestroy {
       }
 
       this.isLoading = true;
+      
+      // Add a timeout to ensure loading doesn't persist indefinitely
+      const loadingTimeout = setTimeout(() => {
+        console.warn('Loading timeout - forcing loading state off after 10 seconds');
+        this.isLoading = false;
+      }, 10000); // 10 second timeout
+      
       // On initial load, use global bounds to show all properties
       const params = {
         northEastLat: 90,
@@ -123,9 +131,11 @@ export class MapComponent implements OnInit, OnDestroy {
 
       console.log('Loading properties with global bounds:', params);
 
-      this.mapService.getProperties(params).subscribe(
-        (res: any) => {
+      this.mapService.getProperties(params).subscribe({
+        next: (res: any) => {
+          clearTimeout(loadingTimeout);
           this.isLoading = false;
+          console.log('Properties loaded successfully:', res);
           let properties = res.properties || [];
 
           // Convert to ListingOverviewVM for personalized sorting
@@ -133,13 +143,10 @@ export class MapComponent implements OnInit, OnDestroy {
             id: p.id,
             title: p.title,
             pricePerNight: p.pricePerNight,
-            location: p.location || '',
             mainImageUrl: p.mainImageUrl,
             averageRating: p.averageRating,
             reviewCount: p.reviewCount || 0,
             isApproved: true,
-            description: p.description || '',
-            destination: p.destination || '',
             type: p.type || '',
             bedrooms: p.bedrooms || 0,
             bathrooms: p.bathrooms || 0,
@@ -148,7 +155,7 @@ export class MapComponent implements OnInit, OnDestroy {
             viewCount: 0,
             favoriteCount: 0,
             bookingCount: 0,
-            amenities: p.amenities || []
+            amenities: [] // Not available in PropertyMap
           }));
 
           // Sort by user preferences
@@ -158,19 +165,15 @@ export class MapComponent implements OnInit, OnDestroy {
           this.properties = sorted.map(l => ({
             id: l.id,
             title: l.title,
-            description: l.description,
+            type: l.type,
             pricePerNight: l.pricePerNight,
-            location: l.location,
             latitude: 0, // Will be set from original data
             longitude: 0, // Will be set from original data
             mainImageUrl: l.mainImageUrl,
-            rating: l.averageRating || 0,
-            reviewCount: l.reviewCount,
-            destination: l.destination,
-            type: l.type,
             bedrooms: l.bedrooms,
             bathrooms: l.bathrooms,
-            amenities: l.amenities
+            averageRating: l.averageRating || 0,
+            reviewCount: l.reviewCount
           }));
 
           // Restore lat/lng from original properties
@@ -184,14 +187,27 @@ export class MapComponent implements OnInit, OnDestroy {
 
           this.updateMarkers();
         },
-        (error: any) => {
+        error: (error: any) => {
+          clearTimeout(loadingTimeout);
           this.isLoading = false;
           console.error('Error loading properties:', error);
+          console.error('Error details:', {
+            status: error.status,
+            statusText: error.statusText,
+            url: error.url,
+            message: error.message
+          });
           if (error.error && error.error.Message) {
-            console.error('Server error:', error.error.Message);
+            console.error('Server error message:', error.error.Message);
           }
+        },
+        complete: () => {
+          clearTimeout(loadingTimeout);
+          // Ensure loading is always turned off when complete
+          console.log('Properties loading completed');
+          this.isLoading = false;
         }
-      );
+      });
     } catch (error) {
       this.isLoading = false;
       console.error('Error in loadProperties:', error);
@@ -271,7 +287,6 @@ export class MapComponent implements OnInit, OnDestroy {
     `;
   }
 
-  // New methods for enhanced UI functionality
   zoomIn(): void {
     if (this.map) {
       this.map.zoomIn();

@@ -33,24 +33,14 @@ namespace DAL.Repo.Implementation
 
             var hostFullName = await GetFullNameAsync(hostId, ct);
 
-            var newListing = Listing.Create(
-                title: listing.Title,
-                description: listing.Description,
-                pricePerNight: listing.PricePerNight,
-                location: listing.Location,
-                latitude: listing.Latitude,
-                longitude: listing.Longitude,
-                maxGuests: listing.MaxGuests,
-                userId: hostId,
-                createdBy: hostFullName,
-                mainImageUrl: mainImageUrl,
-                keywordNames: keywordNames,
-                destination: listing.Destination,
-                type: listing.Type,
-                numberOfRooms: listing.NumberOfRooms,
-                numberOfBathrooms: listing.NumberOfBathrooms
+            // Use the existing listing object instead of creating a new one
+            var newListing = listing;
 
-            );
+            // Add main image first (without setting as MainImage yet)
+            if (!string.IsNullOrWhiteSpace(mainImageUrl))
+            {
+                newListing.AddImage(mainImageUrl, hostFullName);
+            }
 
             if (additionalImageUrls?.Any() == true)
             {
@@ -62,6 +52,14 @@ namespace DAL.Repo.Implementation
 
             await _context.Listings.AddAsync(newListing, ct);
             await _context.SaveChangesAsync(ct);
+
+            // Set main image after saving to avoid circular dependency
+            if (!string.IsNullOrWhiteSpace(mainImageUrl) && newListing.Images.Any())
+            {
+                var firstImage = newListing.Images.First();
+                newListing.SetMainImage(firstImage, hostFullName);
+                await _context.SaveChangesAsync(ct);
+            }
 
             return newListing.Id;
         }

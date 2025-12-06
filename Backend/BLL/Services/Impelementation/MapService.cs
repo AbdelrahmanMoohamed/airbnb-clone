@@ -17,6 +17,7 @@ namespace BLL.Services.Impelementation
             _logger = logger;
         }
 
+        // return long and lat
         public async Task<GeocodeResponseDto?> GeocodeAddressAsync(string address)
         {
             var result = await _geocodingService.GeocodeAddressAsync(address);
@@ -27,10 +28,7 @@ namespace BLL.Services.Impelementation
             {
                 Latitude = result.Latitude,
                 Longitude = result.Longitude,
-                FormattedAddress = result.FormattedAddress,
-                Country = result.Country,
-                City = result.City,
-                Street = result.Street
+                FormattedAddress = result.FormattedAddress
             };
         }
 
