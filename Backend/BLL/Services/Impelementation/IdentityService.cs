@@ -101,10 +101,11 @@ namespace BLL.Services.Impelementation
                     var welcomeNotification = new CreateNotificationVM
                     {
                         UserId = user.Id,
-                        Type = DAL.Enum.NotificationType.General,
+                        Type = DAL.Enum.NotificationType.System,
                         Title = "Welcome to Airbnb Clone!",
-                        Message = $"Hi {user.FullName}, welcome to our platform! We're excited to have you here. Click the button below to complete your profile setup and start exploring amazing properties.",
+                        Body = $"Hi {user.FullName}, welcome to our platform! We're excited to have you here. Click the button below to complete your profile setup and start exploring amazing properties.",
                         ActionUrl = "/onboarding",
+                        ActionLabel = "Complete Profile",
                         IsRead = false
                     };
                     await _notificationService.CreateAsync(welcomeNotification);
@@ -199,7 +200,8 @@ namespace BLL.Services.Impelementation
             var token = _tokenService.GenerateToken(user.Id, role, user.FullName);
             
             // Check if user has face ID registered
-            var hasFaceId = await _unitOfWork.Repository<FaceId>().AnyAsync(f => f.UserId == user.Id);
+            var userFaceIds = await _unitOfWork.FaceIds.GetByUserIdAsync(user.Id);
+            var hasFaceId = userFaceIds.Any();
             
             // Build login response with onboarding status
             var loginResponse = new LoginResponseVM

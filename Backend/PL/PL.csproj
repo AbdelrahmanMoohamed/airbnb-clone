@@ -40,7 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Files\" />
+    <Folder Include="Files\NewFolder\" />
     <Folder Include="wwwroot\profile\" />
     <Folder Include="wwwroot\tmp\" />
   </ItemGroup>

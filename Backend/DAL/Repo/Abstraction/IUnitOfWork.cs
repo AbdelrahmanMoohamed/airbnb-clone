@@ -12,6 +12,7 @@
         IListingImageRepository ListingImages { get; }
         IAmenityRepository Amenities { get; }
         IFavoriteRepository Favorites { get; }
+        IFaceIdRepo FaceIds { get; }
 
         // Commits all changes in one transaction
         Task<int> SaveChangesAsync(); 
