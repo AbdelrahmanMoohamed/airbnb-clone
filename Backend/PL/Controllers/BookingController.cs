@@ -1,3 +1,5 @@
+using DAL.Repo.Abstraction;
+
 namespace PL.Controllers
 {
     [ApiController]
@@ -10,15 +12,13 @@ namespace PL.Controllers
         private readonly EmailMappingService _emailMappingService;
         private readonly IUnitOfWork _uow;
 
-        public BookingController(
-            IBookingService bookingService,
-            ILogger<BookingController> logger,
-            IEmailService emailService,
-            EmailMappingService emailMappingService,
-            IUnitOfWork uow)
+        public BookingController(IBookingService bookingService, ILogger<BookingController> logger, IEmailService emailService, EmailMappingService emailMappingService, IUnitOfWork uow)
         {
             _bookingService = bookingService;
             _logger = logger;
+            _emailService = emailService;
+            _emailMappingService = emailMappingService;
+            _uow = uow;
         }
 
         [HttpPost]

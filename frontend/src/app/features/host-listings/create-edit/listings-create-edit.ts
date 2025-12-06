@@ -27,10 +27,10 @@ export class ListingsCreateEdit {
 
   editMode = false;
   currentId?: number;
-  imagePreviews: string[] = [];
-  selectedFiles: File[] = [];
-  removeImageIds: number[] = [];
-  existingImages: { id: number; url: string }[] = [];
+  imagePreviews: string[] = []; // Data URLs for previewing selected images
+  selectedFiles: File[] = [];// Newly selected image files
+  removeImageIds: number[] = [];// IDs of existing images to remove
+  existingImages: { id: number; url: string }[] = [];// Existing images of the listing
   loading = false;
   error = '';
   successMessage = '';
@@ -51,11 +51,11 @@ export class ListingsCreateEdit {
     'Wi-Fi', 'Pool', 'AC', 'Kitchen', 'Washer', 'Dryer', 'TV', 'Heating', 'Parking',
     'Fireplace', 'Gym', 'Breakfast', 'Pets Allowed', 'Hot Tub', 'Elevator'
   ];
-
+// Initialize the form in the constructor
   constructor() {
     this.initForm();
   }
-
+// Method to initialize the reactive form with validation
   private initForm(): void {
     this.form = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(5)]],
@@ -72,7 +72,7 @@ export class ListingsCreateEdit {
       amenities: [[]] as any
     });
   }
-
+// On component initialization, check route params to determine create/edit mode
   ngOnInit(): void {
     this.route.paramMap.subscribe(paramMap => {
       const idParam = paramMap.get('id');
@@ -88,9 +88,8 @@ export class ListingsCreateEdit {
     });
   }
 
-  // Note: component handles both Create and Edit cases. On init, if an ID
-  // is present we load the existing listing into the form (edit mode).
 
+  // Toggle the visibility of the map picker and initialize it if shown
   toggleMapPicker(): void {
     this.showMapPicker = !this.showMapPicker;
     if (this.showMapPicker) {
@@ -103,9 +102,9 @@ export class ListingsCreateEdit {
       }
     }
   }
-
+// Initialize the Leaflet map for picking a location
   private async initPickerMap(): Promise<void> {
-    if (!isPlatformBrowser(this.platformId)) return;
+    if (!isPlatformBrowser(this.platformId)) return;// only run in browser
     if (this.pickerMap) return;
     try {
       this.leaflet = await import('leaflet');
@@ -114,9 +113,11 @@ export class ListingsCreateEdit {
       if (!el) return;
 
       this.pickerMap = this.leaflet.map(el, { center: [30.0444, 31.2357], zoom: 6 });
+      // add OpenStreetMap tile layer
       this.leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(this.pickerMap);
 
       // use inline SVG icon as in other maps
+      
       const svgPin = `
         <svg width="30" height="42" viewBox="0 0 30 42" xmlns="http://www.w3.org/2000/svg">
           <path d="M15 0C9.477 0 5 4.477 5 10c0 7.5 10 22 10 22s10-14.5 10-22c0-5.523-4.477-10-10-10z" fill="#007bff"/>
@@ -133,13 +134,15 @@ export class ListingsCreateEdit {
         this.pickerMap.setView([lat, lng], 14);
       }
 
-      // click to place marker (tentative selection)
       this.pickerMap.on('click', (e: any) => {
         const { lat: clickedLat, lng: clickedLng } = e.latlng || {};
+        // validate coords
         if (!isFinite(clickedLat) || !isFinite(clickedLng)) return;
+        // move or create marker
         if (this.pickerMarker) {
           try { this.pickerMarker.setLatLng([clickedLat, clickedLng]); } catch { this.pickerMarker = null; }
         }
+        // create new marker if not existing
         if (!this.pickerMarker) {
           this.pickerMarker = this.leaflet.marker([clickedLat, clickedLng], { icon: customIcon }).addTo(this.pickerMap);
         }

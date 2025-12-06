@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -21,7 +21,7 @@ export class ListingsList implements OnInit {
   loading = signal<boolean>(false);
   error = signal<string>('');
   currentPage = signal<number>(1);
-  pageSize = 6;
+  pageSize = 9;
   totalCount = signal<number>(0);
 
   // search + filters
@@ -39,6 +39,7 @@ export class ListingsList implements OnInit {
 
   // computed
   totalPages = computed(() => {
+    // Use filtered count for client-side pagination
     const filteredCount = this.filtered().length;
     return Math.max(1, Math.ceil(filteredCount / this.pageSize));
   });
@@ -80,7 +81,7 @@ export class ListingsList implements OnInit {
     return [...new Set(allTypes)].sort((a, b) => a.localeCompare(b));
   });
 
-  // Paginated data for current page
+  // Client-side pagination: slice filtered data for current page
   paginatedListings = computed<ListingOverviewVM[]>(() => {
     const filteredData = this.filtered();
     const startIndex = (this.currentPage() - 1) * this.pageSize;
@@ -155,13 +156,29 @@ export class ListingsList implements OnInit {
 
   ngOnInit() {
     this.loadAllListings();
+    
+    // Reset to page 1 when filters change
+    effect(() => {
+      // Watch filter signals
+      this.search();
+      this.destination();
+      this.type();
+      this.maxPrice();
+      this.minRating();
+      this.isApproved();
+      
+      // Reset to first page when any filter changes
+      if (this.currentPage() > 1) {
+        this.currentPage.set(1);
+      }
+    });
   }
 
   loadAllListings() {
     this.loading.set(true);
     this.error.set('');
 
-    // Load ALL listings without pagination parameters
+    // Load all listings and handle pagination client-side
     this.listingService.getHostListings().subscribe({
       next: (response) => {
         if (!response.isError) {

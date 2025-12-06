@@ -7,33 +7,32 @@ export interface MapSearchRequest {
   maxPrice?: number;
   minBedrooms?: number;
   checkIn?: string; // ISO string
-  checkOut?: string; // ISO string
+  checkOut?: string; 
 }
 
 export interface PropertyMap {
   id: number;
   title: string;
-  description?: string;
+  type: string;
   pricePerNight: number;
   latitude: number;
   longitude: number;
-  location?: string;
-  destination?: string;
   mainImageUrl?: string;
-  type: string;
   bedrooms: number;
   bathrooms: number;
   averageRating?: number;
   reviewCount: number;
-  amenities?: string[];
 }
 
-// GeocodeResponse
+// Response DTO matching backend MapSearchResponseDto
+export interface MapSearchResponse {
+  properties: PropertyMap[];
+  totalCount: number;
+}
+
+// GeocodeResponse - simplified for location/destination only
 export interface GeocodeResponse {
   latitude: number;
   longitude: number;
   formattedAddress: string;
-  country: string;
-  city: string;
-  street: string;
 }

@@ -3,6 +3,8 @@ using Hangfire.SqlServer;
 using PL.Background_Jobs;
 
 using Microsoft.Extensions.FileProviders;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 
 namespace PL
 {

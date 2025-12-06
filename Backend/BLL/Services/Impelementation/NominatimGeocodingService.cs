@@ -21,7 +21,7 @@ namespace BLL.Services.Impelementation
 
         }
 
-        public async Task<GeocodeResult?> GeocodeAddressAsync(string address)
+        public async Task<GeocodeResult?> GeocodeAddressAsync(string address)//return the lat and long
         {
             try
             {
@@ -81,6 +81,7 @@ namespace BLL.Services.Impelementation
             }
         }
 
+        // make 
         private async Task EnforceRateLimitAsync()
         {
             await _rateLimiter.WaitAsync();

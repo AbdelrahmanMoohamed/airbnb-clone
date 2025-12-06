@@ -21,7 +21,7 @@ namespace DAL.Repo.Implementation
             )
         {
             var query = _context.Listings
-                .AsNoTracking()
+                .AsNoTracking()//ef not follow the returned data for changes from the context & is used for read-only operations
                 .Include(p => p.Images)
                 .Include(p => p.Reviews)
                 .Where(p => !string.IsNullOrEmpty(p.Location) &&

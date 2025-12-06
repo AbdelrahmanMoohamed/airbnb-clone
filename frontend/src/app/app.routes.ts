@@ -12,7 +12,7 @@ import { ChatWindow } from './features/message/chat-window';
 import { NotificationWindow } from './features/notification/notification-window';
 // import { AdminListingsComponent } from './features/host-listings/admin-listings/admin-listings';
 import { MapComponent } from './features/Map/map/map';
-import { Listings } from './features/listings-page-user-View/listings/listings';
+import { Listings } from './features/guest-listings/listings/listings';
 import { AdminDashboard } from './features/admin/admin-dashboard/admin-dashboard';
 import { AboutComponent } from './features/about/about';
 import { ContactComponent } from './features/contact/contact';
