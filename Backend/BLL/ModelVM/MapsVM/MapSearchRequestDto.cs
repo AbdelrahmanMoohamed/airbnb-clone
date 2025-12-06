@@ -13,10 +13,5 @@ namespace BLL.ModelVM.MapsVM
         public double SouthWestLat { get; set; }
         public double SouthWestLng { get; set; }
 
-        public decimal? MinPrice { get; set; }
-        public decimal? MaxPrice { get; set; }
-        public int? MinBedrooms { get; set; }
-        public DateTime? CheckIn { get; set; }
-        public DateTime? CheckOut { get; set; }
     }
 }

@@ -18,7 +18,7 @@
         <div class="col-lg-9 col-md-8">
           <div class="broker-listings-grid">
             <div class="broker-listings-header">
-              <h3 class="listings-count">{{ filtered().length }} {{ 'hostListings.properties' | translate }}</h3>
+              <h3 class="listings-count">{{ filteredCount() }} {{ 'hostListings.properties' | translate }}</h3>
               <button class="btn-broker" [routerLink]="['/host/create']">
                 <i class="bi bi-plus-circle"></i> {{ 'hostListings.addNewListing' | translate }}
               </button>
@@ -90,7 +90,7 @@
             </div>
 
             <!-- Empty State -->
-            <div *ngIf="!loading() && !error() && filtered().length === 0" class="broker-empty-state">
+            <div *ngIf="!loading() && !error() && filteredCount() === 0" class="broker-empty-state">
               <i class="bi bi-house-x"></i>
               <h4>{{ 'hostListings.noListingsFound' | translate }}</h4>
               <p>{{ 'hostListings.noListingsDescription' | translate }}</p>
@@ -98,7 +98,7 @@
             </div>
 
             <!-- Pagination -->
-            <div *ngIf="!loading() && !error() && filtered().length > 0 && totalPages() > 1" class="pagination-section">
+            <div *ngIf="!loading() && !error() && filteredCount() > 0 && totalPages() > 1" class="pagination-section">
               <button *ngIf="currentPage() > 1" (click)="prevPage()" class="pagination-btn">{{ 'hostListings.previous' | translate }}</button>
               <span *ngFor="let page of paginationPages()" class="pagination-number">
                 <button *ngIf="typeof page === 'number'" (click)="goToPage(+page)"
@@ -190,7 +190,7 @@
               </div>
 
               <div class="filter-results">
-                {{ 'hostListings.filterResults' | translate : { count: filtered().length } }}
+                {{ 'hostListings.filterResults' | translate : { count: filteredCount() } }}
               </div>
 
               <button class="btn-broker-outline w-100" (click)="resetFilters()">

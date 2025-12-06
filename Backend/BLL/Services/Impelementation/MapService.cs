@@ -69,9 +69,9 @@ namespace BLL.Services.Impelementation
                     MainImageUrl = p.Images != null && p.Images.Any() 
                         ? p.Images.FirstOrDefault()?.ImageUrl 
                         : null,
-                    Type = p.Type, // Use actual property type
-                    Bedrooms = p.NumberOfRooms, // Use actual room count
-                    Bathrooms = p.NumberOfBathrooms, // Use actual bathroom count
+                    Type = p.Type, 
+                    Bedrooms = p.NumberOfRooms,
+                    Bathrooms = p.NumberOfBathrooms,
                     AverageRating = p.Reviews.Any() ? p.Reviews.Average(r => r.Rating) : null,
                     ReviewCount = p.Reviews.Count
                 }).ToList();
@@ -109,9 +109,9 @@ namespace BLL.Services.Impelementation
                 Latitude = property.Latitude,
                 Longitude = property.Longitude,
                 MainImageUrl = property.Images.FirstOrDefault()?.ImageUrl,
-                Type = property.Type, // Use actual property type
-                Bedrooms = property.NumberOfRooms, // Use actual room count
-                Bathrooms = property.NumberOfBathrooms, // Use actual bathroom count
+                Type = property.Type, 
+                Bedrooms = property.NumberOfRooms, 
+                Bathrooms = property.NumberOfBathrooms, 
                 AverageRating = property.Reviews.Any() ? property.Reviews.Average(r => r.Rating) : null,
                 ReviewCount = property.Reviews.Count
             };

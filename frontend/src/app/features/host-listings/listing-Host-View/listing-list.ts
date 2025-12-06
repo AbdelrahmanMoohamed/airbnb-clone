@@ -21,7 +21,7 @@ export class ListingsList implements OnInit {
   loading = signal<boolean>(false);
   error = signal<string>('');
   currentPage = signal<number>(1);
-  pageSize = 9;
+  pageSize = 12;
   totalCount = signal<number>(0);
 
   // search + filters
@@ -39,8 +39,8 @@ export class ListingsList implements OnInit {
 
   // computed
   totalPages = computed(() => {
-    // Use filtered count for client-side pagination
-    const filteredCount = this.filtered().length;
+    // Use filtered count for hybrid pagination (server load + client filter)
+    const filteredCount = this.filteredListings().length;
     return Math.max(1, Math.ceil(filteredCount / this.pageSize));
   });
 
@@ -65,30 +65,74 @@ export class ListingsList implements OnInit {
     return pages;
   });
 
-  destinations = computed<string[]>(() => {
-    const allDestinations = this.listings()
-      .map(l => l.destination)
-      .filter((dest): dest is string => !!dest);
-
-    return [...new Set(allDestinations)].sort((a, b) => a.localeCompare(b));
-  });
-
-  types = computed<string[]>(() => {
-    const allTypes = this.listings()
-      .map(l => l.type)
-      .filter((type): type is string => !!type);
-
-    return [...new Set(allTypes)].sort((a, b) => a.localeCompare(b));
-  });
-
-  // Client-side pagination: slice filtered data for current page
+  // Hybrid pagination: server-side load + client-side filtering + client-side pagination
   paginatedListings = computed<ListingOverviewVM[]>(() => {
-    const filteredData = this.filtered();
+    const filteredData = this.filteredListings();
     const startIndex = (this.currentPage() - 1) * this.pageSize;
     const endIndex = startIndex + this.pageSize;
     return filteredData.slice(startIndex, endIndex);
   });
 
+  // Get unique destinations from all loaded data for filter dropdown
+  destinations = computed<string[]>(() => {
+    const selectedDest = this.destination().trim();
+    
+    // If a destination is selected, only show that one
+    if (selectedDest) {
+      return [selectedDest];
+    }
+    
+    // Otherwise show all available destinations (case-insensitive unique)
+    const allDestinations = this.listings()
+      .map(l => l.destination)
+      .filter((dest): dest is string => !!dest)
+      .map(dest => dest.trim()); // Trim whitespace
+    
+    // Create a Map to store unique destinations (case-insensitive)
+    const uniqueDestinations = new Map<string, string>();
+    allDestinations.forEach(dest => {
+      const lowerKey = dest.toLowerCase();
+      if (!uniqueDestinations.has(lowerKey)) {
+        uniqueDestinations.set(lowerKey, dest);
+      }
+    });
+
+    return Array.from(uniqueDestinations.values()).sort((a, b) => a.localeCompare(b));
+  });
+
+  // Get unique types from all loaded data for filter dropdown  
+  types = computed<string[]>(() => {
+    const selectedType = this.type().trim();
+    
+    // If a type is selected, only show that one
+    if (selectedType) {
+      return [selectedType];
+    }
+    
+    // Otherwise show all available types (case-insensitive unique)
+    const allTypes = this.listings()
+      .map(l => l.type)
+      .filter((type): type is string => !!type)
+      .map(type => type.trim()); // Trim whitespace
+    
+    // Create a Map to store unique types (case-insensitive)
+    const uniqueTypes = new Map<string, string>();
+    allTypes.forEach(type => {
+      const lowerKey = type.toLowerCase();
+      if (!uniqueTypes.has(lowerKey)) {
+        uniqueTypes.set(lowerKey, type);
+      }
+    });
+
+    return Array.from(uniqueTypes.values()).sort((a, b) => a.localeCompare(b));
+  });
+
+  // Get current filtered count for display
+  filteredCount = computed<number>(() => {
+    return this.filteredListings().length;
+  });
+
+  // Client-side filtering until backend supports filter parameters
   private normalize(input?: string): string {
     if (!input) return '';
     let s = String(input).trim().toLowerCase();
@@ -106,7 +150,7 @@ export class ListingsList implements OnInit {
     return s;
   }
 
-  filtered = computed<ListingOverviewVM[]>(() => {
+  filteredListings = computed<ListingOverviewVM[]>(() => {
     const data = this.listings();
     if (!data || !Array.isArray(data) || data.length === 0) return [];
 
@@ -134,7 +178,7 @@ export class ListingsList implements OnInit {
         description.includes(q);
 
       const matchesDestination =
-        !destNormalized || destinationVal.includes(destNormalized);
+        !rawDest || (l.destination?.toLowerCase().includes(rawDest.toLowerCase()) ?? false);
 
       const matchesType =
         !typeNormalized || typeVal.includes(typeNormalized);
@@ -155,9 +199,9 @@ export class ListingsList implements OnInit {
   });
 
   ngOnInit() {
-    this.loadAllListings();
+    this.loadListings();
     
-    // Reset to page 1 when filters change
+    // Reset to page 1 when filters change (client-side filtering)
     effect(() => {
       // Watch filter signals
       this.search();
@@ -174,17 +218,19 @@ export class ListingsList implements OnInit {
     });
   }
 
-  loadAllListings() {
+  loadListings() {
     this.loading.set(true);
     this.error.set('');
 
-    // Load all listings and handle pagination client-side
-    this.listingService.getHostListings().subscribe({
+    // Load all data from server, then filter client-side
+    // Using page 1 with large pageSize to get all host listings
+    this.listingService.getHostListings(1, 1000).subscribe({
       next: (response) => {
         if (!response.isError) {
+          // Store all listings for client-side filtering
           this.listings.set(response.data || []);
-          this.totalCount.set(response.data?.length || 0);
-          this.currentPage.set(1); // Reset to first page when data loads
+          this.totalCount.set(response.totalCount || 0);
+          this.currentPage.set(1); // Reset to first page
         } else {
           this.error.set(response.message || 'Failed to load your listings');
         }
@@ -239,7 +285,7 @@ export class ListingsList implements OnInit {
     this.maxPrice.set(null);
     this.minRating.set(null);
     this.isApproved.set('');
-    this.currentPage.set(1); // Reset to first page
+    this.currentPage.set(1);
   }
 
   goToPage(page: number) {
