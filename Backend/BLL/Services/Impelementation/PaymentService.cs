@@ -85,7 +85,7 @@ namespace BLL.Services.Impelementation
                     Title = "Payment Confirmed",
                     Body = $"Your payment was successful! Enjoy your stay.",
                     CreatedAt = DateTime.UtcNow,
-                    ActionUrl = $"/booking",
+                    ActionUrl = $"/booking/details/{booking.Id}",
                     ActionLabel = "View Booking"
                 });
                 await _notificationService.CreateAsync(new CreateNotificationVM
@@ -126,7 +126,7 @@ namespace BLL.Services.Impelementation
                     Title = "Payment Refunded",
                     Body = $"Your refund has been processed successfully.",
                     CreatedAt = DateTime.UtcNow,
-                    ActionUrl = $"/booking",
+                    ActionUrl = $"/booking/my-bookings",
                     ActionLabel = "View Bookings"
                 });
 
@@ -376,7 +376,7 @@ namespace BLL.Services.Impelementation
                         Body = $"Your payment for booking #{booking.Id} was successful! Get ready for your stay.",
                         Type = NotificationType.System,
                         CreatedAt = DateTime.UtcNow,
-                        ActionUrl = $"/bookings/{booking.Id}",
+                        ActionUrl = $"/booking/details/{booking.Id}",
                         ActionLabel = "View Booking"
                     });
 
@@ -463,7 +463,7 @@ namespace BLL.Services.Impelementation
                                 Body = $"Your payment for booking #{booking.Id} failed. Please try again or contact support.",
                                 Type = NotificationType.System,
                                 CreatedAt = DateTime.UtcNow,
-                                ActionUrl = $"/bookings/{booking.Id}",
+                                ActionUrl = $"/booking/details/{booking.Id}",
                                 ActionLabel = "Retry Payment"
                             });
                         }

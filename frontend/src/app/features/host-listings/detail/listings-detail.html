@@ -366,16 +366,29 @@
       </div>
 
       <!-- Review Form -->
-      <div class="broker-review-form">
+      <div class="broker-review-form" *ngIf="canWriteReview">
         <h3>
           <i class="bi bi-pencil-square"></i>
           Write a Review
         </h3>
 
         <form class="review-form" (ngSubmit)="submitReview()">
+          <!-- Booking Selection -->
+          <div class="broker-form-group">
+            <label for="bookingId">Select Your Booking <span class="text-danger">*</span></label>
+            <select id="bookingId" name="bookingId" class="broker-input"
+                    [(ngModel)]="newReview.bookingId" required>
+              <option value="0" disabled>-- Select a completed booking to review --</option>
+              <option *ngFor="let booking of userBookingsForThisListing" [value]="booking.id">
+                Booking #{{ booking.id }} - {{ booking.checkInDate | date:'shortDate' }} to {{ booking.checkOutDate | date:'shortDate' }}
+              </option>
+            </select>
+            <small class="text-muted">You can only review properties after your stay is completed</small>
+          </div>
+
           <!-- Rating Selection -->
           <div class="broker-rating-selector">
-            <label>Your Rating:</label>
+            <label>Your Rating: <span class="text-danger">*</span></label>
             <div class="broker-star-btns">
               <button type="button" class="broker-star-btn"
                       *ngFor="let star of [1,2,3,4,5]"
@@ -388,20 +401,34 @@
 
           <!-- Review Comment -->
           <div class="broker-form-group">
-            <label for="comment">Your Review</label>
+            <label for="comment">Your Review <span class="text-danger">*</span></label>
             <textarea id="comment" name="comment" class="broker-textarea"
                       placeholder="Share details of your experience at this property..."
-                      [(ngModel)]="newReview.comment" name="comment" rows="4"></textarea>
+                      [(ngModel)]="newReview.comment" name="comment" rows="4" required></textarea>
           </div>
 
           <!-- Submit Button -->
           <div class="broker-form-actions">
-            <button type="submit" class="btn-broker-primary">
+            <button type="submit" class="btn-broker-primary"
+                    [disabled]="newReview.bookingId === 0 || newReview.rating === 0 || !newReview.comment">
               <i class="bi bi-send-fill"></i>
               Submit Review
             </button>
           </div>
         </form>
+      </div>
+
+      <!-- No Booking Message -->
+      <div class="broker-no-booking-message" *ngIf="!canWriteReview && userBookings.length >= 0">
+        <div class="no-booking-content">
+          <i class="bi bi-calendar-x"></i>
+          <h4>Book this property to leave a review</h4>
+          <p>You need to complete a stay at this property before you can write a review.</p>
+          <button class="btn-broker-primary" [routerLink]="['/booking/create', listing.id]">
+            <i class="bi bi-calendar-check"></i>
+            Book Now
+          </button>
+        </div>
       </div>
 
       <!-- Reviews List -->
@@ -410,17 +437,20 @@
         <!-- Review Cards -->
         <div class="broker-review-cards">
           <div class="broker-review-card" *ngFor="let r of visibleReviews">
+
+            <!-- Review Header -->
             <div class="broker-review-header">
               <div class="broker-reviewer-info">
-                <div class="broker-reviewer-avatar">
-                  {{ r.guestId | slice:0:1 | uppercase }}
+                <div class="broker-reviewer-avatar" [style.background-image]="r.guestProfileImg ? 'url(' + r.guestProfileImg + ')' : 'none'">
+                  <span *ngIf="!r.guestProfileImg">{{ r.guestName | slice:0:1 | uppercase }}</span>
                 </div>
                 <div class="broker-reviewer-details">
                   <div class="broker-reviewer-name">
-                    {{ r.guestId }}
+                    {{ r.guestName || 'Anonymous Guest' }}
                   </div>
                   <div class="broker-review-date">
                     {{ r.createdAt | date:'mediumDate' }}
+                    <span *ngIf="r.updatedAt" class="text-muted small"> (edited)</span>
                   </div>
                 </div>
               </div>
@@ -435,8 +465,121 @@
                 </div>
               </div>
             </div>
+
+            <!-- Review Content -->
             <div class="broker-review-content">
-              <p class="broker-review-comment">{{ r.comment }}</p>
+              <!-- Edit Mode -->
+              <div *ngIf="editingReviewId === r.id" class="edit-review-form">
+                <div class="broker-rating-selector mb-3">
+                  <label>Rating:</label>
+                  <div class="broker-star-btns">
+                    <button type="button" class="broker-star-btn"
+                            *ngFor="let star of [1,2,3,4,5]"
+                            [class.active]="star <= editReviewData.rating"
+                            (click)="editReviewData.rating = star">
+                      <i [class]="star <= editReviewData.rating ? 'bi bi-star-fill' : 'bi bi-star'"></i>
+                    </button>
+                  </div>
+                </div>
+                <textarea class="broker-textarea mb-3" [(ngModel)]="editReviewData.comment" rows="4"></textarea>
+                <div class="btn-group">
+                  <button class="btn-broker-primary btn-sm" (click)="saveEditReview(r.id)">
+                    <i class="bi bi-check"></i> Save
+                  </button>
+                  <button class="btn-broker-outline btn-sm" (click)="cancelEditReview()">
+                    <i class="bi bi-x"></i> Cancel
+                  </button>
+                </div>
+              </div>
+
+              <!-- View Mode -->
+              <div *ngIf="editingReviewId !== r.id">
+                <p class="broker-review-comment">{{ r.comment }}</p>
+
+                <!-- Review Images -->
+                <div *ngIf="r.imageUrls && r.imageUrls.length > 0" class="review-images mt-3">
+                  <img *ngFor="let img of r.imageUrls" [src]="img" class="review-img" alt="Review image">
+                </div>
+
+                <!-- Host Reply -->
+                <div *ngIf="r.hostReply" class="host-reply mt-3">
+                  <div class="host-reply-header">
+                    <i class="bi bi-reply-fill"></i>
+                    <strong>Host Response</strong>
+                    <span class="text-muted small"> - {{ r.hostReplyDate | date:'mediumDate' }}</span>
+                  </div>
+                  <p class="host-reply-text">{{ r.hostReply }}</p>
+                </div>
+
+                <!-- Reply Form -->
+                <div *ngIf="replyingToReviewId === r.id" class="reply-form mt-3">
+                  <textarea class="broker-textarea mb-2" [(ngModel)]="hostReplyText" rows="3" placeholder="Write your response..."></textarea>
+                  <div class="btn-group">
+                    <button class="btn-broker-primary btn-sm" (click)="submitHostReply(r.id)">
+                      <i class="bi bi-send"></i> Reply
+                    </button>
+                    <button class="btn-broker-outline btn-sm" (click)="cancelReply()">
+                      <i class="bi bi-x"></i> Cancel
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Flag Form -->
+                <div *ngIf="flaggingReviewId === r.id" class="flag-form mt-3">
+                  <textarea class="broker-textarea mb-2" [(ngModel)]="flagReason" rows="2" placeholder="Reason for flagging..."></textarea>
+                  <div class="btn-group">
+                    <button class="btn-broker-warning btn-sm" (click)="submitFlag(r.id)">
+                      <i class="bi bi-flag-fill"></i> Submit Flag
+                    </button>
+                    <button class="btn-broker-outline btn-sm" (click)="cancelFlag()">
+                      <i class="bi bi-x"></i> Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Review Actions -->
+            <div class="broker-review-actions" *ngIf="editingReviewId !== r.id">
+              <!-- Helpful Votes -->
+              <div class="helpful-votes">
+                <button class="vote-btn" (click)="voteHelpful(r.id, true)" title="Helpful">
+                  <i class="bi bi-hand-thumbs-up"></i> {{ r.helpfulVotes }}
+                </button>
+                <button class="vote-btn" (click)="voteHelpful(r.id, false)" title="Not helpful">
+                  <i class="bi bi-hand-thumbs-down"></i> {{ r.notHelpfulVotes }}
+                </button>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="action-buttons">
+                <!-- Host Reply Button -->
+                <button *ngIf="!r.hostReply && canEdit && replyingToReviewId !== r.id"
+                        class="action-btn" (click)="startReply(r.id)">
+                  <i class="bi bi-reply"></i> Reply
+                </button>
+
+                <!-- Edit Button (for review owner) -->
+                <button class="action-btn" (click)="startEditReview(r)">
+                  <i class="bi bi-pencil"></i> Edit
+                </button>
+
+                <!-- Delete Button (for review owner or admin) -->
+                <button class="action-btn text-danger" (click)="deleteReview(r.id)">
+                  <i class="bi bi-trash"></i> Delete
+                </button>
+
+                <!-- Flag Button -->
+                <button *ngIf="flaggingReviewId !== r.id && !r.isFlagged"
+                        class="action-btn" (click)="startFlag(r.id)">
+                  <i class="bi bi-flag"></i> Flag
+                </button>
+
+                <!-- Flagged Indicator -->
+                <span *ngIf="r.isFlagged" class="flagged-badge">
+                  <i class="bi bi-flag-fill"></i> Flagged
+                </span>
+              </div>
             </div>
           </div>
         </div>

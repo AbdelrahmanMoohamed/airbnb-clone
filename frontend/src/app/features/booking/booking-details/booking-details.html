@@ -1,0 +1,192 @@
+<div class="booking-details-container">
+
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner-border text-danger" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p>Loading booking details...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-state">
+    <i class="bi bi-exclamation-triangle"></i>
+    <h3>{{ error }}</h3>
+    <button class="btn-broker-secondary" (click)="goBack()">
+      <i class="bi bi-arrow-left"></i>
+      Go Back
+    </button>
+  </div>
+
+  <!-- Booking Details -->
+  <div *ngIf="booking && !loading" class="booking-details-content">
+
+    <!-- Header -->
+    <div class="booking-header">
+      <div class="header-left">
+        <button class="btn-back" (click)="goBack()">
+          <i class="bi bi-arrow-left"></i>
+          Back to Bookings
+        </button>
+        <h1>Booking Details</h1>
+        <p class="booking-id">Booking #{{ booking.id }}</p>
+      </div>
+      <div class="header-right">
+        <button class="btn-print" (click)="printBooking()">
+          <i class="bi bi-printer"></i>
+          Print
+        </button>
+      </div>
+    </div>
+
+    <!-- Status Cards -->
+    <div class="status-cards">
+      <div class="status-card">
+        <div class="status-label">Booking Status</div>
+        <div class="status-value" [ngClass]="getStatusClass(booking.bookingStatus)">
+          <i class="bi bi-circle-fill"></i>
+          {{ booking.bookingStatus }}
+        </div>
+      </div>
+      <div class="status-card">
+        <div class="status-label">Payment Status</div>
+        <div class="status-value" [ngClass]="getPaymentStatusClass(booking.paymentStatus)">
+          <i class="bi bi-circle-fill"></i>
+          {{ booking.paymentStatus }}
+        </div>
+      </div>
+      <div class="status-card">
+        <div class="status-label">Total Amount</div>
+        <div class="status-value amount">
+          ${{ booking.totalPrice | number:'1.2-2' }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+
+      <!-- Property Information -->
+      <div class="info-card">
+        <div class="card-header">
+          <h2><i class="bi bi-house-door"></i> Property Information</h2>
+        </div>
+        <div class="card-body">
+          <div class="info-row">
+            <span class="label">Property Name:</span>
+            <span class="value">{{ booking.listingTitle }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Listing ID:</span>
+            <span class="value">#{{ booking.listingId }}</span>
+          </div>
+          <div class="info-row">
+            <a [routerLink]="['/host-listings/detail', booking.listingId]" class="btn-link">
+              <i class="bi bi-box-arrow-up-right"></i>
+              View Property Details
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stay Details -->
+      <div class="info-card">
+        <div class="card-header">
+          <h2><i class="bi bi-calendar-check"></i> Stay Details</h2>
+        </div>
+        <div class="card-body">
+          <div class="date-range">
+            <div class="date-item">
+              <div class="date-label">Check-in</div>
+              <div class="date-value">
+                <i class="bi bi-calendar-event"></i>
+                {{ booking.checkInDate | date:'fullDate' }}
+              </div>
+              <div class="date-time">{{ booking.checkInDate | date:'shortTime' }}</div>
+            </div>
+            <div class="date-separator">
+              <i class="bi bi-arrow-right"></i>
+            </div>
+            <div class="date-item">
+              <div class="date-label">Check-out</div>
+              <div class="date-value">
+                <i class="bi bi-calendar-event"></i>
+                {{ booking.checkOutDate | date:'fullDate' }}
+              </div>
+              <div class="date-time">{{ booking.checkOutDate | date:'shortTime' }}</div>
+            </div>
+          </div>
+          <div class="info-row nights">
+            <span class="label">Total Nights:</span>
+            <span class="value">{{ calculateNights() }} night{{ calculateNights() !== 1 ? 's' : '' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Booking Information -->
+      <div class="info-card">
+        <div class="card-header">
+          <h2><i class="bi bi-info-circle"></i> Booking Information</h2>
+        </div>
+        <div class="card-body">
+          <div class="info-row">
+            <span class="label">Booking Date:</span>
+            <span class="value">{{ booking.createdAt | date:'medium' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Guest ID:</span>
+            <span class="value">{{ booking.guestId }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Booking Status:</span>
+            <span class="value">
+              <span class="badge" [ngClass]="getStatusClass(booking.bookingStatus)">
+                {{ booking.bookingStatus }}
+              </span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Summary -->
+      <div class="info-card payment-card">
+        <div class="card-header">
+          <h2><i class="bi bi-credit-card"></i> Payment Summary</h2>
+        </div>
+        <div class="card-body">
+          <div class="payment-breakdown">
+            <div class="payment-row">
+              <span class="label">Subtotal ({{ calculateNights() }} nights):</span>
+              <span class="value">${{ booking.totalPrice | number:'1.2-2' }}</span>
+            </div>
+            <div class="payment-row total">
+              <span class="label">Total Amount:</span>
+              <span class="value">${{ booking.totalPrice | number:'1.2-2' }}</span>
+            </div>
+          </div>
+          <div class="payment-status-row">
+            <span class="label">Payment Status:</span>
+            <span class="badge" [ngClass]="getPaymentStatusClass(booking.paymentStatus)">
+              {{ booking.paymentStatus }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons" *ngIf="booking.bookingStatus === 'Pending' || booking.bookingStatus === 'Confirmed'">
+      <button class="btn-broker-secondary">
+        <i class="bi bi-telephone"></i>
+        Contact Support
+      </button>
+      <button class="btn-broker-danger">
+        <i class="bi bi-x-circle"></i>
+        Cancel Booking
+      </button>
+    </div>
+
+  </div>
+</div>

@@ -67,6 +67,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/booking/create-booking/create-booking').then(m => m.CreateBooking)
       },
       {
+        path: 'details/:id',
+        loadComponent: () => import('./features/booking/booking-details/booking-details').then(m => m.BookingDetails)
+      },
+      {
         path: 'my-bookings',
         loadComponent: () => import('./features/booking/my-bookings/my-bookings').then(m => m.MyBookings)
       },
@@ -75,6 +79,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/booking/host-bookings/host-bookings').then(m => m.HostBookings)
       }
     ]
+  },
+  // Redirect old bookings URLs to new format
+  {
+    path: 'bookings/:id',
+    canActivate: [AuthGuard],
+    loadComponent: () => import('./features/booking/booking-details/booking-details').then(m => m.BookingDetails)
   },
   {
   path: 'booking/payment/:bookingId',

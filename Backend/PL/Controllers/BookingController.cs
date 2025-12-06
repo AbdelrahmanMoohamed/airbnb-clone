@@ -48,6 +48,66 @@ namespace PL.Controllers
                     });
                 }
 
+                // Send booking confirmation email to guest
+                var fullBooking = await _uow.Bookings.GetByIdWithListingAndHostAsync(resp.result.Id);
+                if (fullBooking == null)
+                {
+                    _logger.LogError("Full booking entity not found for bookingId={BookingId}", resp.result.Id);
+                }
+                else
+                {
+                    // --- Guest confirmation email ---
+                    try
+                    {
+                        var confirmVM = _emailMappingService.ToBookingConfirmationVM(fullBooking);
+                        await _emailService.SendBookingConfirmationAsync(confirmVM);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed sending guest booking confirmation for bookingId={BookingId}", fullBooking.Id);
+                    }
+
+                    // --- Host notification email ---
+                    try
+                    {
+                        var hostVM = _emailMappingService.ToHostNewBookingVM(fullBooking);
+                        if (!string.IsNullOrWhiteSpace(hostVM.HostEmail) && hostVM.HostEmail != fullBooking.Guest.Email)
+                            await _emailService.SendHostNewBookingAsync(hostVM);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed sending host new booking email for bookingId={BookingId}", fullBooking.Id);
+                    }
+
+                    // --- Payment receipt email ---
+                    try
+                    {
+                        if (fullBooking.Payment != null)
+                        {
+                            var paymentVM = _emailMappingService.ToPaymentReceiptVM(fullBooking);
+                            await _emailService.SendPaymentReceiptAsync(paymentVM);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed sending payment receipt for bookingId={BookingId}", fullBooking.Id);
+                    }
+
+                    // --- Payout notification to host ---
+                    try
+                    {
+                        if (fullBooking.Payment != null && fullBooking.GuestId != fullBooking.Listing.UserId)
+                        {
+                            var payoutVM = _emailMappingService.ToPayoutNotificationVM(fullBooking);
+                            await _emailService.SendPayoutNotificationAsync(payoutVM);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed sending payout notification for bookingId={BookingId}", fullBooking.Id);
+                    }
+                }
+
                 return Ok(new
                 {
                     success = true,

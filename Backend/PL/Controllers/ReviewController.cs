@@ -63,5 +63,67 @@ namespace PL.Controllers
             var res = await _reviewService.GetAverageRatingAsync(listingId);
             return Ok(res);
         }
+
+        [HttpPost("{id:int}/reply")]
+        [Authorize(Roles = "Host,Admin")]
+        public async Task<IActionResult> AddHostReply(int id, [FromBody] AddHostReplyVM model)
+        {
+            var uid = GetUserIdFromClaims();
+            if (uid == null) return Unauthorized(BLL.ModelVM.Response.Response<ReviewVM>.FailResponse("Invalid or missing user identifier."));
+
+            var res = await _reviewService.AddHostReplyAsync(id, model, uid.Value);
+            if (res.IsHaveErrorOrNo) return BadRequest(res);
+            return Ok(res);
+        }
+
+        [HttpPost("{id:int}/images")]
+        [Authorize(Roles = "Guest,Admin")]
+        public async Task<IActionResult> AddImages(int id, [FromBody] AddReviewImagesVM model)
+        {
+            var uid = GetUserIdFromClaims();
+            if (uid == null) return Unauthorized(BLL.ModelVM.Response.Response<ReviewVM>.FailResponse("Invalid or missing user identifier."));
+
+            var res = await _reviewService.AddReviewImagesAsync(id, model, uid.Value);
+            if (res.IsHaveErrorOrNo) return BadRequest(res);
+            return Ok(res);
+        }
+
+        [HttpPost("{id:int}/vote")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Vote(int id, [FromQuery] bool helpful = true)
+        {
+            var res = await _reviewService.VoteHelpfulAsync(id, helpful);
+            if (res.IsHaveErrorOrNo) return BadRequest(res);
+            return Ok(res);
+        }
+
+        [HttpPost("{id:int}/flag")]
+        [Authorize]
+        public async Task<IActionResult> Flag(int id, [FromBody] FlagReviewVM model)
+        {
+            var uid = GetUserIdFromClaims();
+            if (uid == null) return Unauthorized(BLL.ModelVM.Response.Response<ReviewVM>.FailResponse("Invalid or missing user identifier."));
+
+            var res = await _reviewService.FlagReviewAsync(id, model, uid.Value);
+            if (res.IsHaveErrorOrNo) return BadRequest(res);
+            return Ok(res);
+        }
+
+        [HttpPost("{id:int}/unflag")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Unflag(int id)
+        {
+            var res = await _reviewService.UnflagReviewAsync(id);
+            if (res.IsHaveErrorOrNo) return BadRequest(res);
+            return Ok(res);
+        }
+
+        [HttpGet("flagged")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetFlagged()
+        {
+            var res = await _reviewService.GetFlaggedReviewsAsync();
+            return Ok(res);
+        }
     }
 }

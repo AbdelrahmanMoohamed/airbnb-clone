@@ -2266,6 +2266,7 @@ textarea.glass-input {
   color: var(--broker-black);
 }
 
+.broker-input,
 .broker-textarea {
   width: 100%;
   padding: 1rem;
@@ -2275,15 +2276,73 @@ textarea.glass-input {
   font-size: 1rem;
   color: var(--broker-black);
   transition: all 0.3s ease;
-  resize: vertical;
-  min-height: 120px;
   font-family: inherit;
 }
 
+.broker-input:focus,
 .broker-textarea:focus {
   outline: none;
   border-color: var(--broker-red);
   box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1);
+}
+
+.broker-textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.text-muted {
+  color: #666;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.text-danger {
+  color: #dc143c;
+  font-weight: 600;
+}
+
+/* No Booking Message */
+.broker-no-booking-message {
+  background: #f8f9fa;
+  border: 2px dashed #ddd;
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.no-booking-content {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.no-booking-content i {
+  font-size: 4rem;
+  color: #999;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.no-booking-content h4 {
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.no-booking-content p {
+  color: #666;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.no-booking-content .btn-broker-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .broker-form-actions {
@@ -2437,6 +2496,10 @@ textarea.glass-input {
   .broker-form-actions {
     justify-content: center;
   }
+
+  .broker-no-booking-message {
+    padding: 1.5rem;
+  }
 }
 
 @media (max-width: 576px) {
@@ -2472,3 +2535,174 @@ textarea.glass-input {
     font-size: 1.5rem;
   }
 }
+/* ===== ENHANCED REVIEW FEATURES ===== */
+
+/* Review Actions */
+.broker-review-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+  gap: 1rem;
+}
+
+.helpful-votes {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.vote-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.85rem;
+}
+
+.vote-btn:hover {
+  background: #f5f5f5;
+  border-color: #dc143c;
+  color: #dc143c;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  padding: 0.35rem 0.75rem;
+  border: none;
+  background: transparent;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.85rem;
+  border-radius: 4px;
+}
+
+.action-btn:hover {
+  background: #f5f5f5;
+  color: #dc143c;
+}
+
+.action-btn.text-danger:hover {
+  color: #ff4444;
+  background: #fee;
+}
+
+/* Host Reply */
+.host-reply {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-left: 3px solid #dc143c;
+  border-radius: 4px;
+}
+
+.host-reply-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.host-reply-text {
+  margin: 0;
+  color: #333;
+}
+
+/* Review Images */
+.review-images {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+
+.review-img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.review-img:hover {
+  transform: scale(1.05);
+}
+
+/* Flagged Badge */
+.flagged-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  background: #ff4444;
+  color: white;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Forms */
+.edit-review-form,
+.reply-form,
+.flag-form {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+}
+
+.btn-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-sm {
+  padding: 0.4rem 1rem;
+  font-size: 0.9rem;
+}
+
+.btn-broker-warning {
+  background: #ff9800;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-broker-warning:hover {
+  background: #f57c00;
+  transform: translateY(-2px);
+}
+
+/* Avatar with image */
+.broker-reviewer-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #dc143c 0%, #ff1744 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  background-size: cover;
+  background-position: center;
+}
+

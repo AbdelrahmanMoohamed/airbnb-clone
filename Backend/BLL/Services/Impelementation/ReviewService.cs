@@ -6,11 +6,13 @@ namespace BLL.Services.Impelementation
     {
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
+        private readonly INotificationService _notificationService;
 
-        public ReviewService(IUnitOfWork uow, IMapper mapper)
+        public ReviewService(IUnitOfWork uow, IMapper mapper, INotificationService notificationService)
         {
             _uow = uow;
             _mapper = mapper;
+            _notificationService = notificationService;
         }
 
         public async Task<Response<ReviewVM>> CreateReviewAsync(CreateReviewVM model, Guid userId)
@@ -39,6 +41,24 @@ namespace BLL.Services.Impelementation
                 // Adjust listing priority based on review rating
                 await _uow.Listings.AdjustPriorityByReviewRatingAsync(booking.ListingId, model.Rating);
                 await _uow.SaveChangesAsync();
+
+                // Send notification to host about new review
+                var listing = await _uow.Listings.GetByIdAsync(booking.ListingId);
+                if (listing != null)
+                {
+                    var guest = await _uow.Users.GetByIdAsync(userId);
+                    var guestName = guest?.FullName ?? "A guest";
+                    
+                    await _notificationService.CreateAsync(new BLL.ModelVM.Notification.CreateNotificationVM
+                    {
+                        UserId = listing.UserId,
+                        Title = "New Review Received!",
+                        Body = $"{guestName} left a {model.Rating}-star review for your listing '{listing.Title}'",
+                        Type = DAL.Enum.NotificationType.System,
+                        ActionUrl = $"/host/listings/{listing.Id}",
+                        ActionLabel = "View Review"
+                    });
+                }
 
                 var vm = _mapper.Map<ReviewVM>(entity);
                 return Response<ReviewVM>.SuccessResponse(vm);
@@ -121,7 +141,7 @@ namespace BLL.Services.Impelementation
         {
             try
             {
-                var list = await _uow.Reviews.GetReviewsByBookingAsync(listingId); // bookingId used - might need listing mapping
+                var list = await _uow.Reviews.GetReviewsByListingAsync(listingId);
                 var mapped = _mapper.Map<List<ReviewVM>>(list);
                 return Response<List<ReviewVM>>.SuccessResponse(mapped);
             }
@@ -158,6 +178,132 @@ namespace BLL.Services.Impelementation
             catch (Exception ex)
             {
                 return Response<double>.FailResponse(ex.Message);
+            }
+        }
+
+        public async Task<Response<ReviewVM>> AddHostReplyAsync(int id, AddHostReplyVM model, Guid hostId)
+        {
+            try
+            {
+                var review = await _uow.Reviews.GetByIdWithGuestAsync(id);
+                if (review == null) return Response<ReviewVM>.FailResponse("Review not found");
+
+                // Verify host owns the listing
+                var booking = await _uow.Bookings.GetByIdAsync(review.BookingId);
+                if (booking == null) return Response<ReviewVM>.FailResponse("Booking not found");
+                
+                var listing = await _uow.Listings.GetByIdAsync(booking.ListingId);
+                if (listing == null || listing.UserId != hostId)
+                    return Response<ReviewVM>.FailResponse("Only the host can reply to this review");
+
+                review.AddHostReply(model.Reply);
+                await _uow.Reviews.UpdateAsync(review);
+                await _uow.SaveChangesAsync();
+
+                var vm = _mapper.Map<ReviewVM>(review);
+                return Response<ReviewVM>.SuccessResponse(vm);
+            }
+            catch (Exception ex)
+            {
+                return Response<ReviewVM>.FailResponse(ex.Message);
+            }
+        }
+
+        public async Task<Response<ReviewVM>> AddReviewImagesAsync(int id, AddReviewImagesVM model, Guid userId)
+        {
+            try
+            {
+                var review = await _uow.Reviews.GetByIdWithGuestAsync(id);
+                if (review == null) return Response<ReviewVM>.FailResponse("Review not found");
+
+                // Verify user owns the review
+                if (review.GuestId != userId)
+                    return Response<ReviewVM>.FailResponse("Only the review owner can add images");
+
+                review.AddImages(model.ImageUrls);
+                await _uow.Reviews.UpdateAsync(review);
+                await _uow.SaveChangesAsync();
+
+                var vm = _mapper.Map<ReviewVM>(review);
+                return Response<ReviewVM>.SuccessResponse(vm);
+            }
+            catch (Exception ex)
+            {
+                return Response<ReviewVM>.FailResponse(ex.Message);
+            }
+        }
+
+        public async Task<Response<ReviewVM>> VoteHelpfulAsync(int id, bool isHelpful)
+        {
+            try
+            {
+                var review = await _uow.Reviews.GetByIdWithGuestAsync(id);
+                if (review == null) return Response<ReviewVM>.FailResponse("Review not found");
+
+                review.VoteHelpful(isHelpful);
+                await _uow.Reviews.UpdateAsync(review);
+                await _uow.SaveChangesAsync();
+
+                var vm = _mapper.Map<ReviewVM>(review);
+                return Response<ReviewVM>.SuccessResponse(vm);
+            }
+            catch (Exception ex)
+            {
+                return Response<ReviewVM>.FailResponse(ex.Message);
+            }
+        }
+
+        public async Task<Response<ReviewVM>> FlagReviewAsync(int id, FlagReviewVM model, Guid userId)
+        {
+            try
+            {
+                var review = await _uow.Reviews.GetByIdWithGuestAsync(id);
+                if (review == null) return Response<ReviewVM>.FailResponse("Review not found");
+
+                review.Flag(model.Reason);
+                await _uow.Reviews.UpdateAsync(review);
+                await _uow.SaveChangesAsync();
+
+                var vm = _mapper.Map<ReviewVM>(review);
+                return Response<ReviewVM>.SuccessResponse(vm);
+            }
+            catch (Exception ex)
+            {
+                return Response<ReviewVM>.FailResponse(ex.Message);
+            }
+        }
+
+        public async Task<Response<ReviewVM>> UnflagReviewAsync(int id)
+        {
+            try
+            {
+                var review = await _uow.Reviews.GetByIdWithGuestAsync(id);
+                if (review == null) return Response<ReviewVM>.FailResponse("Review not found");
+
+                review.Unflag();
+                await _uow.Reviews.UpdateAsync(review);
+                await _uow.SaveChangesAsync();
+
+                var vm = _mapper.Map<ReviewVM>(review);
+                return Response<ReviewVM>.SuccessResponse(vm);
+            }
+            catch (Exception ex)
+            {
+                return Response<ReviewVM>.FailResponse(ex.Message);
+            }
+        }
+
+        public async Task<Response<List<ReviewVM>>> GetFlaggedReviewsAsync()
+        {
+            try
+            {
+                var list = await _uow.Reviews.GetFlaggedReviewsAsync();
+                var mapped = _mapper.Map<List<ReviewVM>>(list);
+                return Response<List<ReviewVM>>.SuccessResponse(mapped);
+            }
+            catch (Exception ex)
+            {
+                return Response<List<ReviewVM>>.FailResponse(ex.Message);
             }
         }
     }

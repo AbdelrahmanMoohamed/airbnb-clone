@@ -18,6 +18,34 @@
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<Review>> GetReviewsByListingAsync(int listingId)
+        {
+            return await _context.Reviews
+                .Include(r => r.Booking)
+                .Include(r => r.Guest)
+                .Where(r => r.Booking != null && r.Booking.ListingId == listingId)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
+        }
+        
+        public async Task<Review?> GetByIdWithGuestAsync(int id)
+        {
+            return await _context.Reviews
+                .Include(r => r.Guest)
+                .Include(r => r.Booking)
+                .FirstOrDefaultAsync(r => r.Id == id);
+        }
+        
+        public async Task<IEnumerable<Review>> GetFlaggedReviewsAsync()
+        {
+            return await _context.Reviews
+                .Include(r => r.Guest)
+                .Include(r => r.Booking)
+                .Where(r => r.IsFlagged)
+                .OrderByDescending(r => r.FlaggedAt)
+                .ToListAsync();
+        }
+
         public async Task<Review> CreateAsync(int bookingId, Guid guestId, int rating, string comment, DateTime createdAt)
         {
             var entity = Review.Create(bookingId, guestId, rating, comment, createdAt);

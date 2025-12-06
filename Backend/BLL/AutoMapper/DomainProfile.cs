@@ -99,8 +99,13 @@ namespace BLL.AutoMapper
             CreateMap<Message, GetMessageVM>().ReverseMap();
             CreateMap<Message, CreateMessageVM>().ReverseMap();
             CreateMap<DAL.Dto.ConversationDto, ConversationVM>().ReverseMap();
+            
             // reviews
             CreateMap<DAL.Entities.Review, CreateReviewVM>().ReverseMap();
+            CreateMap<DAL.Entities.Review, ReviewVM>()
+                .ForMember(d => d.GuestName, opt => opt.MapFrom(s => s.Guest != null ? s.Guest.FullName : "Unknown Guest"))
+                .ForMember(d => d.GuestProfileImg, opt => opt.MapFrom(s => s.Guest != null ? s.Guest.ProfileImg : null));
+            
             // booking
             CreateMap<Booking, CreateBookingVM>().ReverseMap();
             // ## FaceId Mappings

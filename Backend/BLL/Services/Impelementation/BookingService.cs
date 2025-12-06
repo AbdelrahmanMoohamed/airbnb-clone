@@ -179,7 +179,7 @@ namespace BLL.Services.Impelementation
                     Title = "Booking Cancelled",
                     Body = "Your booking has been cancelled successfully.",
                     CreatedAt = DateTime.UtcNow,
-                    ActionUrl = "/booking",
+                    ActionUrl = "/booking/my-bookings",
                     ActionLabel = "View Bookings"
                 });
 
