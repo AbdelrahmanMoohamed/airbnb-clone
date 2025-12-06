@@ -29,3 +29,13 @@ export interface BookingsResponse {
   result?: GetBookingVM[];
   errorMessage?: string;
 }
+// Helper function to check if booking can be paid
+export function canRetryPayment(booking: GetBookingVM): boolean {
+  const bookingStatus = booking.bookingStatus?.toLowerCase();
+  const paymentStatus = booking.paymentStatus?.toLowerCase();
+  
+  return (
+    (bookingStatus === 'pending' || bookingStatus === 'confirmed') &&
+    (paymentStatus === 'pending' || paymentStatus === 'failed')
+  );
+}
