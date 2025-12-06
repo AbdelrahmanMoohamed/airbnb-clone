@@ -47,7 +47,7 @@ namespace BLL.Services.Impelementation
         {
             try
             {
-                await _adminRepo.GetUserByIdAsync(id);
+                 await _adminRepo.ToggleUserActiveStatusAsync(id);
                 await _uow.SaveChangesAsync();
                 return Response<bool>.SuccessResponse(true);
             }

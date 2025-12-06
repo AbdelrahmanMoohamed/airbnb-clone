@@ -51,7 +51,9 @@
             {{ booking.bookingStatus }}
           </span>
 
-          <span class="badge bg-info">
+          <span 
+            class="badge"
+            [ngClass]="getPaymentBadgeClass(booking.paymentStatus)">
             {{ booking.paymentStatus }}
           </span>
         </div>
@@ -78,24 +80,51 @@
             <strong>Listing:</strong>
             {{ booking.listingId }}
           </p>
+
+          <!-- Payment Warning for Failed/Pending Payments -->
+          <div *ngIf="canRetryPayment(booking)" class="alert alert-warning mt-3 mb-0">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <small>
+              <strong>Payment Required:</strong> 
+              Your booking is pending payment completion.
+            </small>
+          </div>
         </div>
 
         <!-- Footer -->
         <div class="card-footer bg-white">
-          <div class="d-flex gap-2">
+          <div class="d-flex gap-2 flex-wrap">
+            
+            <!-- Continue to Pay Button (Only for pending/failed payments) -->
             <button 
+              *ngIf="canRetryPayment(booking)"
+              class="btn btn-success btn-sm flex-fill"
+              (click)="continueToPayment(booking)"
+              [disabled]="isProcessing(booking.id)">
+              <i class="bi bi-credit-card me-1"></i>
+              {{ isProcessing(booking.id) ? 'Processing...' : 'Continue to Pay' }}
+            </button>
+
+            <!-- View Listing Button -->
+            <a 
+              [routerLink]="['/listings', booking.listingId]"
+              class="btn btn-outline-primary btn-sm"
+              [class.flex-fill]="!canRetryPayment(booking)">
+              <i class="bi bi-eye me-1"></i>
+              View Listing
+            </a>
+
+            <!-- Cancel Button (Only for non-cancelled bookings) -->
+            <button 
+              *ngIf="booking.bookingStatus.toLowerCase() !== 'cancelled'"
               class="btn btn-outline-danger btn-sm"
               (click)="cancelBooking(booking.id)"
               [disabled]="booking.bookingStatus === 'cancelled'">
+              <i class="bi bi-x-circle me-1"></i>
               Cancel
-            </button>
-
-            <button class="btn btn-outline-primary btn-sm">
-              View Details
             </button>
           </div>
         </div>
-
       </div>
     </div>
   </div>

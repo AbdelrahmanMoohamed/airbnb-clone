@@ -11,5 +11,7 @@ namespace DAL.Repo.Abstraction
         Task<int> CountUsersAsync();
         Task<int> CountListingsAsync();
         Task<int> CountBookingsAsync();
+        Task<bool> ToggleUserActiveStatusAsync(Guid id);
+
     }
 }

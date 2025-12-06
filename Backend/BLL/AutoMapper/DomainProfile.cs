@@ -1,4 +1,5 @@
 ﻿
+using BLL.ModelVM.FaceId;
 using BLL.ModelVM.LIstingVM;
 using BLL.ModelVM.Message;
 
@@ -102,6 +103,24 @@ namespace BLL.AutoMapper
             CreateMap<DAL.Entities.Review, CreateReviewVM>().ReverseMap();
             // booking
             CreateMap<Booking, CreateBookingVM>().ReverseMap();
+            // ## FaceId Mappings
+            // ----------------------------------------
+            CreateMap<RegisterFaceIdVM, FaceId>()
+                    .ForMember(dest => dest.Encoding,
+                        opt => opt.MapFrom(src => FaceId.DoubleArrayToBytes(src.Encoding)))
+                    .ForMember(dest => dest.UserId,
+                        opt => opt.MapFrom(src => src.UserId))
+                    .ForMember(dest => dest.CreatedBy,
+                        opt => opt.MapFrom(src => src.CreatedBy));
+
+            CreateMap<UpdateFaceIdVM, FaceId>()
+                .ForMember(dest => dest.Encoding,
+                    opt => opt.MapFrom(src => FaceId.DoubleArrayToBytes(src.Encoding)))
+                .ForMember(dest => dest.UserId,
+                    opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.UpdatedBy,
+                    opt => opt.MapFrom(src => src.UpdatedBy));
+            // ----------------------------------------
         }
 
 

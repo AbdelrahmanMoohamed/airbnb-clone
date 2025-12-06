@@ -204,9 +204,25 @@ export class AdminService {
   // Listings Management
   getAllListings(page: number = 1, pageSize: number = 10): Observable<Listing[]> {
     const params = { page: page.toString(), pageSize: pageSize.toString() };
-    return this.http.get<ApiResponse<Listing[]>>(`${this.baseUrl}/Listings/admin/all-listings`, { params })
+    return this.http.get<ApiResponse<any[]>>(`${this.baseUrl}/Listings/admin/all-listings`, { params })
       .pipe(
-        map(response => response.result || []),
+        map(response => (response.result || []).map(item => ({
+          id: item.id,
+          title: item.title,
+          location: item.location,
+          pricePerNight: item.pricePerNight ?? item.price ?? 0,
+          isApproved: item.isApproved ?? false,
+          isReviewed: item.isReviewed ?? false,
+          isPromoted: item.isPromoted ?? false,
+          promotionEndDate: item.promotionEndDate ?? null,
+          hostId: item.hostId ?? item.hostId,
+          hostName: item.hostName ?? item.hostName,
+          reviewsCount: item.reviewsCount ?? 0,
+          // determine status: rejected if reviewed but not approved
+          status: (item.isReviewed && !item.isApproved) ? 'rejected' : (item.isPromoted ? 'promoted' : (item.isApproved ? 'approved' : 'pending')),
+          description: item.description ?? '',
+          createdAt: item.createdAt ?? null
+        }) as Listing)),
         catchError(error => {
           console.error('Error fetching all listings:', error);
           return of([]);
@@ -233,7 +249,8 @@ export class AdminService {
           hostId: item.hostId ?? item.hostId,
           hostName: item.hostName ?? item.hostName,
           reviewsCount: item.reviewsCount ?? item.reviewsCount ?? 0,
-          status: item.status ?? (item.isPromoted ? 'promoted' : (item.isApproved ? 'approved' : 'pending')),
+          // status: rejected if reviewed and not approved
+          status: item.status ?? ((item.isReviewed && !item.isApproved) ? 'rejected' : (item.isPromoted ? 'promoted' : (item.isApproved ? 'approved' : 'pending'))),
           description: item.description ?? item.description ?? '',
           createdAt: item.createdAt ?? null
         }) as ListingAdmin)),
@@ -259,7 +276,7 @@ export class AdminService {
           hostId: item.hostId ?? null,
           hostName: item.hostName ?? item.hostName,
           reviewsCount: item.reviewsCount ?? 0,
-          status: item.status ?? 'pending',
+          status: item.status ?? ((item.isReviewed && !item.isApproved) ? 'rejected' : 'pending'),
           description: item.description ?? '',
           createdAt: item.createdAt ?? null
         }) as ListingAdmin)),

@@ -6,7 +6,7 @@ namespace PL.Controllers
     [Route("api/[controller]")]
     [ApiController]
     // Temporarily disable authorization for local testing. Re-enable in production.
-    // [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public class AdminController : BaseController
     {
         private readonly IAdminService _adminService;

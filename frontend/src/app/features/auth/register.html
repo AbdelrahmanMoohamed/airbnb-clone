@@ -16,116 +16,44 @@
     <!-- Form Section -->
     <div class="broker-auth-card">
       <h3 class="auth-card-title">{{ 'navbar.signUp' | translate }}</h3>
-
-      <!-- General Error Message -->
-      <div *ngIf="errorMessage" class="auth-error">
-        <i class="bi bi-exclamation-triangle"></i>
-        {{ errorMessage }}
-      </div>
-
-      <form (ngSubmit)="submit()" class="broker-auth-form" #registerForm="ngForm">
-        <!-- Full Name Field -->
-        <div class="input-group" [class.has-error]="fieldErrors['fullname']">
+      <form (ngSubmit)="submit()" class="broker-auth-form">
+        <div class="input-group">
           <i class="bi bi-person"></i>
-          <input
-            name="fullname"
-            [(ngModel)]="fullname"
-            (blur)="validateField('fullname', fullname)"
-            (input)="fieldErrors['fullname'] = ''"
-            placeholder="{{ 'auth.fullName' | translate }}"
-            class="broker-input"
-            [class.invalid]="fieldErrors['fullname']"
-            required />
+          <input name="fullname" [(ngModel)]="fullname" placeholder="{{ 'auth.fullName' | translate }}" class="broker-input" [disabled]="isLoading" />
         </div>
-        <div *ngIf="fieldErrors['fullname']" class="field-error">
-          <i class="bi bi-exclamation-circle"></i>
-          {{ fieldErrors['fullname'] }}
-        </div>
-
-        <!-- Username Field -->
-        <div class="input-group" [class.has-error]="fieldErrors['userName']">
+        <div class="input-group">
           <i class="bi bi-at"></i>
-          <input
-            name="userName"
-            [(ngModel)]="userName"
-            (blur)="validateField('userName', userName)"
-            (input)="fieldErrors['userName'] = ''"
-            placeholder="Username"
-            class="broker-input"
-            [class.invalid]="fieldErrors['userName']"
-            required />
+          <input name="userName" [(ngModel)]="userName" placeholder="Username" class="broker-input" [disabled]="isLoading" />
         </div>
-        <div *ngIf="fieldErrors['userName']" class="field-error">
-          <i class="bi bi-exclamation-circle"></i>
-          {{ fieldErrors['userName'] }}
-        </div>
-
-        <!-- Email Field -->
-        <div class="input-group" [class.has-error]="fieldErrors['email']">
+        <div class="input-group">
           <i class="bi bi-envelope"></i>
-          <input
-            name="email"
-            [(ngModel)]="email"
-            (blur)="validateField('email', email)"
-            (input)="fieldErrors['email'] = ''"
-            placeholder="{{ 'auth.email' | translate }}"
-            class="broker-input"
-            type="email"
-            [class.invalid]="fieldErrors['email']"
-            required />
+          <input name="email" [(ngModel)]="email" placeholder="{{ 'auth.email' | translate }}" class="broker-input" type="email" [disabled]="isLoading" />
         </div>
-        <div *ngIf="fieldErrors['email']" class="field-error">
-          <i class="bi bi-exclamation-circle"></i>
-          {{ fieldErrors['email'] }}
-        </div>
-
-        <!-- Password Field -->
-        <div class="input-group password-group" [class.has-error]="fieldErrors['password']">
+        <div class="input-group">
           <i class="bi bi-lock"></i>
-          <input
-            name="password"
-            [(ngModel)]="password"
-            (blur)="validateField('password', password)"
-            (input)="fieldErrors['password'] = ''"
-            [type]="showPassword ? 'text' : 'password'"
-            placeholder="{{ 'auth.password' | translate }}"
-            class="broker-input"
-            [class.invalid]="fieldErrors['password']"
-            required />
-          <button type="button" class="password-toggle" (click)="togglePasswordVisibility()">
-            <i [class]="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
-          </button>
+          <input name="password" [(ngModel)]="password" type="password" placeholder="{{ 'auth.password' | translate }}" class="broker-input" [disabled]="isLoading" />
         </div>
-        <div *ngIf="fieldErrors['password']" class="field-error">
-          <i class="bi bi-exclamation-circle"></i>
-          {{ fieldErrors['password'] }}
+        <div class="input-group">
+          <i class="bi bi-shield-check"></i>
+          <input name="confirmPassword" [(ngModel)]="confirmPassword" type="password" placeholder="{{ 'auth.confirmPassword' | translate }}" class="broker-input" [disabled]="isLoading" />
         </div>
 
-        <!-- Confirm Password Field -->
-        <div class="input-group password-group" [class.has-error]="fieldErrors['confirmPassword']">
-          <i class="bi bi-shield-check"></i>
-          <input
-            name="confirmPassword"
-            [(ngModel)]="confirmPassword"
-            (blur)="validateField('confirmPassword', confirmPassword)"
-            (input)="fieldErrors['confirmPassword'] = ''"
-            [type]="showConfirmPassword ? 'text' : 'password'"
-            placeholder="{{ 'auth.confirmPassword' | translate }}"
-            class="broker-input"
-            [class.invalid]="fieldErrors['confirmPassword']"
-            required />
-          <button type="button" class="password-toggle" (click)="toggleConfirmPasswordVisibility()">
-            <i [class]="showConfirmPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
-          </button>
+        <div *ngIf="errorMessage" class="auth-error">
+          <i class="bi bi-exclamation-triangle"></i>
+          {{ errorMessage }}
         </div>
-        <div *ngIf="fieldErrors['confirmPassword']" class="field-error">
-          <i class="bi bi-exclamation-circle"></i>
-          {{ fieldErrors['confirmPassword'] }}
+
+        <div *ngIf="successMessage" class="auth-success">
+          <i class="bi bi-check-circle"></i>
+          {{ successMessage }}
         </div>
 
         <button type="submit" class="btn-broker" [disabled]="isLoading">
-          <span *ngIf="isLoading" class="loading-spinner"></span>
-          {{ isLoading ? ('auth.creatingAccount' | translate) : ('navbar.signUp' | translate) }}
+          <span *ngIf="!isLoading">{{ 'navbar.signUp' | translate }}</span>
+          <span *ngIf="isLoading" class="button-loading">
+            <span class="spinner"></span>
+            {{ 'common.loading' | translate }}
+          </span>
         </button>
       </form>
       <div class="auth-links">
@@ -134,4 +62,47 @@
       </div>
     </div>
   </div>
+
+  <!-- Face Registration Suggestion Modal -->
+  <div class="face-registration-modal" *ngIf="showFaceRegistrationPrompt" (click)="skipFaceRegistration()">
+    <div class="face-registration-content" (click)="$event.stopPropagation()">
+      <div class="face-registration-header">
+        <h2>🔐 {{ 'faceRegistration.enhanceTitle' | translate }}</h2>
+        <button type="button" class="close-btn" (click)="skipFaceRegistration()">✕</button>
+      </div>
+      <div class="face-registration-body">
+        <div class="face-icon">📸</div>
+        <h3>{{ 'faceRegistration.registerTitle' | translate }}</h3>
+        <p>{{ 'faceRegistration.description' | translate }}</p>
+        <div class="benefits-list">
+          <div class="benefit-item">
+            <span class="benefit-icon">✓</span>
+            <span>{{ 'faceRegistration.benefit1' | translate }}</span>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-icon">✓</span>
+            <span>{{ 'faceRegistration.benefit2' | translate }}</span>
+          </div>
+          <div class="benefit-item">
+            <span class="benefit-icon">✓</span>
+            <span>{{ 'faceRegistration.benefit3' | translate }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="face-registration-footer">
+        <button type="button" class="btn-register-face" (click)="proceedWithFaceRegistration()">
+           {{ 'faceRegistration.registerBtn' | translate }}
+        </button>
+        <button type="button" class="btn-skip-face" (click)="skipFaceRegistration()">
+          {{ 'faceRegistration.skipBtn' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Face Capture Modal -->
+  <app-face-capture
+    (frameCapture)="onFaceCaptured($event)"
+    (cancel)="onFaceCaptureCancelled()">
+  </app-face-capture>
 </div>

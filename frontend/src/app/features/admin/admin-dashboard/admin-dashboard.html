@@ -8,13 +8,13 @@
         <div class="header-title">
           <div class="admin-icon">👑</div>
           <div>
-            <h1>Admin Dashboard</h1>
-            <p class="header-subtitle">Manage your platform with ease</p>
+            <h1>{{ 'admin.dashboard.title' | translate }}</h1>
+            <p class="header-subtitle">{{ 'admin.dashboard.subtitle' | translate }}</p>
           </div>
         </div>
         <div class="header-actions">
           <button (click)="loadStats()" class="glass-btn">
-            🔄 Refresh Data
+            🔄 {{ 'admin.dashboard.refreshData' | translate }}
           </button>
         </div>
       </div>
@@ -27,23 +27,23 @@
         [class.active]="activeTab === tab"
         (click)="onTabChange(tab)"
         class="nav-btn">
-        <span>{{ getTabLabel(tab) }}</span>
+        <span>{{ getTabLabel(tab) | translate }}</span>
       </button>
     </nav>
 
     <!-- Loading Spinner -->
     <div *ngIf="isLoading" class="loading-spinner glass-card">
       <div class="spinner"></div>
-      <p>Loading data...</p>
+      <p>{{ 'admin.dashboard.loading' | translate }}</p>
     </div>
 
     <!-- Error Message -->
     <div *ngIf="errorMessage" class="error-box glass-card">
       <div>
-        <strong>⚠️ Error:</strong>
+        <strong>⚠️ {{ 'common.error' | translate }}:</strong>
         <span>{{ errorMessage }}</span>
       </div>
-      <button (click)="errorMessage = null" class="close-btn">Dismiss</button>
+      <button (click)="errorMessage = null" class="close-btn">{{ 'admin.dashboard.dismiss' | translate }}</button>
     </div>
 
     <!-- Dashboard Overview Tab -->
@@ -52,82 +52,82 @@
         <div class="stat-card glass-card">
           <div class="stat-header">
             <div>
-              <h3>Total Guests</h3>
+              <h3>{{ 'admin.stats.totalGuests' | translate }}</h3>
             </div>
             <div class="stat-icon">👥</div>
           </div>
           <p class="stat-number">{{ stats.totalUsers }}</p>
           <p class="stat-subtitle">
             <span class="stat-trend up">↑ 12%</span>
-            Active users
+            {{ 'admin.stats.activeUsers' | translate }}
           </p>
         </div>
 
         <div class="stat-card glass-card">
           <div class="stat-header">
             <div>
-              <h3>Total Hosts</h3>
+              <h3>{{ 'admin.stats.totalHosts' | translate }}</h3>
             </div>
             <div class="stat-icon">🏠</div>
           </div>
           <p class="stat-number">{{ stats.totalHosts || stats.totalUsers }}</p>
-          <p class="stat-subtitle">
+            <p class="stat-subtitle">
             <span class="stat-trend up">↑ 8%</span>
-            Property owners
+            {{ 'admin.stats.propertyOwners' | translate }}
           </p>
         </div>
 
         <div class="stat-card glass-card">
           <div class="stat-header">
             <div>
-              <h3>Total Listings</h3>
+              <h3>{{ 'admin.stats.totalListings' | translate }}</h3>
             </div>
             <div class="stat-icon">🏢</div>
           </div>
           <p class="stat-number">{{ stats.totalListings }}</p>
-          <p class="stat-subtitle">
+            <p class="stat-subtitle">
             <span class="stat-trend up">↑ 15%</span>
-            Properties listed
+            {{ 'admin.stats.propertiesListed' | translate }}
           </p>
         </div>
 
         <div class="stat-card glass-card">
           <div class="stat-header">
             <div>
-              <h3>Total Bookings</h3>
+              <h3>{{ 'admin.stats.totalBookings' | translate }}</h3>
             </div>
             <div class="stat-icon">📅</div>
           </div>
           <p class="stat-number">{{ stats.totalBookings }}</p>
-          <p class="stat-subtitle">
+            <p class="stat-subtitle">
             <span class="stat-trend up">↑ 22%</span>
-            Reservations made
+            {{ 'admin.stats.reservationsMade' | translate }}
           </p>
         </div>
 
         <div class="stat-card glass-card">
           <div class="stat-header">
             <div>
-              <h3>Pending Approvals</h3>
+              <h3>{{ 'admin.stats.pendingApprovals' | translate }}</h3>
             </div>
             <div class="stat-icon">⏳</div>
           </div>
-          <p class="stat-number">{{ stats.pendingListingsCount || 0 }}</p>
-          <p class="stat-subtitle">
-            Awaiting review
+          <p class="stat-number">{{ stats.pendingListingsCount }}</p>
+            <p class="stat-subtitle">
+            {{ 'admin.stats.awaitingReview' | translate }}
           </p>
         </div>
 
         <div class="stat-card glass-card">
           <div class="stat-header">
             <div>
-              <h3>Active Promotions</h3>
+              <h3>{{ 'admin.stats.activePromotions' | translate }}</h3>
             </div>
             <div class="stat-icon">🎯</div>
           </div>
-          <p class="stat-number">{{ stats.activePromotionsCount || 0 }}</p>
-          <p class="stat-subtitle">
-            Currently running
+          <p class="stat-number">{{ stats.activePromotionsCount }}</p>
+            <p class="stat-subtitle">
+            {{ 'admin.stats.currentlyRunning' | translate }}
           </p>
         </div>
       </div>
@@ -140,36 +140,36 @@
       <div class="filter-section glass-card">
         <div class="filter-controls">
           <div class="filter-group">
-            <label>🔍 Search by Email or Name</label>
+            <label>🔍 {{ 'admin.guests.searchByEmail' | translate }}</label>
             <input 
               [(ngModel)]="userSearchQuery"
-              placeholder="Search guests..."
+              placeholder="{{ 'admin.guests.searchPlaceholder' | translate }}"
               class="form-input" 
               (keyup.enter)="searchUsers()" />
           </div>
           
           <div class="filter-group">
-            <label>👤 Filter by Role</label>
+            <label>👤 {{ 'admin.guests.filterByRole' | translate }}</label>
             <select [(ngModel)]="userRoleFilter" class="form-select">
-              <option value="">All Roles</option>
-              <option value="Guest">Guest</option>
-              <option value="Host">Host</option>
-              <option value="Admin">Admin</option>
+              <option value="">{{ 'admin.guests.allRoles' | translate }}</option>
+              <option value="Guest">{{ 'admin.guests.guest' | translate }}</option>
+              <option value="Host">{{ 'admin.guests.host' | translate }}</option>
+              <option value="Admin">{{ 'admin.guests.admin' | translate }}</option>
             </select>
           </div>
 
           <div class="filter-group">
-            <label>✅ Status</label>
+            <label>✅ {{ 'admin.guests.status' | translate }}</label>
             <select [(ngModel)]="userActiveFilter" class="form-select">
               <option [ngValue]="null">All</option>
-              <option [ngValue]="true">Active</option>
-              <option [ngValue]="false">Inactive</option>
+              <option [ngValue]="true">{{ 'admin.guests.active' | translate }}</option>
+              <option [ngValue]="false">{{ 'admin.guests.inactive' | translate }}</option>
             </select>
           </div>
 
           <div class="filter-group">
             <label>&nbsp;</label>
-            <button (click)="searchUsers()" class="glass-btn primary">Apply Filters</button>
+            <button (click)="searchUsers()" class="glass-btn primary">{{ 'admin.guests.applyFilters' | translate }}</button>
           </div>
         </div>
       </div>
@@ -179,14 +179,13 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Email</th>
-              <th>Full Name</th>
-              <th>Role</th>
-              <th>Bookings</th>
-              <th>Status</th>
-              <th>Joined</th>
-              <th>Actions</th>
+              <th>{{ 'admin.guests.id' | translate }}</th>
+              <th>{{ 'admin.guests.email' | translate }}</th>
+              <th>{{ 'admin.guests.fullName' | translate }}</th>
+              <th>{{ 'admin.guests.role' | translate }}</th>
+              <th>{{ 'admin.guests.bookings' | translate }}</th>
+              <th>{{ 'admin.guests.status' | translate }}</th>
+              <th>{{ 'admin.guests.actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -198,34 +197,40 @@
               <td>{{ user.bookingsCount || 0 }}</td>
               <td>
                 <span [class]="user.isActive ? 'status-active' : 'status-inactive'">
-                  {{ user.isActive ? '✓ Active' : '✗ Inactive' }}
+                  {{ user.isActive ? ('admin.guests.active' | translate) : ('admin.guests.inactive' | translate) }}
                 </span>
               </td>
-              <td>{{ user.createdAt | date:'short' }}</td>
+              <!-- <td>{{ user.createdAt | date:'short' }}</td> -->
               <td>
                 <button 
                   *ngIf="user.isActive"
                   (click)="deactivateUser(user.id)"
                   class="glass-btn btn-danger btn-sm">
-                  Deactivate
+                  {{ 'admin.guests.deactivate' | translate }}
+                </button>
+                <button 
+                  *ngIf="!user.isActive"
+                  (click)="deactivateUser(user.id)"
+                  class="glass-btn btn-success btn-sm">
+                  {{ 'admin.guests.activate' | translate }}
                 </button>
               </td>
             </tr>
           </tbody>
         </table>
         <div *ngIf="users.length === 0" class="empty-message">
-          No users found matching your criteria
+          {{ 'admin.guests.noUsers' | translate }}
         </div>
       </div>
 
       <!-- Pagination -->
       <div class="pagination glass-card">
         <button (click)="previousPage('users')" [disabled]="usersPage === 1" class="glass-btn">
-          ← Previous
+          ← {{ 'admin.pagination.previous' | translate }}
         </button>
-        <span>Page {{ usersPage }}</span>
+        <span>{{ 'admin.guests.page' | translate }} {{ usersPage }}</span>
         <button (click)="nextPage('users')" [disabled]="users.length < usersPageSize" class="glass-btn">
-          Next →
+          {{ 'admin.pagination.next' | translate }} →
         </button>
       </div>
     </div>
@@ -237,19 +242,19 @@
       <div class="filter-section glass-card">
         <div class="filter-controls">
           <div class="filter-group">
-            <label>🏷️ Filter by Status</label>
+            <label>🏷️ {{ 'admin.listings.filterByStatus' | translate }}</label>
             <select [(ngModel)]="listingStatusFilter" class="form-select">
-              <option value="">All Statuses</option>
-              <option value="approved">Approved</option>
-              <option value="pending">Pending</option>
-              <option value="rejected">Rejected</option>
-              <option value="promoted">Promoted</option>
+              <option value="">{{ 'admin.listings.allStatuses' | translate }}</option>
+              <option value="approved">{{ 'admin.listings.approved' | translate }}</option>
+              <option value="pending">{{ 'admin.listings.pending' | translate }}</option>
+              <option value="rejected">{{ 'admin.listings.rejected' | translate }}</option>
+              <option value="promoted">{{ 'admin.listings.promoted' | translate }}</option>
             </select>
           </div>
 
           <div class="filter-group">
             <label>&nbsp;</label>
-            <button (click)="filterListings()" class="glass-btn primary">Apply Filter</button>
+            <button (click)="filterListings()" class="glass-btn primary">{{ 'admin.listings.applyFilter' | translate }}</button>
           </div>
         </div>
       </div>
@@ -259,15 +264,15 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Title</th>
-              <th>Location</th>
-              <th>Price/Night</th>
-              <th>Host</th>
-              <th>Status</th>
-              <th>Promotion</th>
-              <th>Reviews</th>
-              <th>Actions</th>
+              <th>{{ 'admin.listings.id' | translate }}</th>
+              <th>{{ 'admin.listings.title' | translate }}</th>
+              <th>{{ 'admin.listings.location' | translate }}</th>
+              <th>{{ 'admin.listings.pricePerNight' | translate }}</th>
+              <th>{{ 'admin.listings.host' | translate }}</th>
+              <th>{{ 'admin.listings.status' | translate }}</th>
+              <th>{{ 'admin.listings.promotion' | translate }}</th>
+              <th>{{ 'admin.listings.reviews' | translate }}</th>
+              <th>{{ 'admin.listings.actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -284,84 +289,101 @@
                   'status-rejected': listing.status === 'rejected',
                   'status-promoted': listing.status === 'promoted'
                 }">
-                  {{ listing.status || 'Unknown' }}
+                  {{ ('admin.listings.' + (listing.status || 'unknown')) | translate }}
                 </span>
               </td>
               <td>
                 <span *ngIf="listing.isPromoted && listing.promotionEndDate" class="promotion-badge">
-                  🎯 Until {{ listing.promotionEndDate | date:'short' }}
+                  🎯 {{ 'admin.listings.until' | translate }} {{ listing.promotionEndDate | date:'short' }}
                 </span>
                 <span *ngIf="!listing.isPromoted" class="text-muted">—</span>
               </td>
               <td>⭐ {{ listing.reviewsCount || 0 }}</td>
               <td class="actions-cell">
                 <div class="action-buttons">
-                  <button 
-                    *ngIf="listing.status === 'pending'"
-                    (click)="approveListing(listing.id)"
-                    class="glass-btn btn-success btn-xs">
-                    ✓ Approve
-                  </button>
-                  <button 
-                    *ngIf="listing.status === 'pending'"
-                    (click)="rejectListing(listing.id)"
-                    class="glass-btn btn-danger btn-xs">
-                    ✗ Reject
-                  </button>
-                  <button 
-                    *ngIf="listing.status === 'approved' && !listing.isPromoted"
-                    (click)="promoteListing(listing.id)"
-                    class="glass-btn btn-info btn-xs">
-                    📈 Promote
-                  </button>
-                  <button 
-                    *ngIf="listing.isPromoted"
-                    (click)="unpromoteListing(listing.id)"
-                    class="glass-btn btn-warning btn-xs">
-                    Stop Promo
-                  </button>
-                  <button 
-                    *ngIf="listing.isPromoted"
-                    (click)="extendPromotion(listing.id)"
-                    class="glass-btn btn-info btn-xs">
-                    🔄 Extend
-                  </button>
+                <button 
+                  *ngIf="listing.status === 'pending'"
+                  (click)="approveListing(listing.id)"
+                  class="glass-btn btn-success btn-xs">
+                  ✓ {{ 'admin.listings.approve' | translate }}
+                </button>
+                <button 
+                  *ngIf="listing.status === 'pending'"
+                  (click)="rejectListing(listing.id)"
+                  class="glass-btn btn-danger btn-xs">
+                  ✗ {{ 'admin.listings.reject' | translate }}
+                </button>
+
+                <!-- Show Reject for already approved listings -->
+                <button
+                  *ngIf="listing.status === 'approved'"
+                  (click)="rejectListing(listing.id)"
+                  class="glass-btn btn-danger btn-xs">
+                  ✗ {{ 'admin.listings.reject' | translate }}
+                </button>
+
+                <!-- Show Approve for rejected listings -->
+                <button
+                  *ngIf="listing.status === 'rejected'"
+                  (click)="approveListing(listing.id)"
+                  class="glass-btn btn-success btn-xs">
+                  ✓ {{ 'admin.listings.approve' | translate }}
+                </button>
+
+                <button 
+                  *ngIf="listing.status === 'approved' && !listing.isPromoted"
+                  (click)="promoteListing(listing.id)"
+                  class="glass-btn btn-info btn-xs">
+                  📈 {{ 'admin.listings.promote' | translate }}
+                </button>
+                <button 
+                  *ngIf="listing.isPromoted"
+                  (click)="unpromoteListing(listing.id)"
+                  class="glass-btn btn-warning btn-xs">
+                  {{ 'admin.listings.stopPromo' | translate }}
+                </button>
+                <button 
+                  *ngIf="listing.isPromoted"
+                  (click)="extendPromotion(listing.id)"
+                  class="glass-btn btn-info btn-xs">
+                  🔄 {{ 'admin.listings.extend' | translate }}
+                </button>
                 </div>
               </td>
             </tr>
           </tbody>
         </table>
         <div *ngIf="listings.length === 0" class="empty-message">
-          No listings found matching your criteria
+          {{ 'admin.listings.noListings' | translate }}
         </div>
       </div>
 
       <!-- Pagination -->
       <div class="pagination glass-card">
         <button (click)="previousPage('listings')" [disabled]="listingsPage === 1" class="glass-btn">
-          ← Previous
+          ← {{ 'admin.pagination.previous' | translate }}
         </button>
-        <span>Page {{ listingsPage }}</span>
+        <span>{{ 'admin.listings.page' | translate }} {{ listingsPage }}</span>
         <button (click)="nextPage('listings')" [disabled]="listings.length < listingsPageSize" class="glass-btn">
-          Next →
+          {{ 'admin.pagination.next' | translate }} →
         </button>
       </div>
     </div>
 
     <!-- Pending Listings Tab -->
     <div *ngIf="activeTab === 'listings-pending' && !isLoading" class="tab-content">
-      <h2>📋 Listings Pending Approval</h2>
+      <h2>📋 {{ 'admin.listings.pendingApproval' | translate }}</h2>
       <div class="table-container glass-card">
         <table class="data-table">
           <thead>
-            <tr>
-              <th>ID</th>
-              <th>Title</th>
-              <th>Location</th>
-              <th>Price/Night</th>
-              <th>Host</th>
-              <th>Submitted</th>
-              <th>Actions</th>
+              <tr>
+              <th>{{ 'admin.listings.id' | translate }}</th>
+              <th>{{ 'admin.listings.title' | translate }}</th>
+              <th>{{ 'admin.listings.location' | translate }}</th>
+              <th>{{ 'admin.listings.pricePerNight' | translate }}</th>
+              <th>{{ 'admin.listings.host' | translate }}</th>
+              <th>{{ 'admin.listings.submitted' | translate }}</th>
+              <th>{{ 'admin.listings.actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -374,37 +396,37 @@
               <td>{{ listing.createdAt | date:'short' }}</td>
               <td class="actions-cell">
                 <button (click)="approveListing(listing.id)" class="glass-btn btn-success btn-xs">
-                  ✓ Approve
+                  ✓ {{ 'admin.listings.approve' | translate }}
                 </button>
                 <button (click)="rejectListing(listing.id)" class="glass-btn btn-danger btn-xs">
-                  ✗ Reject
+                  ✗ {{ 'admin.listings.reject' | translate }}
                 </button>
               </td>
             </tr>
           </tbody>
         </table>
         <div *ngIf="pendingListings.length === 0" class="empty-message">
-          No pending listings
+          {{ 'admin.listings.noListings' | translate }}
         </div>
       </div>
     </div>
 
     <!-- Bookings Tab -->
     <div *ngIf="activeTab === 'bookings' && !isLoading" class="tab-content">
-      <h2>📅 Bookings Management</h2>
+      <h2>📅 {{ 'admin.bookings.title' | translate }}</h2>
       <div class="table-container glass-card">
         <table class="data-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Listing</th>
-              <th>Guest</th>
-              <th>Host</th>
-              <th>Check-in</th>
-              <th>Check-out</th>
-              <th>Total Price</th>
-              <th>Status</th>
-              <th>Payment</th>
+              <th>{{ 'admin.bookings.id' | translate }}</th>
+              <th>{{ 'admin.bookings.listing' | translate }}</th>
+              <th>{{ 'admin.bookings.guest' | translate }}</th>
+              <th>{{ 'admin.bookings.host' | translate }}</th>
+              <th>{{ 'admin.bookings.checkIn' | translate }}</th>
+              <th>{{ 'admin.bookings.checkOut' | translate }}</th>
+              <th>{{ 'admin.bookings.totalPrice' | translate }}</th>
+              <th>{{ 'admin.bookings.status' | translate }}</th>
+              <th>{{ 'admin.bookings.payment' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -422,7 +444,7 @@
                   'status-pending': booking.bookingStatus === 'pending',
                   'status-cancelled': booking.bookingStatus === 'cancelled'
                 }">
-                  {{ booking.bookingStatus || '—' }}
+                  {{ translateBookingStatus(booking.bookingStatus) }}
                 </span>
               </td>
               <td>
@@ -431,41 +453,41 @@
                   'status-pending': booking.paymentStatus === 'pending',
                   'status-failed': booking.paymentStatus === 'failed'
                 }">
-                  {{ booking.paymentStatus || '—' }}
+                  {{ translateBookingStatus(booking.paymentStatus) }}
                 </span>
               </td>
             </tr>
           </tbody>
         </table>
         <div *ngIf="bookings.length === 0" class="empty-message">
-          No bookings found
+          {{ 'admin.bookings.noBookings' | translate }}
         </div>
       </div>
 
       <!-- Pagination -->
       <div class="pagination glass-card">
         <button (click)="previousPage('bookings')" [disabled]="bookingsPage === 1" class="glass-btn">
-          ← Previous
+          ← {{ 'admin.pagination.previous' | translate }}
         </button>
-        <span>Page {{ bookingsPage }}</span>
+        <span>{{ 'admin.bookings.page' | translate }} {{ bookingsPage }}</span>
         <button (click)="nextPage('bookings')" [disabled]="bookings.length < bookingsPageSize" class="glass-btn">
-          Next →
+          {{ 'admin.pagination.next' | translate }} →
         </button>
       </div>
     </div>
 
     <!-- Revenue Tab -->
     <div *ngIf="activeTab === 'revenue' && !isLoading" class="tab-content">
-      <h2>💰 Revenue Analytics</h2>
+      <h2>💰 {{ 'admin.revenue.title' | translate }}</h2>
       
       <!-- Revenue Summary -->
       <div class="revenue-summary glass-card">
         <div class="revenue-card">
-          <h3>Total Revenue ({{ revenueMonths }} months)</h3>
+          <h3>{{ 'admin.revenue.totalRevenue' | translate }} ({{ revenueMonths }} {{ 'admin.revenue.months' | translate }})</h3>
           <p class="revenue-number">{{ getTotalRevenue() | number:'1.0-2' }} EGP</p>
         </div>
         <div class="revenue-card">
-          <h3>Average Monthly</h3>
+          <h3>{{ 'admin.revenue.averageMonthly' | translate }}</h3>
           <p class="revenue-number">{{ (getTotalRevenue() / revenueMonths) | number:'1.0-2' }} EGP</p>
         </div>
       </div>
@@ -475,10 +497,10 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th>Month</th>
-              <th>Total Revenue</th>
-              <th>Transactions</th>
-              <th>Average/Transaction</th>
+              <th>{{ 'admin.revenue.month' | translate }}</th>
+              <th>{{ 'admin.revenue.totalRevenue' | translate }}</th>
+              <th>{{ 'admin.revenue.transactions' | translate }}</th>
+              <th>{{ 'admin.revenue.averagePerTransaction' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -491,28 +513,28 @@
           </tbody>
         </table>
         <div *ngIf="revenueData.length === 0" class="empty-message">
-          No revenue data available
+          {{ 'admin.revenue.noData' | translate }}
         </div>
       </div>
     </div>
 
     <!-- Promotions Tab -->
     <div *ngIf="activeTab === 'promotions' && !isLoading" class="tab-content">
-      <h2>🎯 Promotions Management</h2>
+      <h2>🎯 {{ 'admin.promotions.title' | translate }}</h2>
 
       <!-- Active Promotions Section -->
       <div class="promotion-section">
-        <h3>🔴 Active Promotions ({{ activePromotions.length }})</h3>
+        <h3>🔴 {{ 'admin.promotions.active' | translate }} ({{ activePromotions.length }})</h3>
         <div class="table-container glass-card">
           <table class="data-table">
             <thead>
               <tr>
-                <th>Listing</th>
-                <th>Host</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Days Remaining</th>
-                <th>Actions</th>
+                <th>{{ 'admin.promotions.listing' | translate }}</th>
+                <th>{{ 'admin.promotions.host' | translate }}</th>
+                <th>{{ 'admin.promotions.startDate' | translate }}</th>
+                <th>{{ 'admin.promotions.endDate' | translate }}</th>
+                <th>{{ 'admin.promotions.daysRemaining' | translate }}</th>
+                <th>{{ 'admin.promotions.actions' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -523,26 +545,26 @@
                 <td>{{ promo.endDate | date:'short' }}</td>
                 <td>
                   <span [class]="getDaysRemainingClass(promo.endDate)">
-                    {{ getDaysRemaining(promo.endDate) }} days
+                    {{ getDaysRemaining(promo.endDate) }} {{ 'admin.promotions.days' | translate }}
                   </span>
                 </td>
                 <td>
                   <button (click)="extendPromotion(promo.listingId)" class="glass-btn btn-info btn-xs">
-                    🔄 Extend
+                    🔄 {{ 'admin.promotions.extend' | translate }}
                   </button>
                 </td>
               </tr>
             </tbody>
           </table>
           <div *ngIf="activePromotions.length === 0" class="empty-message">
-            No active promotions
+            {{ 'admin.promotions.noActive' | translate }}
           </div>
         </div>
       </div>
 
       <!-- Expiring Soon Section -->
       <div class="promotion-section">
-        <h3>⚠️ Expiring Soon (Next 7 Days) - {{ expiringPromotions.length }}</h3>
+        <h3>⚠️ {{ 'admin.promotions.expiringSoon' | translate }} - {{ expiringPromotions.length }}</h3>
         <div class="table-container glass-card">
           <table class="data-table">
             <thead>
@@ -560,27 +582,27 @@
                 <td>{{ promo.hostName }}</td>
                 <td>
                   <span class="expiry-warning">
-                    {{ getDaysRemaining(promo.endDate) }} days
+                    {{ getDaysRemaining(promo.endDate) }} {{ 'admin.promotions.days' | translate }}
                   </span>
                 </td>
                 <td>{{ promo.endDate | date:'short' }}</td>
                 <td>
                   <button (click)="extendPromotion(promo.listingId)" class="glass-btn btn-info btn-xs">
-                    🔄 Extend
+                    🔄 {{ 'admin.promotions.extend' | translate }}
                   </button>
                 </td>
               </tr>
             </tbody>
           </table>
           <div *ngIf="expiringPromotions.length === 0" class="empty-message">
-            No promotions expiring soon
+            {{ 'admin.promotions.noExpiring' | translate }}
           </div>
         </div>
       </div>
 
       <!-- Promotion History Section -->
       <div class="promotion-section">
-        <h3>📋 Promotion History</h3>
+        <h3>📋 {{ 'admin.promotions.history' | translate }}</h3>
         <div class="table-container glass-card">
           <table class="data-table">
             <thead>
@@ -598,16 +620,15 @@
                 <td>{{ promo.hostName }}</td>
                 <td>{{ promo.startDate | date:'short' }}</td>
                 <td>{{ promo.endDate | date:'short' }}</td>
-                <td>{{ getDaysBetween(promo.startDate, promo.endDate) }} days</td>
+                <td>{{ getDaysBetween(promo.startDate, promo.endDate) }} {{ 'admin.promotions.days' | translate }}</td>
               </tr>
             </tbody>
           </table>
           <div *ngIf="promotionHistory.length === 0" class="empty-message">
-            No promotion history
+            {{ 'admin.promotions.noHistory' | translate }}
           </div>
         </div>
       </div>
     </div>
-
   </div>
 </div>

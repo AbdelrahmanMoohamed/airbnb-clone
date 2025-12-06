@@ -48,7 +48,7 @@ export class BookingService extends BaseService {
         } as BookingResponse;
       }),
       catchError(error => {
-        console.error('❌ GetById error:', error);
+        console.error('? GetById error:', error);
         return of({
           success: false,
           result: null,

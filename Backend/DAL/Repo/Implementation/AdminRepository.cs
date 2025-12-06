@@ -14,5 +14,17 @@ namespace DAL.Repo.Implementation
         public async Task<int> CountUsersAsync() => await _context.Users.CountAsync();
         public async Task<int> CountListingsAsync() => await _context.Listings.CountAsync();
         public async Task<int> CountBookingsAsync() => await _context.Bookings.CountAsync();
+        public async Task<bool> ToggleUserActiveStatusAsync(Guid id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+                return false;
+
+            user.SetActive(!user.IsActive); // Use the entity method to toggle
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
     }
 }

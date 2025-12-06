@@ -22,15 +22,16 @@ namespace PL.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateBookingVM model)
         {
-            var userId = GetUserIdFromClaims();
-
             try
             {
+                var userId = GetUserIdFromClaims();
+
                 _logger?.LogInformation(
-                    "Booking Create request received. userId={UserId}, listingId={ListingId}",
-                    userId?.ToString() ?? "<null>", model?.ListingId);
+                    "Booking Create request. userId={UserId}, listingId={ListingId}, checkIn={CheckIn}, checkOut={CheckOut}",
+                    userId?.ToString() ?? "<null>", model?.ListingId, model?.CheckInDate, model?.CheckOutDate);
 
                 if (userId == null)
                     return Unauthorized(new { success = false, errorMessage = "Unauthorized" });
@@ -47,7 +48,6 @@ namespace PL.Controllers
                     });
                 }
 
-                // ? Return consistent wrapped response
                 return Ok(new
                 {
                     success = true,
@@ -67,63 +67,127 @@ namespace PL.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetById(int id)
         {
-            var userId = GetUserIdFromClaims();
-            if (userId == null)
-                return Unauthorized(new { success = false, errorMessage = "Unauthorized" });
-
-            var resp = await _bookingService.GetByIdAsync(userId.Value, id);
-
-            if (!resp.Success)
+            try
             {
-                return BadRequest(new
+                var userId = GetUserIdFromClaims();
+                if (userId == null)
+                    return Unauthorized(new { success = false, errorMessage = "Unauthorized" });
+
+                var resp = await _bookingService.GetByIdAsync(userId.Value, id);
+
+                if (!resp.Success)
                 {
-                    success = false,
-                    errorMessage = resp.errorMessage
+                    return BadRequest(new
+                    {
+                        success = false,
+                        errorMessage = resp.errorMessage
+                    });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    result = resp.result,
+                    errorMessage = (string?)null
                 });
             }
-
-            // ? Return consistent wrapped response
-            return Ok(new
+            catch (Exception ex)
             {
-                success = true,
-                result = resp.result,
-                errorMessage = (string?)null
-            });
+                _logger?.LogError(ex, "GetById error for booking {BookingId}", id);
+                return StatusCode(500, new
+                {
+                    success = false,
+                    errorMessage = "Failed to load booking"
+                });
+            }
         }
 
         [HttpPost("{id}/cancel")]
+        [Authorize]
         public async Task<IActionResult> Cancel(int id)
         {
-            var userId = GetUserIdFromClaims();
-            if (userId == null) return Unauthorized();
+            try
+            {
+                var userId = GetUserIdFromClaims();
+                if (userId == null)
+                    return Unauthorized(new { success = false, errorMessage = "Unauthorized" });
 
-            var resp = await _bookingService.CancelBookingAsync(userId.Value, id);
-            if (!resp.Success) return BadRequest(resp.errorMessage);
-            return Ok(resp.result);
+                var resp = await _bookingService.CancelBookingAsync(userId.Value, id);
+
+                if (!resp.Success)
+                    return BadRequest(new { success = false, errorMessage = resp.errorMessage });
+
+                // Send cancellation email
+                try
+                {
+                    var fullBooking = await _uow.Bookings.GetByIdWithListingAndHostAsync(id);
+                    if (fullBooking != null)
+                    {
+                        var cancelVM = _emailMappingService.ToCancellationVM(fullBooking, cancelledByHost: false);
+                        await _emailService.SendCancellationEmailAsync(cancelVM);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed sending cancellation email for booking {BookingId}", id);
+                }
+
+                return Ok(new { success = true, result = resp.result, errorMessage = (string?)null });
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Cancel booking error for {BookingId}", id);
+                return StatusCode(500, new
+                {
+                    success = false,
+                    errorMessage = "Failed to cancel booking"
+                });
+            }
         }
 
         [HttpGet("me")]
+        [Authorize]
         public async Task<IActionResult> MyBookings()
         {
-            var userId = GetUserIdFromClaims();
-            if (userId == null) return Unauthorized();
+            try
+            {
+                var userId = GetUserIdFromClaims();
+                if (userId == null) return Unauthorized();
 
-            var resp = await _bookingService.GetBookingsByUserAsync(userId.Value);
-            if (!resp.Success) return BadRequest(resp.errorMessage);
-            return Ok(resp.result);
+                var resp = await _bookingService.GetBookingsByUserAsync(userId.Value);
+                if (!resp.Success) return BadRequest(resp.errorMessage);
+
+                return Ok(new { success = true, result = resp.result });
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "MyBookings error");
+                return StatusCode(500, new { success = false, errorMessage = "Failed to load bookings" });
+            }
         }
 
         [HttpGet("host/me")]
+        [Authorize]
         public async Task<IActionResult> HostBookings()
         {
-            var userId = GetUserIdFromClaims();
-            if (userId == null) return Unauthorized();
+            try
+            {
+                var userId = GetUserIdFromClaims();
+                if (userId == null) return Unauthorized();
 
-            var resp = await _bookingService.GetBookingsByHostAsync(userId.Value);
-            if (!resp.Success) return BadRequest(resp.errorMessage);
-            return Ok(resp.result);
+                var resp = await _bookingService.GetBookingsByHostAsync(userId.Value);
+                if (!resp.Success) return BadRequest(resp.errorMessage);
+
+                return Ok(new { success = true, result = resp.result });
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "HostBookings error");
+                return StatusCode(500, new { success = false, errorMessage = "Failed to load bookings" });
+            }
         }
     }
 }

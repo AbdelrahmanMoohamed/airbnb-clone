@@ -73,20 +73,111 @@
   color: white !important;
 }
 
+/* Payment Status Badges */
+.bg-success {
+  background: #2e7d32 !important;
+}
+
+.bg-warning {
+  background: #f9a825 !important;
+}
+
+.bg-danger {
+  background: #c62828 !important;
+}
+
+.bg-info {
+  background: #0288d1 !important;
+}
+
+.bg-secondary {
+  background: #757575 !important;
+}
+
+/* Payment Warning Alert */
+.alert-warning {
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 1rem;
+  margin-bottom: 0;
+}
+
+.alert-warning i {
+  color: #f9a825;
+}
+
+.alert-warning small {
+  color: #856404;
+  line-height: 1.5;
+}
+
 /* Buttons */
 .btn-sm {
   font-weight: 500;
   border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.2s ease;
 }
 
+/* Continue to Pay Button */
+.btn-success {
+  background: linear-gradient(135deg, #2e7d32, #1b5e20);
+  border: none;
+  color: white;
+  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.3);
+}
+
+.btn-success:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1b5e20, #0d3d17);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.4);
+}
+
+.btn-success:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* View Listing Button */
+.btn-outline-primary {
+  border-color: #1976d2;
+  color: #1976d2;
+}
+
+.btn-outline-primary:hover {
+  background-color: #1976d2;
+  border-color: #1976d2;
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* Cancel Button */
 .btn-outline-danger {
   border-color: #c62828;
   color: #c62828;
 }
 
-.btn-outline-danger:hover {
+.btn-outline-danger:hover:not(:disabled) {
   background-color: #c62828;
   color: white;
+  transform: translateY(-1px);
+}
+
+.btn-outline-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Button Flex Fill */
+.flex-fill {
+  flex: 1 1 auto;
 }
 
 /* Empty State */
@@ -104,7 +195,56 @@
 @media (max-width: 768px) {
   .mybookings-header {
     flex-direction: column;
-    text-align: center;
     gap: 1rem;
+    text-align: center;
   }
+
+  .card-footer .d-flex {
+    flex-direction: column !important;
+  }
+
+  .card-footer .btn-sm {
+    width: 100%;
+  }
+}
+
+/* Loading Spinner */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  border-width: 0.3em;
+}
+
+/* Card Body Spacing */
+.card-body p {
+  margin-bottom: 0.75rem;
+}
+
+.card-body p:last-of-type {
+  margin-bottom: 0;
+}
+
+/* Card Title */
+.card-title {
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 1rem;
+}
+
+/* Card Footer */
+.card-footer {
+  padding: 12px 16px;
+  border-radius: 0 0 14px 14px !important;
+  background: white;
+  border-top: 1px solid #e8e8e8;
+}
+
+/* Gap Utilities */
+.gap-2 {
+  gap: 0.5rem !important;
+}
+
+/* Flex Wrap */
+.flex-wrap {
+  flex-wrap: wrap;
 }

@@ -144,6 +144,7 @@ namespace BLL.Services.Impelementation
         {
             try
             {
+            try { _logger?.LogInformation("CreateStripePaymentIntentAsync requested by {UserId} for booking {BookingId}, amount {Amount}", userId, model.BookingId, model.Amount); } catch {}
                 var booking = await _uow.Bookings.GetByIdAsync(model.BookingId);
                 if (booking == null)
                     return Response<CreatePaymentIntentVm>.FailResponse("Booking not found");
@@ -225,10 +226,12 @@ namespace BLL.Services.Impelementation
             }
             catch (StripeException ex)
             {
+                try { _logger?.LogWarning("Stripe error creating intent: {Message}", ex.Message); } catch {}
                 return Response<CreatePaymentIntentVm>.FailResponse($"Stripe error: {ex.Message}");
             }
             catch (Exception ex)
             {
+                try { _logger?.LogError(ex, "CreateStripePaymentIntentAsync general error"); } catch {}
                 return Response<CreatePaymentIntentVm>.FailResponse(ex.Message);
             }
         }

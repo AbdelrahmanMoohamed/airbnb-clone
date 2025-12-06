@@ -99,6 +99,40 @@ namespace DAL.Migrations
                     b.ToTable("Bookings");
                 });
 
+            modelBuilder.Entity("DAL.Entities.FaceId", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("Encoding")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("FaceIds");
+                });
+
             modelBuilder.Entity("DAL.Entities.Favorite", b =>
                 {
                     b.Property<int>("Id")
@@ -809,6 +843,17 @@ namespace DAL.Migrations
                     b.Navigation("Listing");
                 });
 
+            modelBuilder.Entity("DAL.Entities.FaceId", b =>
+                {
+                    b.HasOne("DAL.Entities.User", "User")
+                        .WithMany("FaceIds")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("DAL.Entities.Favorite", b =>
                 {
                     b.HasOne("DAL.Entities.Listing", "Listing")
@@ -995,6 +1040,8 @@ namespace DAL.Migrations
             modelBuilder.Entity("DAL.Entities.User", b =>
                 {
                     b.Navigation("Bookings");
+
+                    b.Navigation("FaceIds");
 
                     b.Navigation("Favorites");
 

@@ -1,3 +1,4 @@
+// stripe-payment.component.ts - Fixed: Only show success when DB confirms payment
 import { Component, inject, OnDestroy, OnInit, NgZone } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PaymentService } from '../../../core/services/payment/payment-service';
@@ -5,7 +6,9 @@ import { BookingStoreService } from '../../../core/services/Booking/booking-stor
 import { BookingService } from '../../../core/services/Booking/booking-service';
 import { CreateStripePaymentVM } from '../../../core/models/payment';
 import { CommonModule } from '@angular/common';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, interval } from 'rxjs';
+import { take } from 'rxjs/operators';
+import Swal from 'sweetalert2';
 
 declare var Stripe: any;
 
@@ -42,13 +45,12 @@ export class StripePayment implements OnInit, OnDestroy {
   intentCreationFailed = false;
   intentCreationInProgress = false;
   bookingLoaded = false;
-  
+
   private stripePublishableKey = 'pk_test_51QcFrYAIOvv3gPwPsSer0XmyVWEEuWMzHUX6faseM6I99rQOVdqGpklBAtfUdACpZUXYBv4z1sOb1GQSgqv8Ck1200RQCnRXYc';
 
   ngOnInit(): void {
-
     this.bookingId = Number(
-      this.route.snapshot.paramMap.get('bookingId') ?? 
+      this.route.snapshot.paramMap.get('bookingId') ??
       this.route.snapshot.paramMap.get('id')
     );
 
@@ -60,7 +62,6 @@ export class StripePayment implements OnInit, OnDestroy {
 
     this.loadBookingData();
     this.loadStripeScript(() => {
-      // Initialize Stripe after DOM is ready
       setTimeout(() => {
         this.initializeStripe();
       }, 500);
@@ -89,7 +90,6 @@ export class StripePayment implements OnInit, OnDestroy {
       return;
     }
 
-    // Check if Stripe is already loaded
     if (typeof Stripe !== 'undefined') {
       this.stripeScriptLoaded = true;
       callback();
@@ -112,19 +112,15 @@ export class StripePayment implements OnInit, OnDestroy {
 
   private initializeStripe(): void {
     try {
-      // Check if Stripe is available
       if (typeof Stripe === 'undefined') {
         console.error('Stripe not loaded');
         this.errorMessage = 'Payment system not loaded. Please refresh.';
         return;
       }
 
-      // Check if card element exists in DOM
       const cardElement = document.getElementById('card-element');
       if (!cardElement) {
         console.error('Card element not found in DOM');
-        this.errorMessage = 'Payment form not ready. Please wait...';
-        // Retry after a delay
         setTimeout(() => {
           this.initializeStripe();
         }, 500);
@@ -133,8 +129,7 @@ export class StripePayment implements OnInit, OnDestroy {
 
       this.stripe = Stripe(this.stripePublishableKey);
       this.elements = this.stripe.elements();
-      
-      // Create card element with styling
+
       this.card = this.elements.create('card', {
         style: {
           base: {
@@ -152,14 +147,12 @@ export class StripePayment implements OnInit, OnDestroy {
         }
       });
 
-      // card element
       this.card.mount('#card-element');
 
-      // clear error message on successful 
       this.ngZone.run(() => {
         this.errorMessage = '';
       });
-      // Listen for card errors
+
       this.card.on('change', (event: any) => {
         this.ngZone.run(() => {
           if (event.error) {
@@ -216,8 +209,31 @@ export class StripePayment implements OnInit, OnDestroy {
     }
   }
 
-  pay(): void {
+  /**
+   */
+  private async verifyPaymentInDatabase(maxAttempts: number = 3): Promise<boolean> {
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
+      try {
+        const booking = await this.bookingService.getById(this.bookingId).toPromise();
+        if (booking?.success && booking?.result) {
+          const paymentStatus = booking.result.paymentStatus?.toLowerCase();
+          const bookingStatus = booking.result.bookingStatus?.toLowerCase();
+
+          // Check if payment is confirmed in DB
+          if (paymentStatus === 'paid' && bookingStatus === 'confirmed') {
+            return true;
+          }
+        }
+      } catch (error) {
+      }
+    }
+    return false;
+  }
+
+  async pay(): Promise<void> {
+    // Validation checks
     if (!this.bookingLoaded) {
       this.errorMessage = 'Booking data not loaded. Please wait...';
       return;
@@ -228,9 +244,13 @@ export class StripePayment implements OnInit, OnDestroy {
       return;
     }
 
-    //  Check if card is ready
     if (!this.card) {
       this.errorMessage = 'Payment form not ready. Please wait or refresh the page.';
+      return;
+    }
+
+    if (!this.stripe) {
+      this.errorMessage = 'Payment system not initialized. Please refresh the page.';
       return;
     }
 
@@ -239,6 +259,8 @@ export class StripePayment implements OnInit, OnDestroy {
 
     const doConfirm = async (clientSecret: string) => {
       try {
+        console.log('💳 Starting Stripe payment confirmation...');
+
         const { paymentIntent, error } = await this.stripe.confirmCardPayment(clientSecret, {
           payment_method: { card: this.card }
         });
@@ -247,38 +269,105 @@ export class StripePayment implements OnInit, OnDestroy {
           this.ngZone.run(() => {
             this.errorMessage = error.message || 'Payment failed.';
             this.isLoading.next(false);
+
+            Swal.fire({
+              icon: 'error',
+              title: 'Payment Failed',
+              text: error.message || 'Your payment could not be processed. Please try again.',
+              confirmButtonColor: '#c62828'
+            });
+          });
+          return;
+        }
+        if (paymentIntent?.status !== 'succeeded') {
+          this.ngZone.run(() => {
+            this.errorMessage = 'Payment was not successful. Please try again.';
+            this.isLoading.next(false);
+
+            Swal.fire({
+              icon: 'warning',
+              title: 'Payment Incomplete',
+              text: 'Your payment was not completed. Please try again.',
+              confirmButtonColor: '#f9a825'
+            });
           });
           return;
         }
 
-        if (paymentIntent?.status === 'succeeded') {          
+        console.log('✅ Stripe confirmed payment success');
+        this.ngZone.run(() => {
+          Swal.fire({
+            title: 'Verifying Payment...',
+            html: 'Please wait while we confirm your payment in our system.',
+            allowOutsideClick: false,
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+        });
+
+        const isVerified = await this.verifyPaymentInDatabase(3);
+        if (!isVerified) {
           this.ngZone.run(() => {
-            this.successMessage = 'Payment successful! Redirecting...';
-            this.bookingStore.updateBookingStatus(this.bookingId, 'confirmed');
-            this.bookingStore.setPaymentIntent(null, null);
+            this.isLoading.next(false);
+
+            Swal.fire({
+              icon: 'error',
+              title: 'Payment Was Not Verified',
+              html: `
+        We received your payment information, but your booking was NOT confirmed.<br><br>
+        This usually happens when the Stripe webhook is not running.<br><br>
+        <strong>Please try again after starting Stripe Webhook or contact support.</strong>
+      `,
+              confirmButtonColor: '#c62828'
+            });
+          });
+
+          return;
+        }
+
+        this.ngZone.run(() => {
+          this.successMessage = 'Payment successful! Redirecting...';
+          this.bookingStore.updateBookingStatus(this.bookingId, 'confirmed');
+          this.bookingStore.setPaymentIntent(null, null);
+          this.isLoading.next(false);
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Payment Successful!',
+            text: 'Your booking has been confirmed.',
+            confirmButtonColor: '#28a745',
+            timer: 2500,
+            showConfirmButton: true
           });
 
           setTimeout(() => {
-            this.ngZone.run(() => {
-              this.router.navigate(['/booking/my-bookings']);
-            });
-          }, 1500);
-        }
+            this.router.navigate(['/booking/my-bookings']);
+          }, 2500);
+        });
 
-        this.isLoading.next(false);
       } catch (err) {
         this.ngZone.run(() => {
           this.errorMessage = 'Payment processing failed. Please try again.';
           this.isLoading.next(false);
+
+          Swal.fire({
+            icon: 'error',
+            title: 'Processing Error',
+            text: 'An error occurred while processing your payment.',
+            confirmButtonColor: '#c62828'
+          });
         });
       }
     };
 
+    // Use existing client secret if available
     if (this.existingClientSecret) {
-      doConfirm(this.existingClientSecret);
+      await doConfirm(this.existingClientSecret);
       return;
     }
 
+    // Create new payment intent
     const payload: CreateStripePaymentVM = {
       bookingId: this.bookingId,
       amount: this.amount,
@@ -287,10 +376,17 @@ export class StripePayment implements OnInit, OnDestroy {
     };
 
     this.paymentService.createStripeIntent(payload).subscribe({
-      next: (resp) => {
+      next: async (resp) => {
         if (!resp.success || !resp.result) {
           this.errorMessage = resp.errorMessage || 'Failed to create payment intent.';
           this.isLoading.next(false);
+
+          Swal.fire({
+            icon: 'error',
+            title: 'Payment Setup Failed',
+            text: resp.errorMessage || 'Could not set up payment. Please try again.',
+            confirmButtonColor: '#c62828'
+          });
           return;
         }
 
@@ -299,11 +395,18 @@ export class StripePayment implements OnInit, OnDestroy {
           resp.result.paymentIntentId
         );
 
-        doConfirm(resp.result.clientSecret);
+        await doConfirm(resp.result.clientSecret);
       },
       error: (err) => {
         this.errorMessage = 'Unable to process payment. Please try again.';
         this.isLoading.next(false);
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Payment Error',
+          text: 'Unable to process your payment. Please try again or contact support.',
+          confirmButtonColor: '#c62828'
+        });
       }
     });
   }

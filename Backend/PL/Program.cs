@@ -2,6 +2,8 @@ using Hangfire;
 using Hangfire.SqlServer;
 using PL.Background_Jobs;
 
+using Microsoft.Extensions.FileProviders;
+
 namespace PL
 {
     public class Program
@@ -143,29 +145,41 @@ namespace PL
                 });
             }
 
-            // Google auth (optional)
-            var googleId = builder.Configuration["Authentication:Google:ClientId"];
-            var googleSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-            if (!string.IsNullOrWhiteSpace(googleId) && !string.IsNullOrWhiteSpace(googleSecret))
+            // Firebase Admin SDK initialization
+            try
             {
-                authBuilder.AddGoogle(opts =>
+                var firebaseConfig = builder.Configuration.GetSection("Firebase");
+                var serviceAccount = firebaseConfig.GetSection("ServiceAccount");
+
+                var credentialsJson = System.Text.Json.JsonSerializer.Serialize(new
                 {
-                    opts.ClientId = googleId;
-                    opts.ClientSecret = googleSecret;
+                    type = serviceAccount["type"],
+                    project_id = serviceAccount["project_id"],
+                    private_key_id = serviceAccount["private_key_id"],
+                    private_key = serviceAccount["private_key"],
+                    client_email = serviceAccount["client_email"],
+                    client_id = serviceAccount["client_id"],
+                    auth_uri = serviceAccount["auth_uri"],
+                    token_uri = serviceAccount["token_uri"],
+                    auth_provider_x509_cert_url = serviceAccount["auth_provider_x509_cert_url"],
+                    client_x509_cert_url = serviceAccount["client_x509_cert_url"]
                 });
+
+                FirebaseApp.Create(new AppOptions
+                {
+                    Credential = GoogleCredential.FromJson(credentialsJson),
+                    ProjectId = firebaseConfig["ProjectId"]
+                });
+
+                Console.WriteLine("Firebase Admin SDK initialized successfully!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Firebase initialization failed: {ex.Message}");
             }
 
-            // Facebook auth (optional)
-            var fbId = builder.Configuration["Authentication:Facebook:AppId"];
-            var fbSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
-            if (!string.IsNullOrWhiteSpace(fbId) && !string.IsNullOrWhiteSpace(fbSecret))
-            {
-                authBuilder.AddFacebook(opts =>
-                {
-                    opts.AppId = fbId;
-                    opts.AppSecret = fbSecret;
-                });
-            }
+            // Email reminder related service
+            builder.Services.AddHostedService<BookingReminderService>();
 
             // --------------------------------------------------------------------
             // DAL/BLL registrations
@@ -218,6 +232,10 @@ namespace PL
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            var modelPath = builder.Configuration["FaceModelsPath"];
+            builder.Services.AddSingleton(provider =>
+                FaceRecognitionDotNet.FaceRecognition.Create(modelPath));
+
             var app = builder.Build();
 
             // --------------------------------------------------------------------
@@ -243,6 +261,14 @@ namespace PL
 
             app.UseAuthentication();
             app.UseAuthorization();
+            // This tells .NET: "If a request comes in starting with /Files, 
+            // look inside the physical 'Files' folder in the project root."
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                    Path.Combine(builder.Environment.ContentRootPath, "Files")),
+                RequestPath = "/Files"
+            });
 
             // Hangfire Dashboard
             app.UseHangfireDashboard("/hangfire");

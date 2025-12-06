@@ -33,6 +33,12 @@
         <li class="left nav-item">
           <a class="nav-link" routerLink="contact" routerLinkActive="active">{{ 'common.contact' | translate }}</a>
         </li>
+            <!-- My Bookings - Only for authenticated users -->
+        <!-- <li class="left nav-item" *ngIf="isAuthenticated">
+          <a class="nav-link" routerLink="/booking/my-bookings" routerLinkActive="active">
+            {{ 'navbar.myBookings' | translate }}
+          </a>
+        </li>  -->
       </ul>
 
       <!-- RIGHT NAV -->
